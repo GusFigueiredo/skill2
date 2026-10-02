@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/Enemy.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/Level1.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/Boitata.gd" id="4"]
 [sub_resource type="RectangleShape2D" id="body"]
 size = Vector2(24, 12)
 [sub_resource type="RectangleShape2D" id="attack"]
@@ -117,7 +118,7 @@ offset_bottom = -60.0
 show_percentage = false
 [node name="Boss" type="CharacterBody2D" parent="."]
 position = Vector2(3300, 455)
-script = ExtResource("2")
+script = ExtResource("4")
 max_hp = 6
 is_boss = true
 [node name="Sprite" type="ColorRect" parent="Boss"]

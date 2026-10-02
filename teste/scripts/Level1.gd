@@ -82,7 +82,7 @@ func _update_hud() -> void:
     elif wave_index == 1:
         hint = "5. PROFUNDIDADE: use W/S para alinhar ataques e escapar das faixas amarelas."
     else:
-        hint = "6. BOITATA: saia da faixa amarela ou role no momento do golpe. Ataque durante a recuperacao!"
+        hint = "6. BOITATA: brilho anuncia investida! Saia da faixa ou role; ataque na recuperacao. Cuidado com mordida e cauda!"
     $HUD/TutorialLabel.text = hint
     $HUD/BossHealth.visible = wave_index == 2 and is_instance_valid(boss)
     if is_instance_valid(boss):

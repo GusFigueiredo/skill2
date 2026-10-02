@@ -71,7 +71,7 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 	elif telegraphed_attacks and attack_cooldown_timer <= 0.0 and absf(offset.x) < 110.0 and absf(offset.y) < 24.0:
 		attack_pending = true
-		attack_timer = 0.72 if is_boss else 0.65
+		attack_timer = 0.67 if is_boss else 0.65
 		attack_direction = direction
 		velocity = Vector2.ZERO
 	move_and_slide()
@@ -110,6 +110,6 @@ func _attack_rect() -> Rect2:
 func _release_attack() -> void:
 	attack_pending = false
 	recovery_timer = 0.55 if is_boss else 0.4
-	attack_cooldown_timer = 1.44 if is_boss else 2.2
+	attack_cooldown_timer = 1.20 if is_boss else 2.2
 	if _attack_rect().grow(6).has_point(player.global_position - global_position):
 		player.take_damage(attack_damage)
