@@ -13,6 +13,8 @@
 
 - God of War: Sons of Sparta — referência de combate, escala narrativa e presença dramática do protagonista.
 - Hades — referência de ritmo de repetição, progressão por tentativa e sensação de melhoria constante.
+- TMNT cl?ssicos e Teenage Mutant Ninja Turtles: Shredder?s Revenge ? inspira??o para pancadaria de rolagem lateral (beat ?em up), posicionamento em profundidade e encontros com grupos de inimigos.
+- Dark Souls ? refer?ncia para a precis?o da rolada curta e sua invulnerabilidade tempor?ria.
 - Plataforma / formato confirmado: 2D lateral, com câmera lateral para facilitar a leitura dos inimigos e dos padrões de ataque.
 
 ## Próximos passos
@@ -20,3 +22,7 @@
 - Solicitar justificativa curta do aluno.
 - Confirmar papel do jogador e tom do jogo.
 - Definir o primeiro incremento jogável mínimo a partir do combate em 2D lateral.
+
+## Dire??o confirmada em 2026-10-02
+
+O prot?tipo adota o formato beat ?em up: avan?o lateral por uma arena com profundidade, encontros consecutivos e chefe final. Mant?m ataque, pulo, persegui??o dos inimigos, rolada que atravessa inimigos e dano por contato com cooldown.

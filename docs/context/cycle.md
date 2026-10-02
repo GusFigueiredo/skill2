@@ -15,3 +15,7 @@
   - O personagem apenas toma dano quando um inimigo realmente encosta nele, com intervalo mínimo de 0,5s entre golpes.
 
 <!-- Atualize este arquivo conforme a sessão avança. -->
+
+- incremento-beat-em-up: Implementado movimento em profundidade, pulo no Espa?o, c?mera lateral, encontros progressivos e vit?ria ao derrotar Boitata; valida??o automatizada e playtest manual pendente.
+
+- tutorial-guiado: Implementadas instru??es contextuais, primeiro encontro sequencial, golpes anunciados, janelas de recupera??o e HUD de cooldowns; dura??o alvo de 3?5 minutos depende de playtest manual.
