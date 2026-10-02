@@ -27,11 +27,12 @@ position = Vector2(45, 0)
 [node name="AttackShape" type="CollisionShape2D" parent="Player/AttackArea"]
 shape = SubResource("attack")
 [node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(180, -70)
+position = Vector2(120, -50)
+zoom = Vector2(1.8, 1.8)
 limit_left = 0
-limit_top = 0
+limit_top = 180
 limit_right = 3800
-limit_bottom = 720
+limit_bottom = 580
 position_smoothing_enabled = true
 position_smoothing_speed = 7.0
 [node name="Enemy1" type="CharacterBody2D" parent="."]

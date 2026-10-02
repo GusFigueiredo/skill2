@@ -7,8 +7,8 @@ Descrever o menor incremento jogável que demonstra a proposta do jogo.
 
 - Nome do incremento: Protótipo de Combate Mínimo
 - Escopo mínimo: Cena única com jogador controlável (movimento, pulo), ataque corpo a corpo simples, um inimigo que recebe dano, e mecânica de rolada (dash/evade) com cooldown
-- Estrutura da fase tutorial: o jogador avança para a direita em uma sequência linear, elimina inimigos em onda e conclui o trecho com uma boss fight contra a Boitata.
-- Justificativa: essa estrutura reproduz o ritmo de beat ’em up lateral e cria o primeiro teste de progressão, combate e leitura de padrões em um espaço de fase curto.
+- Estrutura do primeiro trecho: o jogador aprende os controles e o combate avançando pela cidade perdida de Ratanaba. Na campanha planejada, a Boitatá é enfrentada na fase 2, como boss tutorial; essa luta não faz parte da fase 1.
+- Justificativa: o incremento testa o ritmo de beat ’em up lateral, progressão, combate e leitura de padrões sem exigir a implementação da campanha completa.
 - Papel do jogador: Jogador controla um homem cujo objetivo é derrotar criaturas folclóricas (confirmado)
 - Tom do jogo: Sério
 
@@ -41,20 +41,24 @@ Descrever o menor incremento jogável que demonstra a proposta do jogo.
 		- Quando o jogador pressiona `Shift (esquerdo)`,
 		- Então o jogador realiza uma rolada curta (dash) e fica imune a danos durante a duração, e não pode rolard novamente até o cooldown terminar.
 
-- R-004 Fase tutorial com progressão lateral e boss final (Prioridade: Alta, Status: PROPOSTO)
-	- Descrição: A fase tutorial do jogo acompanha o avanço para a direita, com inimigos em sequência e encontro final contra a Boitata.
-	- Origem: Decisão do aluno — a primeira fase precisa ensinar o combate e fechar com um boss tutorial para introduzir a mecânica de confronto final.
+
+- R-004 Fase tutorial com progressão lateral (Prioridade: Alta, Status: PROPOSTO)
+	- Descrição: A primeira fase acompanha o avanço pela cidade perdida de Ratanaba e ensina os controles e mecânicas básicas por meio de encontros com inimigos.
+	- Origem: Decisão do aluno — a primeira fase ensina o combate; a boss fight tutorial contra a Boitatá acontece na segunda fase.
 	- Critério de aceitação:
 		- Dado que a fase tutorial está ativa,
-		- Quando o jogador avança para a direita e elimina os inimigos em sequência,
-		- Então o caminho se abre para o encontro com a Boitata.
-		- Dado que a Boitata foi ativada como boss final da fase,
-		- Quando o jogador derrota a criatura,
-		- Então a fase termina e a história avança para o próximo mapa.
+		- Quando o jogador avança e supera os encontros de tutorial,
+		- Então o caminho se abre e a fase termina sem a boss fight da Boitatá.
 
 ## Perguntas em aberto
 
 - O jogador perde a fase ao zerar vida, ou a fase reinicia automaticamente ao cair em combate?
+
+## Direção da campanha
+
+A estrutura planejada para o jogo completo é de pelo menos 7 fases em 4 mapas/regiões: Floresta da Ratanaba (tutorial na cidade perdida; depois a floresta e a boss fight tutorial da Boitatá), Rio Negro (onda de inimigos; depois a boss fight da Iara com intervenção da Vitória Régia), Caverna da Cuca (onda de inimigos com transição para o laboratório; depois a boss fight da Cuca e interrupção do ritual do Corpo Seco) e Floresta Amazônica (onda de inimigos e confronto final contra o Corpo Seco). O detalhamento está em `docs/context/game-overview.md`.
+
+O protótipo descrito nos registros abaixo já reuniu encontros e Boitatá em um único trecho jogável para testar o núcleo de combate. Isso documenta o estado do protótipo, não altera a divisão planejada da campanha em fases 1 e 2.
 
 
 ## Incremento beat ?em up ? 2026-10-02

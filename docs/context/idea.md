@@ -7,6 +7,8 @@
 - Justificativa: A proposta une todos os contos do folclore em uma história trágica, criando um arco narrativo coeso que permite explorar mitos, personagens e cenários brasileiros de forma profunda.
 - Tom: Sério
 - Papel do jogador: Jogador controla um homem cujo objetivo é derrotar criaturas folclóricas para revelar/preservar a história cultural.
+- Estrutura narrativa planejada: campanha com pelo menos 7 fases, agrupadas em 4 mapas/regiões: Floresta da Ratanaba, Rio Negro, Caverna da Cuca e Floresta Amazônica.
+- Arco principal: o protagonista descobre os planos da Cuca e da Iara, interrompe o ritual de invocação do Corpo Seco e o enfrenta na fase final.
 - Observações: Registrar referências específicas ao folclore, cuidado com sensibilidade cultural e representação; decidir abordagem educativa/contextual (ex: notas históricas) durante o design.
 
 ## Referências de direção
