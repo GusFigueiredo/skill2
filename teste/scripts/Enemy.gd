@@ -32,7 +32,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if contact_damage_cooldown > 0.0:
-		contact_damage_cooldown -= delta
+		contact_damage_cooldown = max(0.0, contact_damage_cooldown - delta)
 
 	if player == null:
 		player = get_tree().get_first_node_in_group("player")
@@ -66,8 +66,7 @@ func _physics_process(delta: float) -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player") and body.has_method("take_damage"):
-		var is_dodging: bool = body.get("is_dodging") == true
-		if is_dodging:
+		if body.get("is_dodging") == true:
 			return
 		if contact_damage_cooldown <= 0.0:
 			body.take_damage(attack_damage)

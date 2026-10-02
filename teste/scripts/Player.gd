@@ -37,10 +37,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     if attack_cooldown_timer > 0.0:
-        attack_cooldown_timer -= delta
+        attack_cooldown_timer = max(0.0, attack_cooldown_timer - delta)
 
     if damage_cooldown > 0.0:
-        damage_cooldown -= delta
+        damage_cooldown = max(0.0, damage_cooldown - delta)
 
     if is_dodging:
         dodge_timer -= delta
@@ -82,6 +82,9 @@ func _physics_process(delta: float) -> void:
             can_dodge = true
 
 func _attack() -> void:
+    if attack_cooldown_timer > 0.0:
+        return
+
     attack_cooldown_timer = attack_cooldown
     attack_area.position.x = 32 * facing
     var bodies = attack_area.get_overlapping_bodies()
