@@ -11,7 +11,7 @@ size = Vector2(1280, 120)
 size = Vector2(24, 44)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
-size = Vector2(32, 20)
+size = Vector2(48, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_enemy"]
 size = Vector2(24, 40)

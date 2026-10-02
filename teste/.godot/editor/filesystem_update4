@@ -1,3 +1,3 @@
-res://scripts/Level1.gd
 res://scripts/Enemy.gd
 res://scripts/Player.gd
+res://contact_checks.gd

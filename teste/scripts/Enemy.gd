@@ -4,6 +4,7 @@ extends CharacterBody2D
 @export var speed: float = 70.0
 @export var attack_damage: int = 1
 @export var is_boss: bool = false
+@export var contact_damage_interval: float = 0.7
 
 var hp: int
 var player: CharacterBody2D
@@ -23,6 +24,11 @@ func _ready() -> void:
 		damage_area.monitorable = false
 		damage_area.collision_layer = 0
 		damage_area.collision_mask = 2
+		# Extend past the solid body so touching bodies register despite safe_margin.
+		var damage_shape := damage_area.get_child(0) as CollisionShape2D
+		if damage_shape.shape is RectangleShape2D:
+			damage_shape.shape = damage_shape.shape.duplicate()
+			damage_shape.shape.size += Vector2(8, 8)
 	if is_boss:
 		speed = 90.0
 		attack_damage = 2
@@ -55,22 +61,11 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	if damage_area and damage_area.overlaps_body(player):
-		if player.get("is_dodging") == true:
-			return
-		if contact_damage_cooldown <= 0.0:
-			player.take_damage(attack_damage)
-			contact_damage_cooldown = 1.0
+		if contact_damage_cooldown <= 0.0 and player.take_damage(attack_damage):
+			contact_damage_cooldown = contact_damage_interval
 
 	if health_bar:
 		health_bar.value = hp
-
-func _on_body_entered(body: Node) -> void:
-	if body.is_in_group("player") and body.has_method("take_damage"):
-		if body.get("is_dodging") == true:
-			return
-		if contact_damage_cooldown <= 0.0:
-			body.take_damage(attack_damage)
-			contact_damage_cooldown = 1.0
 
 func take_damage(amount: int) -> void:
 	hp = max(0, hp - amount)
