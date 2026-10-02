@@ -91,7 +91,7 @@ func _attack() -> void:
         return
 
     attack_cooldown_timer = attack_cooldown
-    attack_area.position.x = 50 * facing
+    attack_area.position.x = 45 * facing
     var attack_shape := attack_area.get_child(0) as CollisionShape2D
     var query := PhysicsShapeQueryParameters2D.new()
     query.shape = attack_shape.shape
