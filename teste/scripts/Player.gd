@@ -34,11 +34,19 @@ var dodge_vector := Vector2.RIGHT
 var is_falling: bool = false
 var fall_timer: float = 0.0
 var last_safe_position: Vector2
+var sound_effects := preload("res://scripts/SoundEffects.gd").new()
 
 @onready var attack_area: Area2D = $AttackArea
 @onready var sprite: ColorRect = $Sprite
 
 func _ready() -> void:
+    add_child(sound_effects)
+    sound_effects.setup({
+        "attack": "res://soundeffect/Personagem/ataque.wav",
+        "damage": "res://soundeffect/Personagem/dano tomado.wav",
+        "dodge": "res://soundeffect/Personagem/dodge.wav",
+        "jump": "res://soundeffect/Personagem/Pulo.wav",
+    })
     hp = max_hp
     last_safe_position = position
     motion_mode = MOTION_MODE_FLOATING
@@ -66,6 +74,7 @@ func _physics_process(delta: float) -> void:
     var jump_pressed := Input.is_key_pressed(KEY_SPACE)
     if jump_pressed and not jump_key_was_pressed and jump_height <= 0.0:
         jump_speed = -jump_velocity
+        sound_effects.play_effect("jump")
     jump_key_was_pressed = jump_pressed
     if jump_height > 0.0 or jump_speed > 0.0:
         jump_speed -= gravity * delta
@@ -131,6 +140,7 @@ func _attack() -> void:
         return
 
     attack_cooldown_timer = attack_cooldown
+    sound_effects.play_effect("attack")
     attack_flash_timer = 0.12
     has_attacked = true
     attack_area.position.x = 45 * facing
@@ -148,6 +158,7 @@ func _start_dodge(move_input: float) -> void:
     if not can_dodge or is_dodging or hp <= 0:
         return
     is_dodging = true
+    sound_effects.play_effect("dodge")
     has_dodged = true
     can_dodge = false
     dodge_timer = dodge_duration
@@ -194,6 +205,8 @@ func take_damage(amount: int) -> bool:
         return false
     damage_cooldown = damage_interval
     hp = max(0, hp - amount)
+    if amount > 0:
+        sound_effects.play_effect("damage")
     if hp <= 0:
         hp = 0
         var game_manager = get_tree().get_first_node_in_group("game_manager")

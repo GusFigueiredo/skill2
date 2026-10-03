@@ -32,10 +32,17 @@ var pressure_hits: int = 0
 var pressure_timer: float = 0.0
 var body_color: Color
 var charge_trail: Node2D
+var sound_effects := preload("res://scripts/SoundEffects.gd").new()
 
 func _ready() -> void:
 	is_boss = true
 	super._ready()
+	add_child(sound_effects)
+	sound_effects.setup({
+		"dash": "res://soundeffect/Boitata/Dash.wav",
+		"bite": "res://soundeffect/Boitata/Ataque.wav",
+		"fireball": "res://soundeffect/Boitata/Bola de fogo.wav",
+	})
 	body_color = $Sprite.color
 	# Keep the boss on the connected stretch of road where she spawned.
 	home_bounds = Rect2(40, 340, 3720, 220)
@@ -72,6 +79,7 @@ func _physics_process(delta: float) -> void:
 		State.WINDUP:
 			if state_timer <= 0.0:
 				state = State.CHARGE
+				sound_effects.play_effect("dash")
 				charge_remaining = charge_distance
 				charge_hit = false
 				# The charge passes through the player; damage respects roll invulnerability.
@@ -102,6 +110,7 @@ func _pursue() -> void:
 		projectile.travel_direction = offset.normalized()
 		get_parent().add_child(projectile)
 		projectile.global_position = global_position
+		sound_effects.play_effect("fireball")
 		fireball_timer = fireball_interval
 	if charge_cooldown_timer <= 0.0 and offset.length() <= charge_trigger_distance:
 		charge_vector = offset.normalized() if offset.length_squared() > 0.0 else Vector2(direction, 0)
@@ -167,6 +176,8 @@ func _minor_rect() -> Rect2:
 	return Rect2(Vector2(0.0 if facing > 0 else -reach, -27.5), Vector2(reach, 55.0))
 
 func _release_minor() -> void:
+	if minor_kind == "bite":
+		sound_effects.play_effect("bite")
 	var offset := player.global_position - global_position
 	var in_range := offset.length() <= 75.0 if minor_kind == "push" else _minor_rect().has_point(offset)
 	if in_range and player.take_damage(minor_damage) and minor_kind == "push":

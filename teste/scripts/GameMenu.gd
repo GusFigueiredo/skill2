@@ -52,6 +52,9 @@ func _ready() -> void:
 	_add_button("Sair", _quit_game)
 	panel.visible = main_menu
 	if main_menu:
+		var music := preload("res://scripts/MusicPlayer.gd").new()
+		add_child(music)
+		music.play_track("res://music/Menu.mp3")
 		primary_button.grab_focus()
 
 func _add_button(text: String, callback: Callable) -> Button:

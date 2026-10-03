@@ -7,6 +7,7 @@ var finished: bool = false
 var dodge_enemy_activated: bool = false
 var road_open: bool = false
 var waves: Array = []
+var music := preload("res://scripts/MusicPlayer.gd").new()
 @onready var player = $Player
 @onready var boss = $Boss
 @onready var enemies: Array = [$Enemy1, $Enemy2]
@@ -17,6 +18,8 @@ var waves: Array = []
 
 func _ready() -> void:
     add_to_group("game_manager")
+    add_child(music)
+    music.play_track("res://music/Fase1.mp3")
     var pause_menu = preload("res://scripts/GameMenu.gd").new()
     pause_menu.name = "PauseMenu"
     pause_menu.main_menu = false
@@ -59,6 +62,8 @@ func _process(_delta: float) -> void:
     var activation_x := 1500.0 if wave_index == 0 else 2900.0
     if player.position.x >= activation_x:
         wave_index += 1
+        if wave_index == 2:
+            music.play_track("res://music/Boitata.mp3")
         road_open = false
         for enemy in waves[wave_index]:
             _set_enemy_active(enemy, true)
