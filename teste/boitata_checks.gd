@@ -18,6 +18,7 @@ func run_checks() -> void:
 		character.set_physics_process(false)
 	var boss = scene.get_node("Boss")
 	check(boss.charge_distance == 585.0, "Charge distance must increase from 360 to 585 pixels")
+	check(boss.minor_cooldown == 1.3, "Normal attack cooldown must be 1.3 seconds")
 	var player = scene.get_node("Player")
 	player.set_physics_process(false)
 	boss.player = player
@@ -65,7 +66,7 @@ func run_checks() -> void:
 		trail.free()
 	await physics_frame
 	boss._physics_process(1.0 / 60.0)
-	check(player.hp == hp_before - 2, "Swept charge must deal two damage")
+	check(player.hp == hp_before - 5, "Swept charge must deal five damage")
 	boss.position = Vector2(3200, 430)
 	player.position = Vector2(3300, 430)
 	boss.charge_remaining = 360.0
@@ -74,13 +75,14 @@ func run_checks() -> void:
 	player._start_dodge(1.0)
 	await physics_frame
 	boss._physics_process(1.0 / 60.0)
-	check(player.hp == hp_before - 2, "Roll invulnerability must negate charge")
+	check(player.hp == hp_before - 5, "Roll invulnerability must negate charge")
 	boss.charge_speed = 700.0
 	player._end_dodge()
 	boss.collision_mask = 3
 	for trail in get_nodes_in_group("flame_trails"):
 		trail.free()
 	for kind in ["bite", "tail", "push"]:
+		player.hp = 10
 		boss.state = boss.State.PURSUIT
 		boss.charge_cooldown_timer = boss.charge_cooldown
 		boss.minor_cooldown_timer = 0.0
@@ -96,7 +98,7 @@ func run_checks() -> void:
 		var health: int = player.hp
 		var previous: Vector2 = player.position
 		boss._physics_process(0.41)
-		check(player.hp == health - 1, "Minor attacks must deal one damage")
+		check(player.hp == health - 3, "Minor attacks must deal three damage")
 		if kind == "push":
 			check(player.position.x > previous.x, "Body push must knock the player away")
 		check(boss.state == boss.State.RECOVERY, "Minor attacks must leave brief recovery")
@@ -146,6 +148,45 @@ func run_checks() -> void:
 	player.position.y = 540
 	roll_trail._physics_process(1.31)
 	check(roll_trail.segments.size() == 1, "Each trail segment must retain its own 1.5-second lifetime")
-	print("PASS: Boitata combat, longer charge, persistent fire, one-second damage interval, fire expiration and roll immunity")
+	player.hp = 10
+	player.damage_cooldown = 0.0
+	boss.position = Vector2(2600, 430)
+	player.position = Vector2(2200, 430)
+	scene.arena_bounds = Rect2(40, 340, 3720, 220)
+	boss.state = boss.State.CHARGE
+	boss.charge_vector = Vector2.LEFT
+	boss.charge_remaining = 585.0
+	boss.charge_hit = false
+	boss.collision_mask = 1
+	boss._physics_process(0.5)
+	check(boss.position.x >= 2580.0, "Charge must stop before the last pit, even with a long physics step")
+	check(boss.state == boss.State.RECOVERY and boss.collision_mask == 3, "Blocked charge must recover and restore collisions")
+	boss.state = boss.State.PURSUIT
+	boss.fireball_timer = boss.fireball_interval
+	check(boss.fireball_distance == 200.0 and boss.fireball_interval == 2.0, "Fireballs must use 200px range and two-second cooldown")
+	boss._physics_process(1.99)
+	check(get_nodes_in_group("fireballs").is_empty(), "Distant attack must wait two seconds")
+	boss._physics_process(0.02)
+	check(get_nodes_in_group("fireballs").size() == 1, "Distant player must trigger a fireball after two seconds")
+	boss._physics_process(0.1)
+	check(get_nodes_in_group("fireballs").size() == 1, "Fireballs must respect cooldown")
+	var projectile = get_nodes_in_group("fireballs")[0]
+	projectile.set_physics_process(false)
+	projectile._physics_process(2.0)
+	check(player.hp == 8, "Fireball must sweep its path and deal two damage")
+	await process_frame
+	var dodge_projectile = load("res://scripts/Fireball.gd").new()
+	dodge_projectile.player = player
+	dodge_projectile.game_manager = scene
+	dodge_projectile.travel_direction = Vector2.LEFT
+	scene.add_child(dodge_projectile)
+	dodge_projectile.set_physics_process(false)
+	dodge_projectile.position = player.position + Vector2(100, 0)
+	player.damage_cooldown = 0.0
+	player.can_dodge = true
+	player._start_dodge(1.0)
+	dodge_projectile._physics_process(0.5)
+	check(player.hp == 8, "Roll must negate fireball damage")
+	print("PASS: Boitata attacks, pit boundary, ranged cooldown, projectile damage and roll immunity")
 	scene.queue_free()
 	quit(0)

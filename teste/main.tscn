@@ -152,7 +152,7 @@ offset_top = 60.0
 [node name="ControlsLabel" type="Label" parent="HUD"]
 offset_left = 32.0
 offset_top = 100.0
-text = "WASD / setas: mover pela arena | Espaco: pular\nK: atacar | Shift: rolada"
+text = "WASD / setas: mover pela arena | Espaco: pular\nK: atacar | Shift: rolada | Esc: pausar"
 [node name="WaveLabel" type="Label" parent="HUD"]
 offset_left = 32.0
 offset_top = 155.0

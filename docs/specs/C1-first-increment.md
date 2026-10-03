@@ -89,3 +89,20 @@ O protótipo descrito nos registros abaixo já reuniu encontros e Boitatá em um
 - Ap?s golpear, inimigos ficam parados em recupera??o por 0,4s; Boitat? por 0,55s. Dano por contato de 0,7s continua ativo, respeitando a invulnerabilidade e o intervalo de dano do jogador.
 - HUD mostra vida, etapa/objetivo, disponibilidade de ataque e rolada, instru??o contextual e barra de vida do chefe.
 - Tempo de experi?ncia alvo: 3 a 5 minutos, a confirmar com playtest; ainda n?o medido.
+
+## Ajustes da Boitatá — 2026-10-02
+
+- A Boitatá permanece no trecho de chão em que surge, com margem de 20px da borda dos buracos. Perseguição e dash não atravessam o último buraco; dash bloqueado entra em recuperação.
+- Ataques normais (mordida, cauda e empurrão): 3 de dano, cooldown de 1,3s após o golpe.
+- Dash especial: 5 de dano. O rastro de fogo mantém 1 de dano.
+- Com o jogador a mais de 200px, lança uma bola de fogo direcionada à posição dele a cada 2s enquanto em perseguição. Cada bola causa 2 de dano e respeita a invulnerabilidade da rolada.
+- Verificação headless em `teste/boitata_checks.gd`: passou, incluindo limite do buraco, danos, cooldown de projéteis e imunidade da rolada.
+
+## Menu básico e pausa — 2026-10-02
+
+- O projeto inicia em `teste/menu.tscn`, com título provisório “LENDAS DO BRASIL” e botões Jogar, Controles e Sair.
+- O título pode ser alterado em `title_text` ou substituído por uma textura em `title_image` no script `GameMenu.gd`.
+- Esc pausa e continua a partida. A pausa congela movimento, combate e projéteis e oferece Continuar, Controles, Voltar ao menu e Sair.
+- Voltar ao menu libera a pausa; Jogar começa uma nova partida. Esc não abre a pausa durante derrota ou vitória.
+- Playtest relatado pelo usuário: outras pessoas jogaram e gostaram das mecânicas; duração e observações específicas ainda não foram registradas.
+- Testes headless do menu: início, controles, pausa/retomada, congelamento do combate e retorno para nova partida passaram.

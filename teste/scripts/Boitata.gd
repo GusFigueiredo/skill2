@@ -1,6 +1,7 @@
 extends "res://scripts/Enemy.gd"
 
 const FlameTrail = preload("res://scripts/FlameTrail.gd")
+const Fireball = preload("res://scripts/Fireball.gd")
 
 enum State { PURSUIT, WINDUP, CHARGE, RECOVERY, MINOR_ATTACK }
 
@@ -10,13 +11,19 @@ enum State { PURSUIT, WINDUP, CHARGE, RECOVERY, MINOR_ATTACK }
 @export var charge_distance: float = 585.0
 @export var charge_trigger_distance: float = 220.0
 @export var charge_recovery: float = 0.9
-@export var charge_damage: int = 2
-@export var minor_damage: int = 1
+@export var charge_damage: int = 5
+@export var minor_damage: int = 3
+@export var minor_cooldown: float = 1.3
+@export var fireball_distance: float = 200.0
+@export var fireball_interval: float = 2.0
+@export var fireball_damage: int = 2
 
 var state: State = State.PURSUIT
 var state_timer: float = 0.0
 var charge_cooldown_timer: float = 0.0
 var minor_cooldown_timer: float = 0.0
+var fireball_timer: float = 2.0
+var home_bounds := Rect2()
 var charge_vector := Vector2.LEFT
 var charge_remaining: float = 0.0
 var charge_hit: bool = false
@@ -30,6 +37,15 @@ func _ready() -> void:
 	is_boss = true
 	super._ready()
 	body_color = $Sprite.color
+	# Keep the boss on the connected stretch of road where she spawned.
+	home_bounds = Rect2(40, 340, 3720, 220)
+	for pit in get_parent().pits:
+		if pit.end.x <= global_position.x:
+			var right_edge: float = home_bounds.end.x
+			home_bounds.position.x = maxf(home_bounds.position.x, pit.end.x + 20.0)
+			home_bounds.size.x = right_edge - home_bounds.position.x
+		elif pit.position.x > global_position.x:
+			home_bounds.size.x = minf(home_bounds.end.x, pit.position.x - 20.0) - home_bounds.position.x
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
@@ -41,6 +57,10 @@ func _physics_process(delta: float) -> void:
 		return
 	charge_cooldown_timer = maxf(0.0, charge_cooldown_timer - delta)
 	minor_cooldown_timer = maxf(0.0, minor_cooldown_timer - delta)
+	if global_position.distance_to(player.global_position) > fireball_distance:
+		fireball_timer = maxf(0.0, fireball_timer - delta)
+	else:
+		fireball_timer = fireball_interval
 	pressure_timer = maxf(0.0, pressure_timer - delta)
 	if pressure_timer <= 0.0:
 		pressure_hits = 0
@@ -74,6 +94,15 @@ func _physics_process(delta: float) -> void:
 
 func _pursue() -> void:
 	var offset := player.global_position - global_position
+	if offset.length() > fireball_distance and fireball_timer <= 0.0:
+		var projectile = Fireball.new()
+		projectile.player = player
+		projectile.game_manager = get_parent()
+		projectile.damage = fireball_damage
+		projectile.travel_direction = offset.normalized()
+		get_parent().add_child(projectile)
+		projectile.global_position = global_position
+		fireball_timer = fireball_interval
 	if charge_cooldown_timer <= 0.0 and offset.length() <= charge_trigger_distance:
 		charge_vector = offset.normalized() if offset.length_squared() > 0.0 else Vector2(direction, 0)
 		direction = 1 if charge_vector.x >= 0.0 else -1
@@ -147,7 +176,7 @@ func _release_minor() -> void:
 		player.move_and_collide(away * 45.0)
 		player._clamp_to_arena()
 		get_parent().check_player_floor(previous)
-	minor_cooldown_timer = 1.2
+	minor_cooldown_timer = minor_cooldown
 	pressure_hits = 0
 	state = State.RECOVERY
 	state_timer = 0.3
@@ -161,6 +190,7 @@ func take_damage(amount: int) -> void:
 func _clamp_position() -> void:
 	var bounds: Rect2 = get_parent().arena_bounds
 	global_position = global_position.clamp(bounds.position, bounds.end)
+	global_position = global_position.clamp(home_bounds.position, home_bounds.end)
 
 func _update_visuals() -> void:
 	$Sprite.color = body_color

@@ -17,6 +17,10 @@ var waves: Array = []
 
 func _ready() -> void:
     add_to_group("game_manager")
+    var pause_menu = preload("res://scripts/GameMenu.gd").new()
+    pause_menu.name = "PauseMenu"
+    pause_menu.main_menu = false
+    add_child(pause_menu)
     waves = [[$Enemy1, $Enemy2], [$Enemy3, $Enemy4], [$Boss]]
     for index in waves.size():
         for enemy in waves[index]:
@@ -94,6 +98,7 @@ func trigger_death() -> void:
     death_screen.visible = true
 
 func _reset_scene() -> void:
+    get_tree().paused = false
     get_tree().reload_current_scene()
 
 func _draw() -> void:

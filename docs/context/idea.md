@@ -1,5 +1,8 @@
 # Proposta do Jogo
 
+## Sinopse
+
+Pindorama acompanha um historiador do século atual que, durante uma investigação sobre a cidade perdida de Ratanabá, encontra um artefato mágico e é transportado para uma época em que a região ainda era habitada. Ao chegar, ele descobre que a cidade e a floresta estão sendo atacadas por criaturas do folclore. O jogador explora sete fases, enfrenta inimigos e chefes, recebe ajuda de figuras como Curupira, Vitória-Régia e Boitatá e tenta impedir o ritual que traz o Corpo Seco ao mundo.
 
 - Pitch (resposta do aluno): O jogo se baseia em um homem derrotando todos os seres do folclore brasileiro, mostrando para as demais culturas nossa história a partir de criaturas, cenários e contos.
 - Data: 2026-09-09
