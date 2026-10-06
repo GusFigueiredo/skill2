@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+0 hp 10 dodge true x 209.090911865234 overlap false
+1 hp 10 dodge true x 218.181823730469 overlap false
+2 hp 10 dodge true x 227.272735595703 overlap false
+3 hp 10 dodge true x 236.363647460938 overlap false
+4 hp 10 dodge true x 245.454559326172 overlap true
+5 hp 10 dodge true x 254.545471191406 overlap true
+6 hp 10 dodge true x 263.636383056641 overlap true
+7 hp 10 dodge true x 272.727294921875 overlap true
+8 hp 10 dodge true x 281.818206787109 overlap true
+9 hp 10 dodge true x 290.909118652344 overlap true
+10 hp 10 dodge true x 300.000030517578 overlap true
+11 hp 10 dodge true x 309.090942382813 overlap true
+12 hp 10 dodge true x 318.181854248047 overlap true
+13 hp 10 dodge false x 320.000030517578 overlap true
+14 hp 10 dodge false x 320.000030517578 overlap true
+15 hp 10 dodge false x 320.000030517578 overlap true
+16 hp 10 dodge false x 320.000030517578 overlap true
+17 hp 10 dodge false x 320.000030517578 overlap true
+18 hp 10 dodge false x 320.000030517578 overlap true
+19 hp 10 dodge false x 320.000030517578 overlap true
+20 hp 10 dodge false x 320.000030517578 overlap true
+21 hp 10 dodge false x 320.000030517578 overlap true

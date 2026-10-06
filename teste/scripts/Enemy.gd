@@ -17,6 +17,7 @@ var player: CharacterBody2D
 var direction: int = -1
 var contact_damage_cooldown: float = 0.0
 var combat_bounds := Rect2()
+var contact_requires_separation: bool = false
 
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var damage_area: Area2D = $DamageArea
@@ -42,6 +43,7 @@ func _ready() -> void:
 		speed = 90.0
 		attack_damage = 2
 	if health_bar:
+		health_bar.visible = not is_boss
 		health_bar.max_value = max_hp
 		health_bar.value = hp
 		var visual := $Sprite as AnimatedSprite2D
@@ -50,8 +52,9 @@ func _ready() -> void:
 			for index in visual.sprite_frames.get_frame_count(animation_name):
 				var image := visual.sprite_frames.get_frame_texture(animation_name, index).get_image()
 				top = minf(top, visual.position.y + (image.get_used_rect().position.y - image.get_height() * 0.5) * visual.scale.y)
-		health_bar.position = Vector2(-30, top - 18)
-		health_bar.size = Vector2(60, 8)
+		var bar_size := Vector2(180, 60) if is_boss else Vector2(100, 18)
+		health_bar.position = Vector2(-bar_size.x * 0.5, top - bar_size.y - 8)
+		health_bar.size = bar_size
 		health_bar.z_index = 5
 		health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -90,12 +93,31 @@ func _physics_process(delta: float) -> void:
 	var bounds: Rect2 = get_parent().arena_bounds
 	global_position = global_position.clamp(bounds.position, bounds.end)
 
-	if damage_area and damage_area.overlaps_body(player):
-		if contact_damage_cooldown <= 0.0 and player.take_damage(attack_damage):
-			contact_damage_cooldown = contact_damage_interval
+	_update_contact_damage()
 
 	if health_bar:
 		health_bar.value = hp
+
+func _update_contact_damage() -> void:
+	if not damage_area or not damage_area.monitoring or not is_instance_valid(player):
+		return
+	# Area overlap lists can lag behind movement by a physics frame.
+	var contact_shape := damage_area.get_child(0) as CollisionShape2D
+	var player_shape := player.get_node("CollisionShape2D") as CollisionShape2D
+	var contact_rect: Rect2 = contact_shape.global_transform * Rect2(-contact_shape.shape.size * 0.5, contact_shape.shape.size)
+	var player_rect: Rect2 = player_shape.global_transform * Rect2(-player_shape.shape.size * 0.5, player_shape.shape.size)
+	if not contact_rect.intersects(player_rect):
+		contact_requires_separation = false
+		return
+	if player.is_dodge_invulnerable():
+		contact_requires_separation = true
+		return
+	# A roll may finish inside a large enemy. That contact stays harmless until
+	# separation; a later contact is a new hit. Attacks still use take_damage.
+	if contact_requires_separation:
+		return
+	if contact_damage_cooldown <= 0.0 and player.take_damage(attack_damage):
+		contact_damage_cooldown = contact_damage_interval
 
 func take_damage(amount: int) -> void:
 	hp = max(0, hp - amount)

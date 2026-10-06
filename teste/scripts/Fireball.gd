@@ -6,9 +6,19 @@ var travel_direction := Vector2.LEFT
 var speed: float = 300.0
 var damage: int = 2
 var lifetime: float = 6.0
+const FIREBALL_TEXTURE := preload("res://sprites/characters/boitata/projectile.png")
 
 func _ready() -> void:
 	add_to_group("fireballs")
+	var sprite := Sprite2D.new()
+	sprite.name = "Sprite"
+	sprite.texture = FIREBALL_TEXTURE
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.scale = Vector2(0.5, 0.5)
+	# Keep the bright head of the projectile at its damage position.
+	sprite.offset.x = -(FIREBALL_TEXTURE.get_width() * 0.5 - FIREBALL_TEXTURE.get_height() * 0.3)
+	sprite.rotation = travel_direction.angle()
+	add_child(sprite)
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player) or not is_instance_valid(game_manager) or game_manager.finished or player.hp <= 0:
@@ -26,9 +36,3 @@ func _physics_process(delta: float) -> void:
 	lifetime -= delta
 	if lifetime <= 0.0:
 		queue_free()
-	queue_redraw()
-
-func _draw() -> void:
-	draw_line(-travel_direction * 25.0, Vector2.ZERO, Color(1.0, 0.25, 0.02, 0.6), 14.0, true)
-	draw_circle(Vector2.ZERO, 12.0, Color(1.0, 0.35, 0.03))
-	draw_circle(Vector2.ZERO, 7.0, Color(1.0, 0.85, 0.2))

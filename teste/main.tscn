@@ -1,4 +1,5 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
+[ext_resource type="Script" path="res://scripts/FramedHealthBar.gd" id="health_frame"]
 [ext_resource type="Script" path="res://scripts/CharacterVisual.gd" id="visual"]
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/Enemy.gd" id="2"]
@@ -76,6 +77,9 @@ offset_top = -68.0
 offset_right = 24.0
 offset_bottom = -60.0
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "enemy"
+
 [node name="Enemy2" type="CharacterBody2D" parent="."]
 position = Vector2(720, 510)
 script = ExtResource("2")
@@ -96,6 +100,9 @@ offset_top = -68.0
 offset_right = 24.0
 offset_bottom = -60.0
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "enemy"
+
 [node name="Enemy3" type="CharacterBody2D" parent="."]
 position = Vector2(1880, 390)
 script = ExtResource("2")
@@ -116,6 +123,9 @@ offset_top = -68.0
 offset_right = 24.0
 offset_bottom = -60.0
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "enemy"
+
 [node name="Enemy4" type="CharacterBody2D" parent="."]
 position = Vector2(2060, 520)
 script = ExtResource("2")
@@ -136,6 +146,9 @@ offset_top = -68.0
 offset_right = 24.0
 offset_bottom = -60.0
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "enemy"
+
 [node name="Boss" type="CharacterBody2D" parent="."]
 position = Vector2(3300, 455)
 script = ExtResource("4")
@@ -158,24 +171,30 @@ offset_top = -68.0
 offset_right = 24.0
 offset_bottom = -60.0
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "boss"
+
 [node name="HUD" type="CanvasLayer" parent="."]
 layer = 2
 [node name="HealthBar" type="ProgressBar" parent="HUD"]
-offset_left = 32.0
-offset_top = 28.0
-offset_right = 260.0
-offset_bottom = 58.0
+offset_left = 24.0
+offset_top = 16.0
+offset_right = 424.0
+offset_bottom = 81.0
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "player"
+
 [node name="HealthLabel" type="Label" parent="HUD"]
 offset_left = 32.0
-offset_top = 60.0
+offset_top = 86.0
 [node name="ControlsLabel" type="Label" parent="HUD"]
 offset_left = 32.0
-offset_top = 100.0
+offset_top = 116.0
 text = "WASD / setas: mover pela arena | Espaco: pular\nK: atacar | Shift: rolada | Esc: pausar"
 [node name="WaveLabel" type="Label" parent="HUD"]
 offset_left = 32.0
-offset_top = 155.0
+offset_top = 171.0
 [node name="DeathScreen" type="CanvasLayer" parent="."]
 layer = 3
 visible = false
@@ -191,19 +210,19 @@ text = "Derrota"
 text = "Reiniciar fase"
 [node name="AttackCooldown" type="ProgressBar" parent="HUD"]
 offset_left = 32.0
-offset_top = 190.0
+offset_top = 210.0
 offset_right = 145.0
-offset_bottom = 203.0
+offset_bottom = 223.0
 show_percentage = false
 [node name="DodgeCooldown" type="ProgressBar" parent="HUD"]
 offset_left = 160.0
-offset_top = 190.0
+offset_top = 210.0
 offset_right = 273.0
-offset_bottom = 203.0
+offset_bottom = 223.0
 show_percentage = false
 [node name="CooldownLabel" type="Label" parent="HUD"]
 offset_left = 32.0
-offset_top = 210.0
+offset_top = 230.0
 [node name="TutorialLabel" type="Label" parent="HUD"]
 offset_left = 32.0
 offset_top = 640.0
@@ -211,9 +230,27 @@ offset_right = 1240.0
 offset_bottom = 700.0
 autowrap_mode = 2
 [node name="BossHealth" type="ProgressBar" parent="HUD"]
-offset_left = 450.0
-offset_top = 28.0
-offset_right = 830.0
-offset_bottom = 52.0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -240.0
+offset_top = 8.0
+offset_right = 240.0
+offset_bottom = 168.0
 visible = false
 show_percentage = false
+script = ExtResource("health_frame")
+frame_kind = "boss"
+
+[node name="BossName" type="Label" parent="HUD/BossHealth"]
+anchor_left = 0.3
+anchor_right = 0.7
+offset_top = 34.0
+offset_bottom = 78.0
+text = "BOITAT?"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 0.85, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.05, 0.025, 1)
+theme_override_constants/outline_size = 4
+mouse_filter = 2

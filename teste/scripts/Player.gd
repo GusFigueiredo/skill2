@@ -37,6 +37,7 @@ var last_safe_position: Vector2
 var sound_effects := preload("res://scripts/SoundEffects.gd").new()
 var combat_bounds := Rect2()
 var attack_reach: float = 90.0
+var dodge_protected_frame: int = -1
 
 @onready var attack_area: Area2D = $AttackArea
 @onready var sprite: AnimatedSprite2D = $Sprite
@@ -141,6 +142,18 @@ func _physics_process(delta: float) -> void:
     _clamp_to_arena()
     get_parent().check_player_floor(previous_position)
 
+func _input(event: InputEvent) -> void:
+    if not event is InputEventKey or not event.pressed or event.echo:
+        return
+    if event.keycode != KEY_SHIFT and event.physical_keycode != KEY_SHIFT:
+        return
+    if get_tree().paused or is_falling or hp <= 0 or not can_dodge or is_dodging:
+        return
+    var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+    movement += Vector2(float(Input.is_key_pressed(KEY_D)) - float(Input.is_key_pressed(KEY_A)), float(Input.is_key_pressed(KEY_S)) - float(Input.is_key_pressed(KEY_W)))
+    _start_dodge(movement.x)
+    dodge_vector = movement.normalized() if movement.length_squared() > 0.0 else Vector2(facing, 0)
+    dodge_key_was_pressed = true
 
 func _attack() -> void:
     if attack_cooldown_timer > 0.0 or is_dodging or hp <= 0:
@@ -169,6 +182,7 @@ func _start_dodge(move_input: float) -> void:
     if not can_dodge or is_dodging or hp <= 0:
         return
     is_dodging = true
+    sprite.play("dodge")
     sound_effects.play_effect("dodge")
     has_dodged = true
     can_dodge = false
@@ -199,10 +213,14 @@ func _update_dodge(delta: float) -> void:
     dodge_timer = maxf(0.0, dodge_timer - delta)
     # The dodge animation provides the rolling poses.
     if dodge_timer <= 0.0:
-        _end_dodge()
+        _end_dodge(true)
 
-func _end_dodge() -> void:
+func _end_dodge(protect_current_frame: bool = false) -> void:
+    if protect_current_frame:
+        dodge_protected_frame = Engine.get_physics_frames()
     is_dodging = false
+    if sprite.animation == "dodge":
+        sprite.play("idle")
     velocity = Vector2.ZERO
     sprite.rotation = 0.0
     for enemy in dodge_collision_exceptions:
@@ -212,7 +230,7 @@ func _end_dodge() -> void:
     dodge_collision_exceptions.clear()
 
 func take_damage(amount: int) -> bool:
-    if hp <= 0 or is_falling or is_dodging or damage_cooldown > 0.0:
+    if hp <= 0 or is_falling or is_dodge_invulnerable() or damage_cooldown > 0.0:
         return false
     damage_cooldown = damage_interval
     hp = max(0, hp - amount)
@@ -228,6 +246,9 @@ func take_damage(amount: int) -> bool:
         collision_mask = 0
         sprite.play("death")
     return true
+
+func is_dodge_invulnerable() -> bool:
+    return is_dodging or dodge_protected_frame == Engine.get_physics_frames()
 
 func _clamp_to_arena() -> void:
     var bounds: Rect2 = get_parent().arena_bounds
