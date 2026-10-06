@@ -18,7 +18,8 @@ func run_checks() -> void:
 		character.set_physics_process(false)
 	var boss = scene.get_node("Boss")
 	check(boss.charge_distance == 585.0, "Charge distance must increase from 360 to 585 pixels")
-	check(boss.minor_cooldown == 1.3, "Normal attack cooldown must be 1.3 seconds")
+	check(boss.minor_cooldown == 1.0, "Normal attack cooldown must be 1.0 seconds")
+	check(boss.minor_attack_duration == 1.0, "Normal attack hitbox must last 1.0 seconds")
 	var player = scene.get_node("Player")
 	player.set_physics_process(false)
 	boss.player = player
@@ -97,7 +98,7 @@ func run_checks() -> void:
 		check(boss.state == boss.State.MINOR_ATTACK and boss.minor_kind == kind, "Cooldown must select " + kind)
 		var health: int = player.hp
 		var previous: Vector2 = player.position
-		boss._physics_process(0.41)
+		boss._physics_process(boss.minor_attack_duration + 0.01)
 		check(player.hp == health - 3, "Minor attacks must deal three damage")
 		if kind == "push":
 			check(player.position.x > previous.x, "Body push must knock the player away")

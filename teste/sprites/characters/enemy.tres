@@ -1,0 +1,118 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/attack_00.png" id="1_8s3xd"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/attack_01.png" id="2_d447a"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/attack_02.png" id="3_v0qbg"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/attack_03.png" id="4_oqhsv"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/death_00.png" id="5_73fov"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/death_01.png" id="6_rvd0v"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/death_02.png" id="7_0d8gy"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/death_03.png" id="8_gw2bh"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/death_04.png" id="9_qbgda"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/death_05.png" id="10_dyosu"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/hurt_00.png" id="11_fsvp8"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/hurt_01.png" id="12_2huxs"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/hurt_02.png" id="13_57kbl"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/hurt_03.png" id="14_pxmdo"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/idle_00.png" id="15_7yb0f"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/idle_01.png" id="16_4cmh5"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/idle_02.png" id="17_ybsc0"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/idle_03.png" id="18_y0eyu"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/walk_00.png" id="19_xmbtu"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/walk_01.png" id="20_f1erc"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/walk_02.png" id="21_6jjoq"]
+[ext_resource type="Texture2D" path="res://sprites/characters/enemy/walk_03.png" id="22_wgkse"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_8s3xd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_d447a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_v0qbg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_oqhsv")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_73fov")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_rvd0v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_0d8gy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_gw2bh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_qbgda")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_dyosu")
+}],
+"loop": 0,
+"name": &"death",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_fsvp8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_2huxs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_57kbl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_pxmdo")
+}],
+"loop": 0,
+"name": &"hurt",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("15_7yb0f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_4cmh5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_ybsc0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_y0eyu")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("19_xmbtu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_f1erc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_6jjoq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_wgkse")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 8.0
+}]

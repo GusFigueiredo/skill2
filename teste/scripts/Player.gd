@@ -35,9 +35,11 @@ var is_falling: bool = false
 var fall_timer: float = 0.0
 var last_safe_position: Vector2
 var sound_effects := preload("res://scripts/SoundEffects.gd").new()
+var combat_bounds := Rect2()
+var attack_reach: float = 90.0
 
 @onready var attack_area: Area2D = $AttackArea
-@onready var sprite: ColorRect = $Sprite
+@onready var sprite: AnimatedSprite2D = $Sprite
 
 func _ready() -> void:
     add_child(sound_effects)
@@ -48,14 +50,19 @@ func _ready() -> void:
         "jump": "res://soundeffect/Personagem/Pulo.wav",
     })
     hp = max_hp
+    combat_bounds = preload("res://scripts/CombatGeometry.gd").setup(self, false)
+    attack_reach = maxf(90.0, combat_bounds.size.y * 1.2)
+    var strike := RectangleShape2D.new()
+    strike.size = Vector2(attack_reach, combat_bounds.size.y * 0.55)
+    (attack_area.get_child(0) as CollisionShape2D).shape = strike
+    attack_area.position.y = combat_bounds.get_center().y
     last_safe_position = position
     motion_mode = MOTION_MODE_FLOATING
     sprite_base_position = sprite.position
-    sprite.pivot_offset = sprite.size * 0.5
     add_to_group("player")
     collision_layer = 2
     collision_mask = 1 | 4
-    attack_area.position.x = 28
+    attack_area.position.x = attack_reach * 0.5
     attack_area.monitoring = true
     attack_area.monitorable = false
     attack_area.collision_layer = 0
@@ -64,7 +71,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
     if is_falling:
         fall_timer -= delta
-        sprite.scale = Vector2.ONE * maxf(0.05, fall_timer / 0.45)
+        sprite.scale = Vector2.ONE * 0.9375 * maxf(0.05, fall_timer / 0.45)
         sprite.modulate.a = maxf(0.0, fall_timer / 0.45)
         if fall_timer <= 0.0:
             _finish_fall()
@@ -107,8 +114,8 @@ func _physics_process(delta: float) -> void:
 
     if move_input != 0.0:
         facing = 1 if move_input > 0 else -1
-        sprite.scale.x = facing
-        attack_area.position.x = 32 * facing
+        sprite.flip_h = facing < 0
+        attack_area.position.x = attack_reach * 0.5 * facing
 
     var depth_input := Input.get_axis("ui_up", "ui_down")
     if Input.is_key_pressed(KEY_W):
@@ -143,15 +150,19 @@ func _attack() -> void:
     sound_effects.play_effect("attack")
     attack_flash_timer = 0.12
     has_attacked = true
-    attack_area.position.x = 45 * facing
+    attack_area.position.x = attack_reach * 0.5 * facing
     var attack_shape := attack_area.get_child(0) as CollisionShape2D
     var query := PhysicsShapeQueryParameters2D.new()
     query.shape = attack_shape.shape
     query.transform = attack_shape.global_transform
-    query.collision_mask = 4
+    query.collision_mask = 8
+    query.collide_with_areas = true
+    query.collide_with_bodies = false
+    var damaged: Array[Node] = []
     for hit in get_world_2d().direct_space_state.intersect_shape(query):
-        var body = hit.collider
-        if body.has_method("take_damage"):
+        var body = hit.collider.get_parent()
+        if body.has_method("take_damage") and body not in damaged:
+            damaged.append(body)
             body.take_damage(attack_damage)
 
 func _start_dodge(move_input: float) -> void:
@@ -186,7 +197,7 @@ func _update_dodge(delta: float) -> void:
     if is_falling:
         return
     dodge_timer = maxf(0.0, dodge_timer - delta)
-    sprite.rotation = dodge_direction * TAU * (1.0 - dodge_timer / maxf(dodge_duration, 0.001))
+    # The dodge animation provides the rolling poses.
     if dodge_timer <= 0.0:
         _end_dodge()
 
@@ -213,7 +224,9 @@ func take_damage(amount: int) -> bool:
         if game_manager and game_manager.has_method("trigger_death"):
             game_manager.trigger_death()
         set_physics_process(false)
-        visible = false
+        collision_layer = 0
+        collision_mask = 0
+        sprite.play("death")
     return true
 
 func _clamp_to_arena() -> void:
@@ -225,8 +238,8 @@ func _draw() -> void:
     draw_circle(Vector2.ZERO, 16, Color(0, 0, 0, 0.35))
     draw_set_transform(Vector2.ZERO)
     if attack_flash_timer > 0.0:
-        var origin := Vector2(45 * facing - 24, -14)
-        draw_rect(Rect2(origin, Vector2(48, 28)), Color(1, 0.85, 0.3, 0.65))
+        var shape := (attack_area.get_child(0) as CollisionShape2D).shape as RectangleShape2D
+        draw_rect(Rect2(attack_area.position - shape.size * 0.5, shape.size), Color(1, 0.85, 0.3, 0.35))
 
 func fall_into_pit() -> void:
     if is_falling or hp <= 0:

@@ -1,0 +1,124 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/bite_00.png" id="1_y0y13"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/bite_01.png" id="2_hjeli"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/dash_00.png" id="3_dn6ui"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/dash_01.png" id="4_7idxe"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/fireball_00.png" id="5_ylg0l"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/fireball_01.png" id="6_o5wde"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/fireball_02.png" id="7_jhhqo"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/idle_00.png" id="8_i0avm"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/idle_01.png" id="9_iqsl6"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/idle_02.png" id="10_sxeub"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/idle_03.png" id="11_es1gq"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/tail_00.png" id="12_qi83y"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/tail_01.png" id="13_mcy0f"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/walk_00.png" id="14_bk23f"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/walk_01.png" id="15_xitha"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/walk_02.png" id="16_uv1qr"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/walk_03.png" id="17_lwjgl"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/windup_00.png" id="18_bscpy"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/windup_01.png" id="19_qkrkb"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/windup_02.png" id="20_lj3cs"]
+[ext_resource type="Texture2D" path="res://sprites/characters/boitata/windup_03.png" id="21_amd0r"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_y0y13")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_hjeli")
+}],
+"loop": 0,
+"name": &"bite",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_dn6ui")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_7idxe")
+}],
+"loop": 1,
+"name": &"dash",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_ylg0l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_o5wde")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_jhhqo")
+}],
+"loop": 0,
+"name": &"fireball",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_i0avm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_iqsl6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_sxeub")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_es1gq")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("12_qi83y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_mcy0f")
+}],
+"loop": 0,
+"name": &"tail",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("14_bk23f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_xitha")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_uv1qr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_lwjgl")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("18_bscpy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_qkrkb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_lj3cs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_amd0r")
+}],
+"loop": 1,
+"name": &"windup",
+"speed": 8.0
+}]

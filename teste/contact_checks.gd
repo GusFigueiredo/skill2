@@ -16,7 +16,8 @@ func run_checks() -> void:
     player.max_hp = 100
     player.hp = 100
     player.global_position = Vector2(300, 458)
-    enemy.global_position = Vector2(324, 460)
+    var contact_distance: float = (player.get_node("CollisionShape2D").shape.size.x + enemy.get_node("CollisionShape2D").shape.size.x) * 0.5 + 0.2
+    enemy.global_position = Vector2(player.global_position.x + contact_distance, 460)
     enemy.speed = 0.0
     enemy.telegraphed_attacks = false
     enemy.max_hp = 100
@@ -30,14 +31,14 @@ func run_checks() -> void:
     enemy.global_position.x = 600
     await frames(70)
     assert(player.hp == 98, "Separated enemy must stop dealing damage")
-    enemy.global_position.x = player.global_position.x + 24
+    enemy.global_position.x = player.global_position.x + contact_distance
     var start_x = player.global_position.x
     player._start_dodge(1.0)
     var hp_before = player.hp
     assert(not player.take_damage(1), "Dodge must reject damage")
     await frames(10)
     assert(player.hp == hp_before, "Crossing enemy must cause no damage")
-    assert(abs(player.sprite.rotation) > 0.1, "Roll must visibly rotate")
+    assert(player.sprite.animation == "dodge" and player.sprite.frame > 0, "Roll must display animated dodge poses")
     await frames(8)
     assert(not player.is_dodging, "Dodge must end")
     assert(abs(player.global_position.x - start_x - 120.0) < 1.0, "Roll must travel 120 pixels through enemy")
@@ -46,13 +47,13 @@ func run_checks() -> void:
     assert(player.get_collision_exceptions().is_empty() and enemy.get_collision_exceptions().is_empty(), "Roll must restore solid collision")
     assert(player.take_damage(1), "Damage must resume immediately after roll")
     assert(player.hp == hp_before - 1, "Post-roll damage must lower health")
-    enemy.global_position.x = player.global_position.x + 24
+    enemy.global_position.x = player.global_position.x + contact_distance
     await frames(50)
     assert(player.hp == hp_before - 2, "Contact must resume after roll")
     Input.action_press("ui_right")
     await frames(20)
     Input.action_release("ui_right")
-    assert(enemy.global_position.x - player.global_position.x >= 23.5, "Solid collision must resume after roll")
+    assert(enemy.global_position.x - player.global_position.x >= contact_distance - 0.5, "Solid collision must resume after roll")
     enemy.global_position.x = player.global_position.x + 64
     await frames(2)
     player.facing = 1

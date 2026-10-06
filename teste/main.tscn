@@ -1,8 +1,11 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=11 format=3]
+[ext_resource type="Script" path="res://scripts/CharacterVisual.gd" id="visual"]
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/Enemy.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/Level1.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/Boitata.gd" id="4"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fases1e2/backgroundFases.png" id="5"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fases1e2/chao.png" id="6"]
 [sub_resource type="RectangleShape2D" id="body"]
 size = Vector2(24, 12)
 [sub_resource type="RectangleShape2D" id="attack"]
@@ -12,15 +15,32 @@ size = Vector2(32, 16)
 [node name="Main" type="Node2D"]
 script = ExtResource("3")
 y_sort_enabled = true
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -2
+texture_repeat = 2
+scale = Vector2(0.7651434644, 0.7651434644)
+texture = ExtResource("5")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 4966.388889, 941)
+[node name="Ground" type="Sprite2D" parent="."]
+z_index = -1
+texture_repeat = 2
+position = Vector2(0, 200)
+scale = Vector2(0.5248618785, 0.5248618785)
+texture = ExtResource("6")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 7240, 724)
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(180, 430)
 script = ExtResource("1")
-[node name="Sprite" type="ColorRect" parent="Player"]
-offset_left = -14.0
-offset_top = -48.0
-offset_right = 14.0
-offset_bottom = 0.0
-color = Color(0.24, 0.67, 1, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "player"
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("body")
 [node name="AttackArea" type="Area2D" parent="Player"]
@@ -39,12 +59,12 @@ position_smoothing_speed = 7.0
 [node name="Enemy1" type="CharacterBody2D" parent="."]
 position = Vector2(430, 430)
 script = ExtResource("2")
-[node name="Sprite" type="ColorRect" parent="Enemy1"]
-offset_left = -12.0
-offset_top = -40.0
-offset_right = 12.0
-offset_bottom = 0.0
-color = Color(0.85, 0.30, 0.30, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Enemy1"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "enemy"
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy1"]
 shape = SubResource("body")
 [node name="DamageArea" type="Area2D" parent="Enemy1"]
@@ -59,12 +79,12 @@ show_percentage = false
 [node name="Enemy2" type="CharacterBody2D" parent="."]
 position = Vector2(720, 510)
 script = ExtResource("2")
-[node name="Sprite" type="ColorRect" parent="Enemy2"]
-offset_left = -12.0
-offset_top = -40.0
-offset_right = 12.0
-offset_bottom = 0.0
-color = Color(0.85, 0.30, 0.30, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Enemy2"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "enemy"
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy2"]
 shape = SubResource("body")
 [node name="DamageArea" type="Area2D" parent="Enemy2"]
@@ -79,12 +99,12 @@ show_percentage = false
 [node name="Enemy3" type="CharacterBody2D" parent="."]
 position = Vector2(1880, 390)
 script = ExtResource("2")
-[node name="Sprite" type="ColorRect" parent="Enemy3"]
-offset_left = -12.0
-offset_top = -40.0
-offset_right = 12.0
-offset_bottom = 0.0
-color = Color(0.85, 0.30, 0.30, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Enemy3"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "enemy"
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy3"]
 shape = SubResource("body")
 [node name="DamageArea" type="Area2D" parent="Enemy3"]
@@ -99,12 +119,12 @@ show_percentage = false
 [node name="Enemy4" type="CharacterBody2D" parent="."]
 position = Vector2(2060, 520)
 script = ExtResource("2")
-[node name="Sprite" type="ColorRect" parent="Enemy4"]
-offset_left = -12.0
-offset_top = -40.0
-offset_right = 12.0
-offset_bottom = 0.0
-color = Color(0.85, 0.30, 0.30, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Enemy4"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "enemy"
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy4"]
 shape = SubResource("body")
 [node name="DamageArea" type="Area2D" parent="Enemy4"]
@@ -121,12 +141,12 @@ position = Vector2(3300, 455)
 script = ExtResource("4")
 max_hp = 6
 is_boss = true
-[node name="Sprite" type="ColorRect" parent="Boss"]
-offset_left = -16.0
-offset_top = -56.0
-offset_right = 16.0
-offset_bottom = 0.0
-color = Color(0.67, 0.12, 0.54, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="Boss"]
+position = Vector2(0, -84)
+scale = Vector2(1.5, 1.5)
+script = ExtResource("visual")
+character = "boitata"
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss"]
 shape = SubResource("boss")
 [node name="DamageArea" type="Area2D" parent="Boss"]

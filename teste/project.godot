@@ -19,6 +19,10 @@ config/features=PackedStringArray("4.7")
 window/size/viewport_width=1280
 window/size/viewport_height=720
 
+[gui]
+
+theme/custom="res://themes/pindorama.tres"
+
 [rendering]
 
 renderer/rendering_method="mobile"

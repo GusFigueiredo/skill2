@@ -1,5 +1,12 @@
 extends Node2D
 
+const LEVEL_WIDTH := 3800.0
+const PIT_TEXTURE := preload("res://sprites/buraco.png")
+const PIT_DEATH_MARGIN := 6.0
+const PIT_VISUAL_SIDE_MARGIN := 12.0
+
+var pit_texture_region: Rect2
+
 var arena_bounds := Rect2(40, 340, 860, 220)
 var pits: Array[Rect2] = [Rect2(1060, 325, 100, 255), Rect2(2450, 325, 110, 255)]
 var wave_index: int = 0
@@ -17,6 +24,11 @@ var music := preload("res://scripts/MusicPlayer.gd").new()
 @onready var reset_button: Button = $DeathScreen/CenterContainer/VBoxContainer/ResetButton
 
 func _ready() -> void:
+    # Fit the visible art, excluding the source image's transparent padding.
+    pit_texture_region = Rect2(PIT_TEXTURE.get_image().get_used_rect())
+    # Extend the repeating textures if the level width changes.
+    for scenery: Sprite2D in [$Background, $Ground]:
+        scenery.region_rect.size.x = LEVEL_WIDTH / scenery.scale.x
     add_to_group("game_manager")
     add_child(music)
     music.play_track("res://music/Fase1.mp3")
@@ -37,6 +49,7 @@ func _set_enemy_active(enemy: CharacterBody2D, active: bool) -> void:
     enemy.collision_layer = 4 if active else 0
     enemy.collision_mask = 3 if active else 0
     enemy.get_node("DamageArea").monitoring = active
+    enemy.get_node("HurtArea").collision_layer = 8 if active else 0
 
 func _process(_delta: float) -> void:
     _update_hud()
@@ -107,22 +120,12 @@ func _reset_scene() -> void:
     get_tree().reload_current_scene()
 
 func _draw() -> void:
-    draw_rect(Rect2(0, 0, 3800, 720), Color("182537"))
-    draw_rect(Rect2(0, 325, 3800, 255), Color("46505a"))
-    for lane in [345, 450, 565]:
-        draw_line(Vector2(0, lane), Vector2(3800, lane), Color("697580"), 2)
-    for x in range(80, 3800, 160):
-        draw_rect(Rect2(x, 180, 90, 120), Color("28394b"))
-        draw_rect(Rect2(x + 18, 200, 24, 34), Color("947346"))
     for x in [920, 2320]:
         draw_line(Vector2(x, 325), Vector2(x, 580), Color("cfa65a"), 3)
 
     for pit in pits:
-        draw_rect(pit, Color("090d16"))
-        draw_rect(pit, Color("dca94b"), false, 4)
-        for y in range(330, 575, 24):
-            draw_line(Vector2(pit.position.x - 12, y), Vector2(pit.position.x - 3, y + 12), Color("f5cc64"), 4)
-            draw_line(Vector2(pit.end.x + 3, y), Vector2(pit.end.x + 12, y + 12), Color("f5cc64"), 4)
+        var visual_rect := pit.grow_individual(PIT_VISUAL_SIDE_MARGIN, PIT_DEATH_MARGIN, PIT_VISUAL_SIDE_MARGIN, PIT_DEATH_MARGIN)
+        draw_texture_rect_region(PIT_TEXTURE, visual_rect, pit_texture_region)
         draw_string(ThemeDB.fallback_font, Vector2(pit.position.x - 145, 305), "BURACO - ESPACO PARA PULAR", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f5cc64"))
 
 func check_player_floor(previous_position: Vector2) -> void:
@@ -133,7 +136,7 @@ func check_player_floor(previous_position: Vector2) -> void:
     for i in range(steps + 1):
         var point := previous_position.lerp(player.position, float(i) / steps)
         for pit in pits:
-            if pit.grow(6).has_point(point):
+            if _pit_death_rect(pit).has_point(point):
                 player.fall_into_pit()
                 return
     var safe := true
@@ -142,3 +145,6 @@ func check_player_floor(previous_position: Vector2) -> void:
             safe = false
     if safe:
         player.last_safe_position = player.position
+
+func _pit_death_rect(pit: Rect2) -> Rect2:
+    return pit.grow(PIT_DEATH_MARGIN)

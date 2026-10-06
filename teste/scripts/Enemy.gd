@@ -16,12 +16,14 @@ var hp: int
 var player: CharacterBody2D
 var direction: int = -1
 var contact_damage_cooldown: float = 0.0
+var combat_bounds := Rect2()
 
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var damage_area: Area2D = $DamageArea
 
 func _ready() -> void:
 	hp = max_hp
+	combat_bounds = preload("res://scripts/CombatGeometry.gd").setup(self, true)
 	motion_mode = MOTION_MODE_FLOATING
 	add_to_group("enemy")
 	collision_layer = 4
@@ -42,6 +44,16 @@ func _ready() -> void:
 	if health_bar:
 		health_bar.max_value = max_hp
 		health_bar.value = hp
+		var visual := $Sprite as AnimatedSprite2D
+		var top := combat_bounds.position.y
+		for animation_name in visual.sprite_frames.get_animation_names():
+			for index in visual.sprite_frames.get_frame_count(animation_name):
+				var image := visual.sprite_frames.get_frame_texture(animation_name, index).get_image()
+				top = minf(top, visual.position.y + (image.get_used_rect().position.y - image.get_height() * 0.5) * visual.scale.y)
+		health_bar.position = Vector2(-30, top - 18)
+		health_bar.size = Vector2(60, 8)
+		health_bar.z_index = 5
+		health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _physics_process(delta: float) -> void:
 	if contact_damage_cooldown > 0.0:
@@ -90,7 +102,24 @@ func take_damage(amount: int) -> void:
 	if health_bar:
 		health_bar.value = hp
 	if hp <= 0:
+		_show_defeat()
 		queue_free()
+
+func _show_defeat() -> void:
+	# A detached visual lets the wave advance immediately while the fall plays.
+	var visual := $Sprite as AnimatedSprite2D
+	var remains := AnimatedSprite2D.new()
+	remains.sprite_frames = visual.sprite_frames
+	remains.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	remains.scale = visual.scale
+	remains.flip_h = visual.flip_h
+	get_parent().add_child(remains)
+	remains.global_position = visual.global_position
+	remains.play("death" if remains.sprite_frames.has_animation("death") else "idle")
+	var fade := remains.create_tween()
+	fade.tween_interval(0.6)
+	fade.tween_property(remains, "modulate:a", 0.0, 0.3)
+	fade.tween_callback(remains.queue_free)
 
 func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))
@@ -103,13 +132,15 @@ func _draw() -> void:
 		draw_rect(_attack_rect(), Color(1, 0.2, 0.1, 0.3))
 
 func _attack_rect() -> Rect2:
-	var reach := 175.0 if is_boss else 90.0
-	var width := 55.0 if is_boss else 44.0
+	var reach := maxf(175.0 if is_boss else 90.0, combat_bounds.size.x * 1.4)
+	var width := maxf(55.0 if is_boss else 44.0, ($CollisionShape2D.shape as RectangleShape2D).size.y * 2.0)
 	return Rect2(Vector2(0 if attack_direction > 0 else -reach, -width / 2.0), Vector2(reach, width))
 
 func _release_attack() -> void:
 	attack_pending = false
 	recovery_timer = 0.55 if is_boss else 0.4
 	attack_cooldown_timer = 1.20 if is_boss else 2.2
-	if _attack_rect().grow(6).has_point(player.global_position - global_position):
+	var player_size: Vector2 = player.get_node("CollisionShape2D").shape.size
+	var player_rect := Rect2(player.global_position - global_position - player_size * 0.5, player_size)
+	if _attack_rect().intersects(player_rect):
 		player.take_damage(attack_damage)

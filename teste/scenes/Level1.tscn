@@ -1,4 +1,5 @@
-[gd_scene load_steps=4 format=3 url="res://scenes/Level1.tscn"]
+[gd_scene load_steps=5 format=3 url="res://scenes/Level1.tscn"]
+[ext_resource type="Script" path="res://scripts/CharacterVisual.gd" id="visual"]
 [ext_resource path="res://scripts/Player.gd" type="Script" id=1]
 [ext_resource path="res://scripts/Enemy.gd" type="Script" id=2]
 
@@ -8,10 +9,11 @@
 script = ExtResource( 1 )
 position = Vector2( 200, 400 )
 
-[node name="Sprite" type="ColorRect" parent="Player"]
-color = Color( 1.0, 0.85, 0.2, 1.0 )
-rect_size = Vector2( 28, 48 )
-position = Vector2( 0, -24 )
+[node name="Sprite" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "player"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = RectangleShape2D( extents = Vector2( 12, 22 ) )
@@ -25,10 +27,11 @@ shape = RectangleShape2D( extents = Vector2( 16, 12 ) )
 script = ExtResource( 2 )
 position = Vector2( 420, 400 )
 
-[node name="Sprite" type="ColorRect" parent="Enemy"]
-color = Color( 0.9, 0.2, 0.2, 1.0 )
-rect_size = Vector2( 28, 40 )
-position = Vector2( 0, -20 )
+[node name="Sprite" type="AnimatedSprite2D" parent="Enemy"]
+position = Vector2(0, -52.5)
+scale = Vector2(0.9375, 0.9375)
+script = ExtResource("visual")
+character = "enemy"
 
 [node name="Ground" type="ColorRect" parent="."]
 color = Color( 0.6, 0.6, 0.6, 1.0 )

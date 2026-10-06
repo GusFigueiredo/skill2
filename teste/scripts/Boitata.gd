@@ -13,7 +13,8 @@ enum State { PURSUIT, WINDUP, CHARGE, RECOVERY, MINOR_ATTACK }
 @export var charge_recovery: float = 0.9
 @export var charge_damage: int = 5
 @export var minor_damage: int = 3
-@export var minor_cooldown: float = 1.3
+@export var minor_cooldown: float = 1.0
+@export var minor_attack_duration: float = 1.0
 @export var fireball_distance: float = 200.0
 @export var fireball_interval: float = 2.0
 @export var fireball_damage: int = 2
@@ -43,7 +44,7 @@ func _ready() -> void:
 		"bite": "res://soundeffect/Boitata/Ataque.wav",
 		"fireball": "res://soundeffect/Boitata/Bola de fogo.wav",
 	})
-	body_color = $Sprite.color
+	body_color = $Sprite.modulate
 	# Keep the boss on the connected stretch of road where she spawned.
 	home_bounds = Rect2(40, 340, 3720, 220)
 	for pit in get_parent().pits:
@@ -120,14 +121,14 @@ func _pursue() -> void:
 		return
 	if charge_cooldown_timer > 0.0 and minor_cooldown_timer <= 0.0:
 		if pressure_hits >= 2 and offset.length() < 75.0:
-			_start_minor("push", 0.35)
+			_start_minor("push", minor_attack_duration)
 			return
 		if absf(offset.y) < 27.5:
 			if offset.x * direction < 0.0 and absf(offset.x) < 90.0:
-				_start_minor("tail", 0.4)
+				_start_minor("tail", minor_attack_duration)
 				return
 			if offset.x * direction >= 0.0 and absf(offset.x) < 100.0:
-				_start_minor("bite", 0.3)
+				_start_minor("bite", minor_attack_duration)
 				return
 	if absf(offset.x) > 8.0:
 		direction = 1 if offset.x > 0.0 else -1
@@ -151,7 +152,7 @@ func _update_charge(delta: float) -> void:
 	if travelled.length_squared() > 0.0:
 		fraction = clampf((player.global_position - previous).dot(travelled) / travelled.length_squared(), 0.0, 1.0)
 	var closest := previous + travelled * fraction
-	if not charge_hit and closest.distance_to(player.global_position) <= 33.5:
+	if not charge_hit and _charge_hits_player(closest):
 		charge_hit = player.take_damage(charge_damage)
 	charge_remaining -= step
 	if charge_remaining <= 0.0 or travelled.length() < step * 0.5:
@@ -172,14 +173,14 @@ func _start_minor(kind: String, warning: float) -> void:
 
 func _minor_rect() -> Rect2:
 	var facing := -direction if minor_kind == "tail" else direction
-	var reach := 90.0 if minor_kind == "tail" else 100.0
+	var reach := maxf(90.0 if minor_kind == "tail" else 100.0, combat_bounds.size.x * 0.85)
 	return Rect2(Vector2(0.0 if facing > 0 else -reach, -27.5), Vector2(reach, 55.0))
 
 func _release_minor() -> void:
 	if minor_kind == "bite":
 		sound_effects.play_effect("bite")
 	var offset := player.global_position - global_position
-	var in_range := offset.length() <= 75.0 if minor_kind == "push" else _minor_rect().has_point(offset)
+	var in_range := offset.length() <= 75.0 if minor_kind == "push" else _minor_rect().intersects(Rect2(offset - player.get_node("CollisionShape2D").shape.size * 0.5, player.get_node("CollisionShape2D").shape.size))
 	if in_range and player.take_damage(minor_damage) and minor_kind == "push":
 		var away := offset.normalized() if offset.length_squared() > 0.0 else Vector2(direction, 0)
 		# Sweep knockback with normal collisions, then check the floor along its path.
@@ -204,14 +205,14 @@ func _clamp_position() -> void:
 	global_position = global_position.clamp(home_bounds.position, home_bounds.end)
 
 func _update_visuals() -> void:
-	$Sprite.color = body_color
+	$Sprite.modulate = body_color
 	if state == State.WINDUP:
 		var progress := 1.0 - state_timer / maxf(charge_warning, 0.001)
-		$Sprite.color = body_color.lerp(Color(1.0, 0.7, 0.15), 0.4 + progress * 0.6)
+		$Sprite.modulate = body_color.lerp(Color(1.0, 0.7, 0.15), 0.4 + progress * 0.6)
 	elif state == State.CHARGE:
-		$Sprite.color = Color(1.0, 0.35, 0.05)
+		$Sprite.modulate = Color(1.0, 0.35, 0.05)
 	elif state == State.RECOVERY:
-		$Sprite.color = body_color.darkened(0.3)
+		$Sprite.modulate = body_color.darkened(0.3)
 
 func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))
@@ -231,3 +232,10 @@ func _draw() -> void:
 		else:
 			draw_rect(_minor_rect(), Color(1, 0.65, 0.1, 0.35))
 			draw_rect(_minor_rect(), Color(1, 0.75, 0.15), false, 2)
+
+func _charge_hits_player(closest: Vector2) -> bool:
+	var boss_size: Vector2 = $CollisionShape2D.shape.size
+	var player_size: Vector2 = player.get_node("CollisionShape2D").shape.size
+	var half := (boss_size + player_size) * 0.5
+	var offset := (player.global_position - closest).abs()
+	return offset.x <= half.x and offset.y <= half.y
