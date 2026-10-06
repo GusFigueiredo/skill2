@@ -33,8 +33,7 @@ func run_checks() -> void:
 	menu._toggle_controls()
 	check(menu.controls_label.visible, "Controls must open")
 	menu._start_or_resume()
-	await process_frame
-	await process_frame
+	await wait_for_loading()
 	var level = current_scene
 	var pause_menu = level.get_node("PauseMenu")
 	check(not paused and not pause_menu.panel.visible, "Starting game must hide pause menu")
@@ -58,8 +57,14 @@ func run_checks() -> void:
 	await process_frame
 	check(not paused and current_scene.main_menu, "Returning to menu must clear pause")
 	current_scene._start_or_resume()
-	await process_frame
-	await process_frame
+	await wait_for_loading()
 	check(current_scene.player.hp == current_scene.player.max_hp and current_scene.wave_index == 0, "New game must reset level")
 	print("PASS: main menu, controls, start, Escape pause/resume, frozen combat, continue and return/new game")
 	quit(0)
+
+func wait_for_loading() -> void:
+	var transition = root.get_node("SceneTransition")
+	check(transition.busy and transition.screen.visible and paused, "Loading must cover and freeze the previous scene")
+	while transition.busy:
+		await process_frame
+	check(not transition.screen.visible and not paused, "Loading must release the game when ready")

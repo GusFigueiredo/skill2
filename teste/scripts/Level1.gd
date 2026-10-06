@@ -118,7 +118,7 @@ func trigger_death() -> void:
 
 func _reset_scene() -> void:
     get_tree().paused = false
-    get_tree().reload_current_scene()
+    get_node("/root/SceneTransition").load_level()
 
 func _draw() -> void:
     for pit in pits:

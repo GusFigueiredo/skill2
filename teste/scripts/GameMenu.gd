@@ -218,7 +218,7 @@ static func _select_button(button: Button, selected: bool, animate: bool = true)
 		button.add_theme_stylebox_override(state, style)
 	button.pivot_offset = button.size * 0.5
 	button.z_index = 1 if selected else 0
-	var previous: Tween = button.get_meta("menu_scale_tween", null)
+	var previous: Tween = button.get_meta("menu_scale_tween") if button.has_meta("menu_scale_tween") else null
 	if previous and previous.is_valid():
 		previous.kill()
 	var target := Vector2.ONE * (1.06 if selected else 1.0)
@@ -251,7 +251,7 @@ func _set_paused(value: bool) -> void:
 func _start_or_resume() -> void:
 	if main_menu:
 		get_tree().paused = false
-		get_tree().change_scene_to_file("res://main.tscn")
+		get_node("/root/SceneTransition").load_level()
 	else:
 		_set_paused(false)
 
