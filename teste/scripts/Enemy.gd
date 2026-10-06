@@ -151,8 +151,7 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 16, Color(0, 0, 0, 0.35))
 	draw_set_transform(Vector2.ZERO)
 	if attack_pending:
-		draw_rect(_attack_rect(), Color(1, 0.65, 0.1, 0.35))
-		draw_rect(_attack_rect(), Color(1, 0.7, 0.2, 1), false, 2)
+		preload("res://scripts/CombatVFX.gd").warning(self, _attack_rect(), clampf(1.0 - attack_timer / 0.65, 0.0, 1.0), Color("ffc05c"))
 	elif recovery_timer > 0.0:
 		draw_rect(_attack_rect(), Color(1, 0.2, 0.1, 0.3))
 
@@ -162,6 +161,7 @@ func _attack_rect() -> Rect2:
 	return Rect2(Vector2(0 if attack_direction > 0 else -reach, -width / 2.0), Vector2(reach, width))
 
 func _release_attack() -> void:
+	preload("res://scripts/CombatVFX.gd").spawn(self, "slash", global_position + Vector2(0, combat_bounds.get_center().y), Vector2(attack_direction, 0), Color("ff9565"), _attack_rect().size.x * 0.8)
 	attack_pending = false
 	recovery_timer = 0.55 if is_boss else 0.4
 	attack_cooldown_timer = 1.20 if is_boss else 2.2

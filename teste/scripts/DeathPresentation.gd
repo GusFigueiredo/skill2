@@ -7,11 +7,9 @@ func setup_buttons() -> void:
 	var box: VBoxContainer = $CenterContainer/VBoxContainer
 	var reset: Button = box.get_node("ResetButton")
 	preload("res://scripts/GameMenu.gd").style_button(reset)
-	reset.custom_minimum_size = Vector2(420, 64)
 	var menu := Button.new()
 	menu.name = "MenuButton"
 	menu.text = "Voltar ao menu"
-	menu.custom_minimum_size = reset.custom_minimum_size
 	preload("res://scripts/GameMenu.gd").style_button(menu)
 	menu.pressed.connect(func():
 		get_tree().paused = false

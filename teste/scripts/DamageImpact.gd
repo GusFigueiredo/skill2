@@ -27,6 +27,11 @@ func _draw() -> void:
 	var progress := elapsed / DURATION
 	var color := tint
 	color.a = 1.0 - progress
+	if progress < 0.28:
+		var flash := 1.0 - progress / 0.28
+		draw_circle(Vector2.ZERO, 17.0 + progress * 30.0, Color(tint, flash * 0.16))
+		draw_line(Vector2(-20, 0), Vector2(20, 0), Color(1, 1, 0.9, flash), 3.0, true)
+		draw_line(Vector2(0, -14), Vector2(0, 14), Color(1, 1, 0.9, flash), 2.0, true)
 	for index in range(8):
 		var direction := Vector2.from_angle(index * TAU / 8.0 + 0.2)
 		var start := direction * (5.0 + 38.0 * progress)

@@ -79,6 +79,7 @@ func _physics_process(delta: float) -> void:
 			_pursue()
 		State.WINDUP:
 			if state_timer <= 0.0:
+				preload("res://scripts/CombatVFX.gd").spawn(self, "ring", global_position, Vector2.RIGHT, Color("ffbd56"), 90.0)
 				state = State.CHARGE
 				sound_effects.play_effect("dash")
 				charge_remaining = charge_distance
@@ -111,6 +112,7 @@ func _pursue() -> void:
 		projectile.travel_direction = offset.normalized()
 		get_parent().add_child(projectile)
 		projectile.global_position = global_position
+		preload("res://scripts/CombatVFX.gd").spawn(self, "ring", global_position, Vector2.RIGHT, Color("ffc16a"), 36.0)
 		sound_effects.play_effect("fireball")
 		fireball_timer = fireball_interval
 	if charge_cooldown_timer <= 0.0 and offset.length() <= charge_trigger_distance:
@@ -177,6 +179,9 @@ func _minor_rect() -> Rect2:
 	return Rect2(Vector2(0.0 if facing > 0 else -reach, -27.5), Vector2(reach, 55.0))
 
 func _release_minor() -> void:
+	var effect := "ring" if minor_kind == "push" else "slash"
+	var heading := -direction if minor_kind == "tail" else direction
+	preload("res://scripts/CombatVFX.gd").spawn(self, effect, global_position + Vector2(0, 0 if minor_kind == "push" else combat_bounds.get_center().y), Vector2(heading, 0), Color("ffae42"), 75.0 if minor_kind == "push" else _minor_rect().size.x)
 	if minor_kind == "bite":
 		sound_effects.play_effect("bite")
 	var offset := player.global_position - global_position
@@ -221,17 +226,17 @@ func _draw() -> void:
 	if state == State.WINDUP or state == State.CHARGE:
 		draw_set_transform(Vector2.ZERO, charge_vector.angle())
 		var lane := Rect2(0, -27.5, charge_distance if state == State.WINDUP else charge_remaining, 55)
-		draw_rect(lane, Color(1, 0.55, 0.05, 0.3))
-		draw_rect(lane, Color(1, 0.75, 0.15), false, 2)
+		preload("res://scripts/CombatVFX.gd").warning(self, lane, clampf(1.0 - state_timer / maxf(charge_warning, 0.001), 0.0, 1.0), Color("ffb62e"))
 		draw_set_transform(Vector2.ZERO)
 		draw_circle(Vector2(direction * 10, -43), 4, Color(1, 0.95, 0.4))
 		draw_circle(Vector2(direction * 10, -34), 3, Color(1, 0.75, 0.1))
 	elif state == State.MINOR_ATTACK:
 		if minor_kind == "push":
 			draw_circle(Vector2.ZERO, 75, Color(1, 0.65, 0.1, 0.3))
+			var progress := clampf(1.0 - state_timer / maxf(minor_attack_duration, 0.001), 0.0, 1.0)
+			draw_arc(Vector2.ZERO, 75, -PI * 0.5, -PI * 0.5 + TAU * progress, 48, Color("ffcd67"), 3.0, true)
 		else:
-			draw_rect(_minor_rect(), Color(1, 0.65, 0.1, 0.35))
-			draw_rect(_minor_rect(), Color(1, 0.75, 0.15), false, 2)
+			preload("res://scripts/CombatVFX.gd").warning(self, _minor_rect(), clampf(1.0 - state_timer / maxf(minor_attack_duration, 0.001), 0.0, 1.0), Color("ffb62e"))
 
 func _charge_hits_player(closest: Vector2) -> bool:
 	var boss_size: Vector2 = $CollisionShape2D.shape.size

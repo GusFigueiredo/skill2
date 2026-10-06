@@ -38,6 +38,7 @@ var sound_effects := preload("res://scripts/SoundEffects.gd").new()
 var combat_bounds := Rect2()
 var attack_reach: float = 90.0
 var dodge_protected_frame: int = -1
+var dodge_vfx_timer: float = 0.0
 
 @onready var attack_area: Area2D = $AttackArea
 @onready var sprite: AnimatedSprite2D = $Sprite
@@ -131,7 +132,7 @@ func _physics_process(delta: float) -> void:
     if Input.is_key_pressed(KEY_K) and attack_cooldown_timer <= 0.0:
         _attack()
 
-    if dodge_just_pressed and can_dodge:
+    if dodge_just_pressed and can_dodge and not _is_airborne():
         _start_dodge(move_input)
         dodge_vector = movement.normalized() if movement.length_squared() > 0.0 else Vector2(facing, 0)
         _update_dodge(delta)
@@ -147,7 +148,7 @@ func _input(event: InputEvent) -> void:
         return
     if event.keycode != KEY_SHIFT and event.physical_keycode != KEY_SHIFT:
         return
-    if get_tree().paused or is_falling or hp <= 0 or not can_dodge or is_dodging:
+    if get_tree().paused or is_falling or hp <= 0 or not can_dodge or is_dodging or _is_airborne():
         return
     var movement := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
     movement += Vector2(float(Input.is_key_pressed(KEY_D)) - float(Input.is_key_pressed(KEY_A)), float(Input.is_key_pressed(KEY_S)) - float(Input.is_key_pressed(KEY_W)))
@@ -162,6 +163,7 @@ func _attack() -> void:
     attack_cooldown_timer = attack_cooldown
     sound_effects.play_effect("attack")
     attack_flash_timer = 0.12
+    preload("res://scripts/CombatVFX.gd").spawn(self, "slash", global_position + Vector2(0, combat_bounds.get_center().y - jump_height), Vector2(facing, 0), Color("ffe5a0"), attack_reach * 0.85)
     has_attacked = true
     attack_area.position.x = attack_reach * 0.5 * facing
     var attack_shape := attack_area.get_child(0) as CollisionShape2D
@@ -178,10 +180,15 @@ func _attack() -> void:
             damaged.append(body)
             body.take_damage(attack_damage)
 
+func _is_airborne() -> bool:
+    return jump_height > 0.0 or jump_speed > 0.0
+
 func _start_dodge(move_input: float) -> void:
-    if not can_dodge or is_dodging or hp <= 0:
+    if not can_dodge or is_dodging or hp <= 0 or _is_airborne():
         return
     is_dodging = true
+    dodge_vfx_timer = 0.0
+    preload("res://scripts/CombatVFX.gd").spawn(self, "smoke", global_position, Vector2.RIGHT, Color("b8d5ce"), 38.0)
     sprite.play("dodge")
     sound_effects.play_effect("dodge")
     has_dodged = true
@@ -202,6 +209,10 @@ func _start_dodge(move_input: float) -> void:
             dodge_collision_exceptions.append(enemy)
 
 func _update_dodge(delta: float) -> void:
+    dodge_vfx_timer -= delta
+    if dodge_vfx_timer <= 0.0:
+        preload("res://scripts/CombatVFX.gd").afterimage(self)
+        dodge_vfx_timer = 0.045
     var step := minf(delta, dodge_timer)
     velocity = dodge_vector * dodge_distance / maxf(dodge_duration, 0.001) * step / delta
     var previous_position := position
@@ -259,9 +270,6 @@ func _draw() -> void:
     draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))
     draw_circle(Vector2.ZERO, 16, Color(0, 0, 0, 0.35))
     draw_set_transform(Vector2.ZERO)
-    if attack_flash_timer > 0.0:
-        var shape := (attack_area.get_child(0) as CollisionShape2D).shape as RectangleShape2D
-        draw_rect(Rect2(attack_area.position - shape.size * 0.5, shape.size), Color(1, 0.85, 0.3, 0.35))
 
 func fall_into_pit() -> void:
     if is_falling or hp <= 0:

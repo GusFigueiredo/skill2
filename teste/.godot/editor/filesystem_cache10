@@ -1,5 +1,5 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1791287653
+::res://::1791301357
 boitata_checks-contact-fix.log::TextFile::-1::1791251618::0::1::::<><><>0<>0<><>::
 boitata_checks-dodge.log::TextFile::-1::1791251447::0::1::::<><><>0<>0<><>::
 boitata_checks-hitboxes.log::TextFile::-1::1791247624::0::1::::<><><>0<>0<><>::
@@ -20,6 +20,7 @@ contact_checks.gd::GDScript::5493577635029501208::1791247704::0::1::::<>SceneTre
 contact_checks.log::TextFile::-1::1791212837::0::1::::<><><>0<>0<><>::
 contact_dodge_checks-contact-fix.log::TextFile::-1::1791251620::0::1::::<><><>0<>0<><>::
 contact_dodge_checks.gd::GDScript::8103493110140950067::1791251616::0::1::::<>SceneTree<><>0<>0<><>::
+death_screen_checks.gd::GDScript::1368972464473506326::1791296449::0::1::::<>SceneTree<><>0<>0<><>::
 dodge_checks-contact-fix.log::TextFile::-1::1791251618::0::1::::<><><>0<>0<><>::
 dodge_checks-dodge.log::TextFile::-1::1791251447::0::1::::<><><>0<>0<><>::
 dodge_checks.gd::GDScript::3040773332220441018::1791251445::0::1::::<>SceneTree<><>0<>0<><>::
@@ -33,7 +34,8 @@ hitbox-check.log::TextFile::-1::1791247584::0::1::::<><><>0<>0<><>::
 hud-import.log::TextFile::-1::1791250243::0::1::::<><><>0<>0<><>::
 hud-preview.log::TextFile::-1::1791250351::0::1::::<><><>0<>0<><>::
 hud-probe.log::TextFile::-1::1791250168::0::1::::<><><>0<>0<><>::
-main.tscn::PackedScene::-1::1791251101::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Player.gd<>res://scripts/Enemy.gd<>res://scripts/Level1.gd<>res://scripts/Boitata.gd<>res://sprites/cenario/Fases1e2/backgroundFases.png<>res://sprites/cenario/Fases1e2/chao.png
+hud_resize_checks.gd::GDScript::1648528805361432634::1791295996::0::1::::<>SceneTree<><>0<>0<><>::
+main.tscn::PackedScene::-1::1791288090::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Player.gd<>res://scripts/Enemy.gd<>res://scripts/Level1.gd<>res://scripts/Boitata.gd<>res://sprites/cenario/Fases1e2/backgroundFases.png<>res://sprites/cenario/Fases1e2/chao.png
 menu-art-checks.log::TextFile::-1::1791249120::0::1::::<><><>0<>0<><>::
 menu-assets.log::TextFile::-1::1791249027::0::1::::<><><>0<>0<><>::
 menu-font-checks.log::TextFile::-1::1791251321::0::1::::<><><>0<>0<><>::
@@ -76,23 +78,29 @@ Boitata.mp3::AudioStreamMP3::820978667477433340::1791212837::1791214553::1::::<>
 Fase1.mp3::AudioStreamMP3::4592721728014265648::1791212837::1791214553::1::::<><><>0<>0<>530731b8213c5c1b44659546d464c035<>res://.godot/imported/Fase1.mp3-efaee48823899e4fd5d981713a89dc22.mp3str::
 Menu.mp3::AudioStreamMP3::1235815389420816458::1791212837::1791214553::1::::<><><>0<>0<>7d689bcb6034bbba8b7a36606c497c2c<>res://.godot/imported/Menu.mp3-1dceb5597ef9ae5d913951dec9632aab.mp3str::
 ::res://scenes/::1791212837
-Enemy.tscn::PackedScene::-1::1791287577::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Enemy.gd
-Level1.tscn::PackedScene::-1::1791287577::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Player.gd<>res://scripts/Enemy.gd
-Player.tscn::PackedScene::-1::1791287577::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Player.gd
-::res://scripts/::1791250242
+Enemy.tscn::PackedScene::-1::1791288090::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Enemy.gd
+Level1.tscn::PackedScene::-1::1791288090::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Player.gd<>res://scripts/Enemy.gd
+Player.tscn::PackedScene::-1::1791288090::0::1::::<><><>0<>0<><>::res://scripts/CharacterVisual.gd<>res://scripts/Player.gd
+::res://scripts/::1791296272
+Atmosphere.gd::GDScript::4430579172549650193::1791295451::0::1::::<>Node2D<><>0<>0<><>::
 Boitata.gd::GDScript::2658707936255837121::1791247622::0::1::::<>CharacterBody2D<><>0<>0<><>::
-CharacterVisual.gd::GDScript::6614026697954371956::1791215149::0::1::::<>AnimatedSprite2D<><>0<>0<><>::
+CharacterVisual.gd::GDScript::6614026697954371956::1791295577::0::1::::<>AnimatedSprite2D<><>0<>0<><>::
 CombatGeometry.gd::GDScript::6372581572700395612::1791247739::0::1::::<>RefCounted<><>0<>0<><>::
-Enemy.gd::GDScript::8838611643372151880::1791251588::0::1::::<>CharacterBody2D<><>0<>0<><>::
+DamageImpact.gd::GDScript::549798190961902296::1791295576::0::1::::<>Node2D<><>0<>0<><>::
+DeathPresentation.gd::GDScript::3091804479187461421::1791296448::0::1::::<>CanvasLayer<><>0<>0<><>::
+Enemy.gd::GDScript::8838611643372151880::1791295577::0::1::::<>CharacterBody2D<><>0<>0<><>::
 Fireball.gd::GDScript::3461417569136709494::1791251094::0::1::::<>Node2D<><>0<>0<><>::
 FlameTrail.gd::GDScript::199147277389739350::1791212837::0::1::::<>Node2D<><>0<>0<><>::
 FramedHealthBar.gd::GDScript::2437552150112379268::1791250320::0::1::::<>ProgressBar<><>0<>0<><>::
-GameMenu.gd::GDScript::658626262899736182::1791249092::0::1::::<>CanvasLayer<><>0<>0<><>::
-Level1.gd::GDScript::8988369636021216320::1791247739::0::1::::<>Node2D<><>0<>0<><>::
+GameMenu.gd::GDScript::658626262899736182::1791301258::0::1::::<>CanvasLayer<><>0<>0<><>::
+Level1.gd::GDScript::8988369636021216320::1791296269::0::1::::<>Node2D<><>0<>0<><>::
 MusicPlayer.gd::GDScript::7096782575801522890::1791212837::0::1::::<>AudioStreamPlayer<><>0<>0<><>::
-Player.gd::GDScript::5451311110774802853::1791251589::0::1::::<>CharacterBody2D<><>0<>0<><>::
+Player.gd::GDScript::5451311110774802853::1791295577::0::1::::<>CharacterBody2D<><>0<>0<><>::
+Presentation.gd::GDScript::5756141742294096488::1791296448::0::1::::<>RefCounted<><>0<>0<><>::
 SoundEffects.gd::GDScript::8251955402121123041::1791212837::0::1::::<>Node<><>0<>0<><>::
-::res://shaders/::1791250242
+::res://shaders/::1791295580
+atmosphere.gdshader::Shader::7585001870693650163::1791295451::0::1::::<><><>0<>0<><>::
+damage_flash.gdshader::Shader::7839570609632904965::1791295576::0::1::::<><><>0<>0<><>::
 health_frame.gdshader::Shader::6384807477935755476::1791250320::0::1::::<><><>0<>0<><>::
 ::res://soundeffect/::1791213312
 ::res://soundeffect/Boitata/::1791214554
@@ -195,8 +203,9 @@ barra de vida boss.png::CompressedTexture2D::6048600161292489418::1791249862::17
 barra de vida personagem e inimigo.png::CompressedTexture2D::4126861739020874470::1791249868::1791250107::1::::<><><>0<>0<>d8f8ce96a6919eb1bb8cf18776440ccf<>res://.godot/imported/barra de vida personagem e inimigo.png-a23dfd95d713fabd1f3547e247516258.ctex::
 boss-layout-preview.png::CompressedTexture2D::6889885031795801801::1791251138::1791251163::1::::<><><>0<>0<>7390d9c3c66672c22ae721a9aa3083ee<>res://.godot/imported/boss-layout-preview.png-91898e6841b0f96758cbd753d0da410e.ctex::
 health-preview.png::CompressedTexture2D::6335727503316701446::1791250351::1791250859::1::::<><><>0<>0<>fb4f2a2a6e1aad498712d7263f0debc1<>res://.godot/imported/health-preview.png-ac615d1aa72d0f41777ee5f98bd4d98f.ctex::
-::res://sprites/Menu/::1791249096
-Background.png::CompressedTexture2D::3571279269416604008::1791248623::1791249096::1::::<><><>0<>0<>c2701631f9b88ae8dcb9751b3032c9c7<>res://.godot/imported/Background.png-56438c3a7fc5e8f02ed72c6030682099.ctex::
+::res://sprites/Menu/::1791299141
+Background.png::CompressedTexture2D::3571279269416604008::1791299139::1791299141::1::::<><><>0<>0<>c2701631f9b88ae8dcb9751b3032c9c7<>res://.godot/imported/Background.png-56438c3a7fc5e8f02ed72c6030682099.ctex::
+botões menu.png::CompressedTexture2D::6717284914344709364::1791299130::1791299141::1::::<><><>0<>0<>29a806d86890fae5502c550426da7943<>res://.godot/imported/botões menu.png-2b47c094de135e36899fabb4c4d73610.ctex::
 menu sheets.png::CompressedTexture2D::884775823355204544::1791248637::1791249096::1::::<><><>0<>0<>3772bbe4a3c5f2d3f1f74336df7ed428<>res://.godot/imported/menu sheets.png-58a5d22db39341b3c3c04dea25016023.ctex::
 ::res://sprites/Menu/extracted/::1791249242
 background.png::CompressedTexture2D::4331152507316166251::1791249027::1791249096::1::::<><><>0<>0<>df5819cadcda8fa05e09319d32814fcd<>res://.godot/imported/background.png-5ef7f3b742dcd848606d9aa07dc89260.ctex::

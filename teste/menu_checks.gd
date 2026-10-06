@@ -15,6 +15,21 @@ func run_checks() -> void:
 	await process_frame
 	var menu = current_scene
 	check(menu.panel.visible and menu.primary_button.text == "Jogar", "Game must open on main menu")
+	var controls_button: Button = menu.buttons.get_child(menu.primary_button.get_index() + 1)
+	controls_button.mouse_entered.emit()
+	check(controls_button.has_focus() and not menu.primary_button.has_focus(), "Mouse selection must move focus away from Jogar")
+	check(menu.primary_button.get_theme_stylebox("normal") == menu.primary_button.get_meta("menu_normal_style"), "Jogar must stop glowing when another button is selected")
+	await create_timer(0.2, true).timeout
+	check(controls_button.scale.is_equal_approx(Vector2.ONE * 1.06), "Selected button must animate to six percent larger")
+	check(menu.primary_button.scale.is_equal_approx(Vector2.ONE), "Previous selection must return to its original size")
+	var selected_style: StyleBoxTexture = controls_button.get_theme_stylebox("normal")
+	check(is_equal_approx(selected_style.expand_margin_top, controls_button.size.y * 40.0 / 300.0), "Selected glow must expand outside the frame instead of shrinking it")
+	controls_button.mouse_exited.emit()
+	await create_timer(0.2, true).timeout
+	check(not controls_button.has_focus() and controls_button.scale.is_equal_approx(Vector2.ONE), "Leaving a button must clear selection and restore its size")
+	menu.primary_button.grab_focus()
+	await create_timer(0.2, true).timeout
+	check(menu.primary_button.scale.is_equal_approx(Vector2.ONE * 1.06), "Keyboard focus must also animate selection")
 	menu._toggle_controls()
 	check(menu.controls_label.visible, "Controls must open")
 	menu._start_or_resume()

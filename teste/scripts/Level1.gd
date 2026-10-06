@@ -67,6 +67,7 @@ func _process(_delta: float) -> void:
         finished = true
         $DeathScreen/CenterContainer/VBoxContainer/Label.text = "Vitoria! Boitata derrotada"
         death_screen.visible = true
+        reset_button.grab_focus()
         player.set_physics_process(false)
         return
     road_open = true

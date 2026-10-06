@@ -1,7 +1,4 @@
-res://scripts/CharacterVisual.gd
+res://scripts/MenuAtmosphere.gd
+res://scripts/DamageImpact.gd
 res://scripts/Enemy.gd
 res://scripts/Player.gd
-res://scripts/Presentation.gd
-res://death_screen_checks.gd
-res://scripts/DeathPresentation.gd
-res://scripts/GameMenu.gd

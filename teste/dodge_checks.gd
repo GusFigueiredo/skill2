@@ -14,6 +14,16 @@ func run_checks() -> void:
 	var shift := InputEventKey.new()
 	shift.keycode = KEY_SHIFT
 	shift.pressed = true
+	player.jump_height = 30.0
+	player._input(shift)
+	assert(not player.is_dodging and player.can_dodge and player.dodge_cooldown_timer == 0.0, "Shift during a jump must not start dodge or consume cooldown")
+	player._start_dodge(1.0)
+	assert(not player.is_dodging, "Direct dodge requests must also be blocked in midair")
+	player.jump_height = 0.0
+	player.jump_speed = 120.0
+	player._input(shift)
+	assert(not player.is_dodging, "Dodge must be blocked at takeoff before height increases")
+	player.jump_speed = 0.0
 	player._input(shift)
 	assert(player.is_dodging and player.sprite.animation == "dodge", "Shift must activate protection immediately")
 	var health: int = player.hp

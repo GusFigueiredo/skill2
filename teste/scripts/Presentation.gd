@@ -82,6 +82,5 @@ static func setup(level: Node2D) -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 56)
 	title.add_theme_color_override("font_color", Color("efcd85"))
-	box.get_node("ResetButton").custom_minimum_size = Vector2(320, 60)
 	death.set_script(preload("res://scripts/DeathPresentation.gd"))
 	death.setup_buttons()
