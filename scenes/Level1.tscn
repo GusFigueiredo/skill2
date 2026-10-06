@@ -1,13 +1,16 @@
-[gd_scene load_steps=2 format=3 url="res://scenes/Level1.tscn"]
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="player_scene"]
+[ext_resource type="PackedScene" path="res://scenes/Enemy.tscn" id="enemy_scene"]
 
 [node name="Level1" type="Node2D"]
 
-[node name="PlayerInstance" parent="." instance="res://scenes/Player.tscn"]
-position = Vector2( 200, 400 )
+[node name="PlayerInstance" parent="." instance=ExtResource("player_scene")]
+position = Vector2(200, 400)
 
-[node name="EnemyInstance" parent="." instance="res://scenes/Enemy.tscn"]
-position = Vector2( 420, 400 )
+[node name="EnemyInstance" parent="." instance=ExtResource("enemy_scene")]
+position = Vector2(420, 400)
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2( 320, 360 )
-current = true
+position = Vector2(320, 360)
+enabled = true

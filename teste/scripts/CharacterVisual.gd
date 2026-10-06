@@ -6,8 +6,16 @@ var hurt_timer: float = 0.0
 var action_timer: float = 0.0
 var previous_hp: int = -1
 var previous_fireball_timer: float = 0.0
+var flash_timer: float = 0.0
+
+func flash_damage() -> void:
+	flash_timer = 0.18
+	hurt_timer = 0.25
+	material.set_shader_parameter("flash", 1.0)
 
 func _ready() -> void:
+	material = ShaderMaterial.new()
+	material.shader = preload("res://shaders/damage_flash.gdshader")
 	sprite_frames = load("res://sprites/characters/%s.tres" % character)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	play("idle")
@@ -16,6 +24,8 @@ func _ready() -> void:
 		previous_fireball_timer = get_parent().fireball_timer
 
 func _process(delta: float) -> void:
+	flash_timer = maxf(0.0, flash_timer - delta)
+	material.set_shader_parameter("flash", flash_timer / 0.18)
 	var actor = get_parent()
 	hurt_timer = maxf(0.0, hurt_timer - delta)
 	action_timer = maxf(0.0, action_timer - delta)

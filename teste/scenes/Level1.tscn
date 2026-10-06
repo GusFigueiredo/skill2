@@ -1,50 +1,70 @@
-[gd_scene load_steps=5 format=3 url="res://scenes/Level1.tscn"]
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="SpriteFrames" path="res://sprites/characters/player.tres" id="frames_player"]
+[ext_resource type="SpriteFrames" path="res://sprites/characters/enemy.tres" id="frames_enemy"]
 [ext_resource type="Script" path="res://scripts/CharacterVisual.gd" id="visual"]
-[ext_resource path="res://scripts/Player.gd" type="Script" id=1]
-[ext_resource path="res://scripts/Enemy.gd" type="Script" id=2]
+[ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/Enemy.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(24, 44)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(32, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3"]
+size = Vector2(24, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4"]
+size = Vector2(1280, 80)
 
 [node name="Level1" type="Node2D"]
 
 [node name="Player" type="CharacterBody2D" parent="."]
-script = ExtResource( 1 )
-position = Vector2( 200, 400 )
+script = ExtResource("1")
+position = Vector2(200, 400)
 
 [node name="Sprite" type="AnimatedSprite2D" parent="Player"]
 position = Vector2(0, -52.5)
 scale = Vector2(0.9375, 0.9375)
 script = ExtResource("visual")
 character = "player"
+sprite_frames = ExtResource("frames_player")
+animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-shape = RectangleShape2D( extents = Vector2( 12, 22 ) )
+shape = SubResource("RectangleShape2D_1")
 
 [node name="AttackArea" type="Area2D" parent="Player"]
-position = Vector2( 20, 0 )
+position = Vector2(20, 0)
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player/AttackArea"]
-shape = RectangleShape2D( extents = Vector2( 16, 12 ) )
+shape = SubResource("RectangleShape2D_2")
 
 [node name="Enemy" type="CharacterBody2D" parent="."]
-script = ExtResource( 2 )
-position = Vector2( 420, 400 )
+script = ExtResource("2")
+position = Vector2(420, 400)
 
 [node name="Sprite" type="AnimatedSprite2D" parent="Enemy"]
 position = Vector2(0, -52.5)
 scale = Vector2(0.9375, 0.9375)
 script = ExtResource("visual")
 character = "enemy"
+sprite_frames = ExtResource("frames_enemy")
+animation = &"idle"
 
 [node name="Ground" type="ColorRect" parent="."]
-color = Color( 0.6, 0.6, 0.6, 1.0 )
-rect_size = Vector2( 1280, 80 )
-position = Vector2( 640, 460 )
-
+color = Color(0.6, 0.6, 0.6, 1)
+offset_right = 1280
+offset_bottom = 80
+position = Vector2(640, 460)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy"]
-shape = RectangleShape2D( extents = Vector2( 12, 20 ) )
+shape = SubResource("RectangleShape2D_3")
 
 [node name="GroundCollision" type="CollisionShape2D" parent="Ground"]
-shape = RectangleShape2D( extents = Vector2( 640, 40 ) )
+shape = SubResource("RectangleShape2D_4")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2( 320, 360 )
-current = true
+position = Vector2(320, 360)
+enabled = true

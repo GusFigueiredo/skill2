@@ -120,7 +120,10 @@ func _update_contact_damage() -> void:
 		contact_damage_cooldown = contact_damage_interval
 
 func take_damage(amount: int) -> void:
+	if hp <= 0 or amount <= 0:
+		return
 	hp = max(0, hp - amount)
+	preload("res://scripts/DamageImpact.gd").spawn(self, amount)
 	if health_bar:
 		health_bar.value = hp
 	if hp <= 0:

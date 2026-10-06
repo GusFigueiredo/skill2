@@ -1,2 +1,7 @@
+res://scripts/CharacterVisual.gd
 res://scripts/Enemy.gd
-res://themes/pindorama.tres
+res://scripts/Player.gd
+res://scripts/Presentation.gd
+res://death_screen_checks.gd
+res://scripts/DeathPresentation.gd
+res://scripts/GameMenu.gd

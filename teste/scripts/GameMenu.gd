@@ -93,6 +93,14 @@ func _add_button(text: String, callback: Callable) -> Button:
 	button.text = text
 	button.custom_minimum_size = Vector2(340, 72)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	style_button(button)
+	button.pressed.connect(callback)
+	buttons.add_child(button)
+	return button
+
+static func style_button(button: Button) -> void:
+	button.theme = MENU_THEME
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.add_theme_font_size_override("font_size", 30)
 	for state in BUTTON_TEXTURES:
@@ -105,20 +113,12 @@ func _add_button(text: String, callback: Callable) -> Button:
 		style.content_margin_left = 32
 		style.content_margin_right = 32
 		button.add_theme_stylebox_override(state, style)
-	var focus := StyleBoxFlat.new()
-	focus.bg_color = Color.TRANSPARENT
-	focus.border_color = Color("ffd878")
-	focus.set_border_width_all(2)
-	focus.set_corner_radius_all(10)
-	button.add_theme_stylebox_override("focus", focus)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.add_theme_color_override("font_color", Color("ffe3a1"))
 	button.add_theme_color_override("font_hover_color", Color("fff1c7"))
 	button.add_theme_color_override("font_pressed_color", Color("ffcd70"))
 	button.add_theme_color_override("font_outline_color", Color("29180e"))
 	button.add_theme_constant_override("outline_size", 4)
-	button.pressed.connect(callback)
-	buttons.add_child(button)
-	return button
 
 func _unhandled_input(event: InputEvent) -> void:
 	if main_menu or not event is InputEventKey or event.echo or not event.pressed or event.keycode != KEY_ESCAPE:

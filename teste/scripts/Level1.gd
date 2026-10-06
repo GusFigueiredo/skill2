@@ -3,7 +3,7 @@ extends Node2D
 const LEVEL_WIDTH := 3800.0
 const PIT_TEXTURE := preload("res://sprites/buraco.png")
 const PIT_DEATH_MARGIN := 6.0
-const PIT_VISUAL_SIDE_MARGIN := 12.0
+const PIT_VISUAL_SIDE_MARGIN := 72.0
 
 var pit_texture_region: Rect2
 
@@ -24,6 +24,7 @@ var music := preload("res://scripts/MusicPlayer.gd").new()
 @onready var reset_button: Button = $DeathScreen/CenterContainer/VBoxContainer/ResetButton
 
 func _ready() -> void:
+    preload("res://scripts/Presentation.gd").setup(self)
     # Fit the visible art, excluding the source image's transparent padding.
     pit_texture_region = Rect2(PIT_TEXTURE.get_image().get_used_rect())
     # Extend the repeating textures if the level width changes.
@@ -112,21 +113,16 @@ func _update_hud() -> void:
         $HUD/BossHealth.value = boss.hp
 
 func trigger_death() -> void:
-    $DeathScreen/CenterContainer/VBoxContainer/Label.text = "Derrota"
-    death_screen.visible = true
+    death_screen.show_death()
 
 func _reset_scene() -> void:
     get_tree().paused = false
     get_tree().reload_current_scene()
 
 func _draw() -> void:
-    for x in [920, 2320]:
-        draw_line(Vector2(x, 325), Vector2(x, 580), Color("cfa65a"), 3)
-
     for pit in pits:
         var visual_rect := pit.grow_individual(PIT_VISUAL_SIDE_MARGIN, PIT_DEATH_MARGIN, PIT_VISUAL_SIDE_MARGIN, PIT_DEATH_MARGIN)
         draw_texture_rect_region(PIT_TEXTURE, visual_rect, pit_texture_region)
-        draw_string(ThemeDB.fallback_font, Vector2(pit.position.x - 145, 305), "BURACO - ESPACO PARA PULAR", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f5cc64"))
 
 func check_player_floor(previous_position: Vector2) -> void:
     if player.jump_height > 0.0 or player.is_falling:

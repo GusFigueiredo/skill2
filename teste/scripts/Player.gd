@@ -235,6 +235,7 @@ func take_damage(amount: int) -> bool:
     damage_cooldown = damage_interval
     hp = max(0, hp - amount)
     if amount > 0:
+        preload("res://scripts/DamageImpact.gd").spawn(self, amount)
         sound_effects.play_effect("damage")
     if hp <= 0:
         hp = 0
