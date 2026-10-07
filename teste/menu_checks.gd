@@ -15,6 +15,12 @@ func run_checks() -> void:
 	await process_frame
 	var menu = current_scene
 	check(menu.panel.visible and menu.primary_button.text == "Jogar", "Game must open on main menu")
+	var logo_center := menu.buttons.get_child(0) as CenterContainer
+	var logo := logo_center.get_node("MenuLogo") as TextureRect
+	var logo_shadow := logo.get_node("LogoShadow") as TextureRect
+	check(is_equal_approx(logo_center.get_global_rect().get_center().x, menu.get_viewport().get_visible_rect().size.x * 0.5), "Menu logo container must stay horizontally centered")
+	check(is_equal_approx(logo.get_global_rect().get_center().x, logo_center.get_global_rect().get_center().x), "Logo image must be centered inside its frame")
+	check(logo_shadow.offset_left == 5.0 and logo_shadow.offset_top == 8.0 and logo_shadow.offset_right == 5.0 and logo_shadow.offset_bottom == 8.0, "Logo shadow must remain fully sized and sit behind the centered image")
 	var controls_button: Button = menu.buttons.get_child(menu.primary_button.get_index() + 1)
 	controls_button.mouse_entered.emit()
 	check(controls_button.has_focus() and not menu.primary_button.has_focus(), "Mouse selection must move focus away from Jogar")

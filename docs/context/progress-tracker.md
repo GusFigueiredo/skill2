@@ -8,3 +8,4 @@
 - Playtest visual no editor ainda pendente para avaliar ritmo, enquadramento e legibilidade.
 - Limitações conhecidas: o protótipo ligado à fase 1 ainda contém a luta contra a Boitatá; nenhum desbloqueio persistente, drop ou fase posterior foi implementado.
 - Próxima unidade recomendada: separar o tutorial de Ratanabá da fase 2 da Boitatá antes de implementar a progressão por drops.
+- Unidade visual concluída: logo Pindorama do menu centralizada em um contêiner próprio e sombra traseira levemente ampliada; verificações headless do menu atualizadas.

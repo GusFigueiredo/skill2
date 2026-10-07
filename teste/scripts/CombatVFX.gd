@@ -17,13 +17,13 @@ static func spawn(actor: Node2D, effect: String, point: Vector2, heading: Vector
 	visual.rotation = heading.angle()
 	visual.z_index = 15
 
-static func afterimage(actor: Node2D) -> void:
+static func afterimage(actor: Node2D, color: Color = Color(0.5, 0.85, 0.8, 0.32)) -> void:
 	var source := actor.get_node("Sprite") as AnimatedSprite2D
 	var ghost := Sprite2D.new()
 	ghost.texture = source.sprite_frames.get_frame_texture(source.animation, source.frame)
 	ghost.flip_h = source.flip_h
 	ghost.scale = source.global_scale
-	ghost.modulate = Color(0.5, 0.85, 0.8, 0.32)
+	ghost.modulate = color
 	ghost.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	actor.get_parent().add_child(ghost)
 	ghost.global_position = source.global_position
@@ -62,6 +62,11 @@ func _draw() -> void:
 			var fog := color
 			fog.a *= 0.24
 			draw_circle(point, (7.0 + i % 3 * 3.0) * (0.6 + progress), fog)
+	elif kind == "dash":
+		for i in range(9):
+			var point := Vector2(-radius * progress - i * 9.0, sin(i * 7.1) * 22.0)
+			draw_line(point, point + Vector2(-25.0 * (1.0 - progress), 0), color, 2.0, true)
+			draw_circle(point, 2.0 * (1.0 - progress), Color(1, 0.8, 0.25, color.a))
 	elif kind == "ring":
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1, 0.45))
 		draw_arc(Vector2.ZERO, radius * (0.2 + progress), 0, TAU, 48, Color(color, color.a * 0.2), 10.0 * (1.0 - progress), true)

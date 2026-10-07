@@ -72,6 +72,11 @@ func _ready() -> void:
 	buttons.add_theme_constant_override("separation", 18)
 	center.add_child(buttons)
 	if main_menu:
+		var logo_center := CenterContainer.new()
+		logo_center.name = "MenuLogoCenter"
+		logo_center.custom_minimum_size = Vector2(560, 165)
+		logo_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		buttons.add_child(logo_center)
 		var image := TextureRect.new()
 		image.name = "MenuLogo"
 		image.texture = title_image if title_image else MENU_LOGO
@@ -79,7 +84,7 @@ func _ready() -> void:
 		image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		image.custom_minimum_size = Vector2(560, 165)
 		image.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		buttons.add_child(image)
+		logo_center.add_child(image)
 		var logo_shadow := TextureRect.new()
 		logo_shadow.name = "LogoShadow"
 		logo_shadow.texture = image.texture
@@ -93,7 +98,10 @@ func _ready() -> void:
 		logo_shadow.material = shadow_material
 		image.add_child(logo_shadow)
 		logo_shadow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		logo_shadow.position += Vector2(5, 8)
+		logo_shadow.offset_left = 5
+		logo_shadow.offset_top = 8
+		logo_shadow.offset_right = 5
+		logo_shadow.offset_bottom = 8
 	else:
 		var title := Label.new()
 		title.text = title_text if main_menu else "PAUSADO"

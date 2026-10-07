@@ -3,7 +3,7 @@ extends "res://scripts/Enemy.gd"
 const FlameTrail = preload("res://scripts/FlameTrail.gd")
 const Fireball = preload("res://scripts/Fireball.gd")
 
-enum State { PURSUIT, WINDUP, CHARGE, RECOVERY, MINOR_ATTACK }
+enum State { PURSUIT, WINDUP, CHARGE, RECOVERY, MINOR_ATTACK, FIREBALL }
 
 @export var charge_warning: float = 1.0
 @export var charge_cooldown: float = 3.5
@@ -24,6 +24,10 @@ var state_timer: float = 0.0
 var charge_cooldown_timer: float = 0.0
 var minor_cooldown_timer: float = 0.0
 var fireball_timer: float = 2.0
+var fireball_elapsed: float = 0.0
+var fireball_fps: float = 6.0
+var fireball_released: bool = false
+var dash_effect_timer: float = 0.0
 var home_bounds := Rect2()
 var charge_vector := Vector2.LEFT
 var charge_remaining: float = 0.0
@@ -84,6 +88,7 @@ func _physics_process(delta: float) -> void:
 				sound_effects.play_effect("dash")
 				charge_remaining = charge_distance
 				charge_hit = false
+				dash_effect_timer = 0.0
 				# The charge passes through the player; damage respects roll invulnerability.
 				collision_mask = 1
 		State.CHARGE:
@@ -94,6 +99,8 @@ func _physics_process(delta: float) -> void:
 		State.MINOR_ATTACK:
 			if state_timer <= 0.0:
 				_release_minor()
+		State.FIREBALL:
+			_update_fireball(delta)
 	if state == State.PURSUIT:
 		move_and_slide()
 		_clamp_position()
@@ -105,16 +112,15 @@ func _physics_process(delta: float) -> void:
 func _pursue() -> void:
 	var offset := player.global_position - global_position
 	if offset.length() > fireball_distance and fireball_timer <= 0.0:
-		var projectile = Fireball.new()
-		projectile.player = player
-		projectile.game_manager = get_parent()
-		projectile.damage = fireball_damage
-		projectile.travel_direction = offset.normalized()
-		get_parent().add_child(projectile)
-		projectile.global_position = global_position
-		preload("res://scripts/CombatVFX.gd").spawn(self, "ring", global_position, Vector2.RIGHT, Color("ffc16a"), 36.0)
-		sound_effects.play_effect("fireball")
-		fireball_timer = fireball_interval
+		direction = 1 if offset.x >= 0.0 else -1
+		state = State.FIREBALL
+		fireball_elapsed = 0.0
+		fireball_released = false
+		fireball_fps = $Sprite.sprite_frames.get_animation_speed("fireball")
+		$Sprite.play("fireball")
+		$Sprite.set_frame_and_progress(0, 0.0)
+		$Sprite.pause()
+		return
 	if charge_cooldown_timer <= 0.0 and offset.length() <= charge_trigger_distance:
 		charge_vector = offset.normalized() if offset.length_squared() > 0.0 else Vector2(direction, 0)
 		direction = 1 if charge_vector.x >= 0.0 else -1
@@ -137,6 +143,11 @@ func _pursue() -> void:
 	velocity = offset.normalized() * speed
 
 func _update_charge(delta: float) -> void:
+	dash_effect_timer -= delta
+	if dash_effect_timer <= 0.0:
+		preload("res://scripts/CombatVFX.gd").afterimage(self, Color(1.0, 0.45, 0.08, 0.5))
+		preload("res://scripts/CombatVFX.gd").spawn(self, "dash", global_position + Vector2(0, -20), charge_vector, Color("ffb43d"), 95.0)
+		dash_effect_timer = 0.05
 	if not is_instance_valid(charge_trail):
 		charge_trail = FlameTrail.new()
 		charge_trail.player = player
@@ -162,10 +173,33 @@ func _update_charge(delta: float) -> void:
 		charge_trail = null
 		collision_mask = 3
 		velocity = Vector2.ZERO
+		preload("res://scripts/CombatVFX.gd").spawn(self, "smoke", global_position, charge_vector, Color("ffb86b"), 70.0)
 		state = State.RECOVERY
 		state_timer = charge_recovery
 		charge_cooldown_timer = charge_cooldown
 		pressure_hits = 0
+
+func _fireball_mouth_position() -> Vector2:
+	# Fire pose is grounded on the same 256x128 canvas as the idle poses.
+	return $Sprite.global_position + Vector2(direction * 37.0, 1.0) * $Sprite.scale
+
+func _update_fireball(delta: float) -> void:
+	fireball_elapsed += delta
+	if not fireball_released and fireball_elapsed >= 1.0 / fireball_fps:
+		fireball_released = true
+		var mouth := _fireball_mouth_position()
+		var projectile = Fireball.new()
+		projectile.player = player
+		projectile.game_manager = get_parent()
+		projectile.damage = fireball_damage
+		projectile.travel_direction = (player.global_position - mouth).normalized()
+		get_parent().add_child(projectile)
+		projectile.global_position = mouth
+		preload("res://scripts/CombatVFX.gd").spawn(self, "ring", mouth, projectile.travel_direction, Color("ffc16a"), 24.0)
+		sound_effects.play_effect("fireball")
+	if fireball_elapsed >= 3.0 / fireball_fps:
+		fireball_timer = fireball_interval
+		state = State.PURSUIT
 
 func _start_minor(kind: String, warning: float) -> void:
 	minor_kind = kind

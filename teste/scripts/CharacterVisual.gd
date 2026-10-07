@@ -3,9 +3,7 @@ extends AnimatedSprite2D
 # Visual state follows gameplay; animation never changes damage or movement.
 @export_enum("player", "enemy", "boitata") var character: String = "player"
 var hurt_timer: float = 0.0
-var action_timer: float = 0.0
 var previous_hp: int = -1
-var previous_fireball_timer: float = 0.0
 var flash_timer: float = 0.0
 
 func flash_damage() -> void:
@@ -20,15 +18,12 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	play("idle")
 	previous_hp = get_parent().hp
-	if character == "boitata":
-		previous_fireball_timer = get_parent().fireball_timer
 
 func _process(delta: float) -> void:
 	flash_timer = maxf(0.0, flash_timer - delta)
 	material.set_shader_parameter("flash", flash_timer / 0.18)
 	var actor = get_parent()
 	hurt_timer = maxf(0.0, hurt_timer - delta)
-	action_timer = maxf(0.0, action_timer - delta)
 	if actor.hp < previous_hp:
 		hurt_timer = 0.25
 	previous_hp = actor.hp
@@ -41,12 +36,12 @@ func _process(delta: float) -> void:
 			next = "dodge"
 		elif hurt_timer > 0.0:
 			next = "hurt"
-		elif actor.attack_cooldown_timer > actor.attack_cooldown - 0.4:
+		elif actor.attack_cooldown_timer > actor.attack_cooldown - (sprite_frames.get_frame_count("attack") - 1) / sprite_frames.get_animation_speed("attack"):
 			next = "attack"
 		elif actor.jump_height > 0.0:
 			next = "jump"
 		elif actor.velocity.length_squared() > 1.0:
-			next = "walk"
+			next = _walk_animation(actor.velocity)
 	elif character == "enemy":
 		flip_h = actor.direction < 0
 		if actor.hp <= 0:
@@ -56,19 +51,26 @@ func _process(delta: float) -> void:
 		elif actor.attack_pending or actor.recovery_timer > 0.15:
 			next = "attack"
 		elif actor.velocity.length_squared() > 1.0:
-			next = "walk"
+			next = _walk_animation(actor.velocity)
 	else:
 		flip_h = actor.direction < 0
-		if actor.fireball_timer > previous_fireball_timer + 0.5:
-			action_timer = 0.4
-		previous_fireball_timer = actor.fireball_timer
 		match actor.state:
 			actor.State.WINDUP: next = "windup"
 			actor.State.CHARGE: next = "dash"
-			actor.State.MINOR_ATTACK: next = "tail" if actor.minor_kind == "tail" else "bite"
-			actor.State.PURSUIT:
-				next = "walk" if actor.velocity.length_squared() > 1.0 else "idle"
-		if action_timer > 0.0:
-			next = "fireball"
+			actor.State.MINOR_ATTACK: next = "bite" if actor.minor_kind == "bite" else "idle"
+			actor.State.FIREBALL: next = "fireball"
 	if animation != next:
 		play(next)
+	if character == "boitata" and actor.state == actor.State.FIREBALL:
+		# Physics owns the attack clock and launch; rendering uses the same clock.
+		set_frame_and_progress(mini(2, int(actor.fireball_elapsed * actor.fireball_fps)), 0.0)
+		pause()
+	elif character == "boitata" and not is_playing():
+		play(next)
+	if next in ["walk_up", "walk_down"]:
+		flip_h = false
+
+func _walk_animation(movement: Vector2) -> String:
+	if absf(movement.y) > absf(movement.x):
+		return "walk_up" if movement.y < 0.0 else "walk_down"
+	return "walk"

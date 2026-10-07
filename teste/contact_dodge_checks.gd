@@ -6,12 +6,14 @@ func frames(count: int):
   await physics_frame
 func run_checks():
  for direction in [-1,1]:
-  for distance in [55,85]:
+  for overlapping_finish in [false,true]:
    var scene=load("res://main.tscn").instantiate()
    root.add_child(scene)
    scene.set_process(false)
    var player=scene.player
    var enemy=scene.get_node("Enemy1")
+   var half_width: float=(player.get_node("CollisionShape2D").shape.size.x+enemy.get_node("CollisionShape2D").shape.size.x)*0.5
+   var distance: float=half_width+10.0 if not overlapping_finish else maxf(half_width+10.0,player.dodge_distance-half_width+10.0)
    player.position=Vector2(400,430)
    enemy.position=Vector2(400+direction*distance,430)
    enemy.speed=0

@@ -161,6 +161,9 @@ func _attack() -> void:
         return
 
     attack_cooldown_timer = attack_cooldown
+    # Damage is immediate: show the extended punch on that same physics tick.
+    sprite.play("attack")
+    sprite.set_frame_and_progress(1, 0.0)
     sound_effects.play_effect("attack")
     attack_flash_timer = 0.12
     preload("res://scripts/CombatVFX.gd").spawn(self, "slash", global_position + Vector2(0, combat_bounds.get_center().y - jump_height), Vector2(facing, 0), Color("ffe5a0"), attack_reach * 0.85)

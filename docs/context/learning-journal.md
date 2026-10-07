@@ -16,3 +16,9 @@
 - A timeline avança sozinha para preservar o ritmo cinematográfico, mas permite avançar cada trecho ou pular para o mapa.
 - Verificação automatizada: import/parsing no Godot 4.7.2; verificações de prólogo/mapa, menu e inicialização sem erros; execução headless da cena por 2.100 frames.
 - Ainda é necessário playtestar visualmente no editor para avaliar enquadramento, duração e legibilidade no jogo.
+
+## Centralização da logo do menu
+
+- A logo ganhou um contêiner de centralização próprio, mantendo o alinhamento horizontal independente da largura dos botões.
+- A sombra existente foi ampliada discretamente e seu retângulo continua com o tamanho integral, deslocado para trás/baixo em relação à imagem.
+- As verificações do menu agora validam o centro horizontal da logo e a geometria da sombra; a revisão visual em janela ainda é recomendada.

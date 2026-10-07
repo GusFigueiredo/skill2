@@ -34,6 +34,12 @@ func run_checks() -> void:
 	player.velocity = Vector2(100, 0)
 	player.sprite._process(0.016)
 	assert(player.sprite.animation == "walk")
+	player.velocity = Vector2(0, -100)
+	player.sprite._process(0.016)
+	assert(player.sprite.animation == "walk_up" and not player.sprite.flip_h)
+	player.velocity = Vector2(0, 100)
+	player.sprite._process(0.016)
+	assert(player.sprite.animation == "walk_down")
 	player.attack_cooldown_timer = player.attack_cooldown
 	player.sprite._process(0.016)
 	assert(player.sprite.animation == "attack")
@@ -54,6 +60,16 @@ func run_checks() -> void:
 	boss.state = boss.State.CHARGE
 	boss.get_node("Sprite")._process(0.016)
 	assert(boss.get_node("Sprite").animation == "dash")
+	var boss_frames: SpriteFrames = boss.get_node("Sprite").sprite_frames
+	assert(boss_frames.get_frame_count("idle") == 4)
+	assert(boss_frames.get_frame_count("bite") == 4)
+	assert(boss_frames.get_frame_count("dash") == 1)
+	assert(boss_frames.get_frame_count("fireball") == 3)
+	assert(boss_frames.get_frame_texture("fireball", 0).get_image().get_data() == boss_frames.get_frame_texture("fireball", 2).get_image().get_data())
+	boss.state = boss.State.PURSUIT
+	boss.velocity = Vector2(100, 0)
+	boss.get_node("Sprite")._process(0.016)
+	assert(boss.get_node("Sprite").animation == "idle", "Boss movement must use idle")
 	print("PASS: transparent frames, character sizes and gameplay animation transitions")
 	scene.free()
 	quit()

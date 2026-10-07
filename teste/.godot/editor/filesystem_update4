@@ -1,0 +1,16 @@
+res://menu_checks.gd
+res://scripts/GameMenu.gd
+res://shaders/logo_shadow.gdshader
+res://boitata_checks.gd
+res://build_character_sprites.gd
+res://build_fireball_asset.gd
+res://contact_dodge_checks.gd
+res://visual_checks.gd
+res://scripts/Boitata.gd
+res://scripts/CharacterVisual.gd
+res://scripts/CombatVFX.gd
+res://scripts/Fireball.gd
+res://sprites/characters/boitata.tres
+res://sprites/characters/enemy.tres
+res://sprites/characters/player.tres
+res://scripts/Player.gd
