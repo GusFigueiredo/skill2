@@ -33,7 +33,7 @@ func run_checks() -> void:
 	menu._toggle_controls()
 	check(menu.controls_label.visible, "Controls must open")
 	menu._start_or_resume()
-	await wait_for_loading()
+	await start_level_from_menu()
 	var level = current_scene
 	var pause_menu = level.get_node("PauseMenu")
 	check(not paused and not pause_menu.panel.visible, "Starting game must hide pause menu")
@@ -57,10 +57,21 @@ func run_checks() -> void:
 	await process_frame
 	check(not paused and current_scene.main_menu, "Returning to menu must clear pause")
 	current_scene._start_or_resume()
-	await wait_for_loading()
+	await start_level_from_menu()
 	check(current_scene.player.hp == current_scene.player.max_hp and current_scene.wave_index == 0, "New game must reset level")
 	print("PASS: main menu, controls, start, Escape pause/resume, frozen combat, continue and return/new game")
 	quit(0)
+
+func start_level_from_menu() -> void:
+	await wait_for_loading()
+	check(current_scene.scene_file_path == "res://prologue.tscn", "Starting a game must open the prologue")
+	for _frame in current_scene.STORY_FRAMES.size():
+		current_scene._advance()
+	await wait_for_loading()
+	check(current_scene.scene_file_path == "res://level_map.tscn", "The prologue must lead to the level map")
+	check(current_scene.stage_buttons.size() == 7, "The campaign map must contain seven stages")
+	current_scene._start_selected_stage()
+	await wait_for_loading()
 
 func wait_for_loading() -> void:
 	var transition = root.get_node("SceneTransition")

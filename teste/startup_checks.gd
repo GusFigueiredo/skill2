@@ -16,6 +16,14 @@ func run_checks() -> void:
 	assert(transition.busy and paused)
 	while transition.busy:
 		await process_frame
+	assert(current_scene.scene_file_path == "res://prologue.tscn" and not paused)
+	current_scene._skip_prologue()
+	while transition.busy:
+		await process_frame
+	assert(current_scene.scene_file_path == "res://level_map.tscn" and not paused)
+	current_scene._start_selected_stage()
+	while transition.busy:
+		await process_frame
 	assert(current_scene.scene_file_path == "res://main.tscn" and not paused)
 	current_scene.player.hp = 0
 	current_scene._reset_scene()

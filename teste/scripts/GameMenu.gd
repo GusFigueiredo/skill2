@@ -251,7 +251,7 @@ func _set_paused(value: bool) -> void:
 func _start_or_resume() -> void:
 	if main_menu:
 		get_tree().paused = false
-		get_node("/root/SceneTransition").load_level()
+		get_node("/root/SceneTransition").load_level("res://prologue.tscn")
 	else:
 		_set_paused(false)
 
