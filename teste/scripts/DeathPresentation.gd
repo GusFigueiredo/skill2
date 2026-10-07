@@ -46,14 +46,14 @@ func show_death() -> void:
 		action.release_focus()
 	veil.color = Color(0.005, 0.005, 0.005, 0.0)
 	visible = true
-	# A slow reveal keeps the fatal moment visible beneath the dark overlay.
+	# A quicker button reveal keeps the death state readable without dragging the interaction.
 	reveal = create_tween()
 	reveal.set_parallel(true)
-	reveal.tween_property(veil, "color:a", 0.72, 1.6)
-	reveal.tween_property(title, "modulate:a", 1.0, 2.2).set_delay(0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	reveal.chain().tween_interval(0.6)
-	reveal.chain().tween_property(button, "modulate:a", 1.0, 0.55)
-	reveal.parallel().tween_property(menu, "modulate:a", 1.0, 0.55)
+	reveal.tween_property(veil, "color:a", 0.72, 1.1)
+	reveal.tween_property(title, "modulate:a", 1.0, 1.4).set_delay(0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	reveal.chain().tween_interval(0.18)
+	reveal.chain().tween_property(button, "modulate:a", 1.0, 0.22)
+	reveal.parallel().tween_property(menu, "modulate:a", 1.0, 0.22)
 	reveal.chain().tween_callback(func():
 		for action in [button, menu]:
 			action.disabled = false

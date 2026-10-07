@@ -18,6 +18,9 @@ var direction: int = -1
 var contact_damage_cooldown: float = 0.0
 var combat_bounds := Rect2()
 var contact_requires_separation: bool = false
+var spawn_started := false
+var spawn_finished := false
+var spawn_tween: Tween
 
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var damage_area: Area2D = $DamageArea
@@ -58,6 +61,45 @@ func _ready() -> void:
 		health_bar.z_index = 5
 		health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+func play_spawn_animation(on_finished: Callable) -> void:
+	if spawn_started:
+		return
+	spawn_started = true
+	visible = true
+	set_physics_process(false)
+	collision_layer = 0
+	collision_mask = 0
+	damage_area.monitoring = false
+	get_node("HurtArea").collision_layer = 0
+	var visual := $Sprite as AnimatedSprite2D
+	visual.set_process(false)
+	var animation_name := "death" if visual.sprite_frames.has_animation("death") else "idle"
+	var base_scale := visual.scale
+	var show_health := health_bar.visible
+	health_bar.hide()
+	visual.animation = animation_name
+	var last_frame := visual.sprite_frames.get_frame_count(animation_name) - 1
+	visual.frame = last_frame
+	visual.pause()
+	visual.modulate.a = 0.0
+	var duration := maxf(0.6, float(last_frame + 1) / visual.sprite_frames.get_animation_speed(animation_name))
+	spawn_tween = create_tween().set_parallel(true)
+	spawn_tween.tween_method(func(value: float): visual.frame = clampi(roundi(value), 0, last_frame), float(last_frame), 0.0, duration)
+	spawn_tween.tween_property(visual, "modulate:a", 1.0, 0.2)
+	# The boss has no death frames; let her rise into her idle pose instead.
+	if animation_name != "death":
+		visual.scale = Vector2(base_scale.x, base_scale.y * 0.1)
+		spawn_tween.tween_property(visual, "scale", base_scale, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	spawn_tween.chain().tween_callback(func():
+		spawn_finished = true
+		visual.scale = base_scale
+		visual.modulate.a = 1.0
+		visual.play("idle")
+		visual.set_process(true)
+		health_bar.visible = show_health
+		on_finished.call()
+	)
+
 func _physics_process(delta: float) -> void:
 	if contact_damage_cooldown > 0.0:
 		contact_damage_cooldown = max(0.0, contact_damage_cooldown - delta)
@@ -75,6 +117,9 @@ func _physics_process(delta: float) -> void:
 		attack_pending = false
 		return
 	if attack_pending:
+		var guide = get_parent().get("tutorial")
+		if guide != null and attack_timer <= 0.14 and guide.intercept_attack(self):
+			return
 		attack_timer -= delta
 		if attack_timer <= 0.0:
 			_release_attack()
@@ -123,6 +168,9 @@ func take_damage(amount: int) -> void:
 	if hp <= 0 or amount <= 0:
 		return
 	hp = max(0, hp - amount)
+	var guide = get_parent().get("tutorial")
+	if guide != null and guide.lesson_enemy == self and not guide.combat_dodge_done:
+		hp = maxi(1, hp)
 	preload("res://scripts/DamageImpact.gd").spawn(self, amount)
 	if health_bar:
 		health_bar.value = hp
@@ -167,5 +215,9 @@ func _release_attack() -> void:
 	attack_cooldown_timer = 1.20 if is_boss else 2.2
 	var player_size: Vector2 = player.get_node("CollisionShape2D").shape.size
 	var player_rect := Rect2(player.global_position - global_position - player_size * 0.5, player_size)
+	var health_before: int = player.hp
 	if _attack_rect().intersects(player_rect):
 		player.take_damage(attack_damage)
+	var guide = get_parent().get("tutorial")
+	if guide != null and player.is_dodge_invulnerable() and player.hp == health_before:
+		guide.record_combat_dodge(self)

@@ -30,9 +30,8 @@ static func setup(level: Node2D) -> void:
 	var plate := panel(Rect2(20, 18, 410, 92))
 	hud.add_child(plate)
 	hud.move_child(plate, 0)
-	var hint_plate := panel(Rect2(24, 636, 1232, 64))
-	hud.add_child(hint_plate)
-	hud.move_child(hint_plate, 0)
+	hud.get_node("TutorialLabel").hide()
+	hud.get_node("ControlsLabel").hide()
 	var positions := {
 		"HealthBar": Rect2(24, 20, 400, 65),
 		"HealthLabel": Rect2(48, 80, 340, 26),

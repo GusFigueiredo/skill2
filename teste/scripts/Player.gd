@@ -14,6 +14,7 @@ extends CharacterBody2D
 var has_moved: bool = false
 var has_attacked: bool = false
 var has_dodged: bool = false
+var has_jumped: bool = false
 var hp: int
 var can_dodge: bool = true
 var is_dodging: bool = false
@@ -84,6 +85,7 @@ func _physics_process(delta: float) -> void:
     var jump_pressed := Input.is_key_pressed(KEY_SPACE)
     if jump_pressed and not jump_key_was_pressed and jump_height <= 0.0:
         jump_speed = -jump_velocity
+        has_jumped = true
         sound_effects.play_effect("jump")
     jump_key_was_pressed = jump_pressed
     if jump_height > 0.0 or jump_speed > 0.0:

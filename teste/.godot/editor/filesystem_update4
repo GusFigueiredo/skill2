@@ -1,3 +1,9 @@
 res://scripts/GameMenu.gd
 res://scripts/Player.gd
 res://scripts/SoundEffects.gd
+res://scripts/DeathPresentation.gd
+res://scripts/Level1.gd
+res://scripts/Presentation.gd
+res://scripts/TutorialBalloon.gd
+res://tutorial_checks.gd
+res://scripts/Enemy.gd

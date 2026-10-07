@@ -246,6 +246,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if main_menu or not event is InputEventKey or event.echo or not event.pressed or event.keycode != KEY_ESCAPE:
 		return
 	var level := get_parent()
+	var guide = level.get("tutorial")
+	if guide != null and guide.waiting_for_dodge:
+		return
 	if level.finished or level.player.hp <= 0:
 		return
 	_set_paused(not get_tree().paused)

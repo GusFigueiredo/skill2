@@ -14,6 +14,7 @@ var finished: bool = false
 var dodge_enemy_activated: bool = false
 var road_open: bool = false
 var waves: Array = []
+var tutorial: Control
 var music := preload("res://scripts/MusicPlayer.gd").new()
 @onready var player = $Player
 @onready var boss = $Boss
@@ -40,11 +41,17 @@ func _ready() -> void:
     waves = [[$Enemy1, $Enemy2], [$Enemy3, $Enemy4], [$Boss]]
     for index in waves.size():
         for enemy in waves[index]:
-            _set_enemy_active(enemy, index == 0 and enemy == $Enemy1)
+            _set_enemy_active(enemy, false)
+    tutorial = preload("res://scripts/TutorialBalloon.gd").new()
+    $HUD.add_child(tutorial)
+    tutorial.setup(self)
     reset_button.pressed.connect(_reset_scene)
     _update_hud()
 
 func _set_enemy_active(enemy: CharacterBody2D, active: bool) -> void:
+    if active and not enemy.spawn_finished:
+        enemy.play_spawn_animation(func(): _set_enemy_active(enemy, true))
+        return
     enemy.visible = active
     enemy.set_physics_process(active)
     enemy.collision_layer = 4 if active else 0
@@ -55,6 +62,9 @@ func _set_enemy_active(enemy: CharacterBody2D, active: bool) -> void:
 func _process(_delta: float) -> void:
     _update_hud()
     if finished or player.hp <= 0:
+        return
+    tutorial.advance(_delta)
+    if tutorial.step < tutorial.Step.ATTACK or tutorial.introducing_enemy:
         return
     if wave_index == 0 and not dodge_enemy_activated and (not is_instance_valid(waves[0][0]) or waves[0][0].hp <= 0):
         dodge_enemy_activated = true
@@ -94,20 +104,6 @@ func _update_hud() -> void:
     if finished or player.hp <= 0:
         return
     $HUD/WaveLabel.text = "Encontro %d / 3 - %s" % [wave_index + 1, "caminho aberto >>" if road_open else "derrote os inimigos"]
-    var hint := ""
-    if wave_index == 0 and not player.has_moved:
-        hint = "1. MOVIMENTO: WASD ou setas para andar pela rua."
-    elif wave_index == 0 and not dodge_enemy_activated and not road_open:
-        hint = "2. ATAQUE: aproxime-se na mesma faixa e use K. Intervalo: 1s."
-    elif wave_index == 0 and not road_open:
-        hint = "3. ROLADA: a faixa amarela anuncia o golpe. Use Shift para atravessar o inimigo!"
-    elif road_open:
-        hint = "4. PULO: avance segurando D e aperte Espaco antes do buraco. Cair causa morte!"
-    elif wave_index == 1:
-        hint = "5. PROFUNDIDADE: use W/S para alinhar ataques e escapar das faixas amarelas."
-    else:
-        hint = "6. BOITATA: brilho anuncia investida! Saia da faixa ou role; ataque na recuperacao. Cuidado com mordida e cauda!"
-    $HUD/TutorialLabel.text = hint
     $HUD/BossHealth.visible = wave_index == 2 and is_instance_valid(boss)
     if is_instance_valid(boss):
         $HUD/BossHealth.max_value = boss.max_hp
