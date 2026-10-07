@@ -203,16 +203,7 @@ static func style_button(button: Button) -> void:
 	)
 	button.focus_entered.connect(func(): _select_button(button, true))
 	button.focus_exited.connect(func(): _select_button(button, false))
-	button.resized.connect(func():
-		button.pivot_offset = button.size * 0.5
-		# Center the caption inside the stone frame, excluding the hanging leaves.
-		for style in [normal_style, hover_style]:
-			style.content_margin_top = button.size.y * 0.14
-			style.content_margin_bottom = button.size.y * 0.28
-		# The selected sprite has 40 extra pixels of glow above the frame.
-		# Draw that glow outside the button instead of shrinking the frame.
-		hover_style.expand_margin_top = button.size.y * 40.0 / 300.0
-	)
+	button.resized.connect(func(): _align_button_frame(button))
 	_select_button(button, false, false)
 	button.add_theme_color_override("font_color", Color("ffe3a1"))
 	button.add_theme_color_override("font_hover_color", Color("fff1c7"))
@@ -220,7 +211,19 @@ static func style_button(button: Button) -> void:
 	button.add_theme_color_override("font_outline_color", Color("29180e"))
 	button.add_theme_constant_override("outline_size", 4)
 
+static func _align_button_frame(button: Button) -> void:
+	button.pivot_offset = button.size * 0.5
+	var normal_style: StyleBoxTexture = button.get_meta("menu_normal_style")
+	var selected_style: StyleBoxTexture = button.get_meta("menu_selected_style")
+	# Initialize existing buttons too: their size may already be final when styled.
+	for style in [normal_style, selected_style]:
+		style.content_margin_top = button.size.y * 0.14
+		style.content_margin_bottom = button.size.y * 0.28
+	# Keep the stone frame aligned; only the extra glow extends above it.
+	selected_style.expand_margin_top = button.size.y * 40.0 / 300.0
+
 static func _select_button(button: Button, selected: bool, animate: bool = true) -> void:
+	_align_button_frame(button)
 	var style: StyleBoxTexture = button.get_meta("menu_selected_style" if selected else "menu_normal_style")
 	for state in ["normal", "hover", "pressed", "hover_pressed"]:
 		button.add_theme_stylebox_override(state, style)

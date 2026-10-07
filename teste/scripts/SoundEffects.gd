@@ -2,7 +2,7 @@ extends Node
 
 var players: Dictionary = {}
 
-func setup(sounds: Dictionary) -> void:
+func setup(sounds: Dictionary, volume_boosts_db: Dictionary = {}) -> void:
 	for effect in sounds:
 		var audio := AudioStreamPlayer.new()
 		audio.name = effect
@@ -13,7 +13,7 @@ func setup(sounds: Dictionary) -> void:
 			continue
 		audio.stream = sound.duplicate() as AudioStreamWAV
 		audio.stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
-		audio.volume_db = -6.0
+		audio.volume_db = -6.0 + float(volume_boosts_db.get(effect, 0.0))
 		audio.max_polyphony = 4
 		add_child(audio)
 		players[effect] = audio

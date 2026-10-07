@@ -21,6 +21,7 @@ var dodge_timer: float = 0.0
 var dodge_cooldown_timer: float = 0.0
 var dodge_direction: int = 1
 var facing: int = 1
+var attack_vertical: int = 0
 var attack_cooldown_timer: float = 0.0
 var damage_cooldown: float = 0.0
 var dodge_collision_exceptions: Array[PhysicsBody2D] = []
@@ -50,7 +51,7 @@ func _ready() -> void:
         "damage": "res://soundeffect/Personagem/dano tomado.wav",
         "dodge": "res://soundeffect/Personagem/dodge.wav",
         "jump": "res://soundeffect/Personagem/Pulo.wav",
-    })
+    }, {"attack": 12.8, "dodge": 7.0})
     hp = max_hp
     combat_bounds = preload("res://scripts/CombatGeometry.gd").setup(self, false)
     attack_reach = maxf(90.0, combat_bounds.size.y * 1.2)
@@ -117,13 +118,13 @@ func _physics_process(delta: float) -> void:
     if move_input != 0.0:
         facing = 1 if move_input > 0 else -1
         sprite.flip_h = facing < 0
-        attack_area.position.x = attack_reach * 0.5 * facing
 
     var depth_input := Input.get_axis("ui_up", "ui_down")
     if Input.is_key_pressed(KEY_W):
         depth_input -= 1.0
     if Input.is_key_pressed(KEY_S):
         depth_input += 1.0
+    _update_attack_direction(Vector2(move_input, depth_input))
     var movement := Vector2(move_input, depth_input).limit_length()
     velocity = movement * speed
     if movement.length_squared() > 0.0:
@@ -156,6 +157,21 @@ func _input(event: InputEvent) -> void:
     dodge_vector = movement.normalized() if movement.length_squared() > 0.0 else Vector2(facing, 0)
     dodge_key_was_pressed = true
 
+func _update_attack_direction(movement: Vector2) -> void:
+    if movement.y != 0.0:
+        attack_vertical = 1 if movement.y > 0.0 else -1
+    elif movement.x != 0.0:
+        attack_vertical = 0
+    _orient_attack_area()
+
+func _attack_heading() -> Vector2:
+    return Vector2(0, attack_vertical) if attack_vertical != 0 else Vector2(facing, 0)
+
+func _orient_attack_area() -> void:
+    var heading := _attack_heading()
+    attack_area.position = Vector2(0, combat_bounds.get_center().y) + heading * attack_reach * 0.5
+    attack_area.rotation = heading.angle()
+
 func _attack() -> void:
     if attack_cooldown_timer > 0.0 or is_dodging or hp <= 0:
         return
@@ -166,9 +182,9 @@ func _attack() -> void:
     sprite.set_frame_and_progress(1, 0.0)
     sound_effects.play_effect("attack")
     attack_flash_timer = 0.12
-    preload("res://scripts/CombatVFX.gd").spawn(self, "slash", global_position + Vector2(0, combat_bounds.get_center().y - jump_height), Vector2(facing, 0), Color("ffe5a0"), attack_reach * 0.85)
+    preload("res://scripts/CombatVFX.gd").spawn(self, "slash", global_position + Vector2(0, combat_bounds.get_center().y - jump_height), _attack_heading(), Color("ffe5a0"), attack_reach * 0.85)
     has_attacked = true
-    attack_area.position.x = attack_reach * 0.5 * facing
+    _orient_attack_area()
     var attack_shape := attack_area.get_child(0) as CollisionShape2D
     var query := PhysicsShapeQueryParameters2D.new()
     query.shape = attack_shape.shape

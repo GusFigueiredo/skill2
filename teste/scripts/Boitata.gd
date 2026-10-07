@@ -47,7 +47,7 @@ func _ready() -> void:
 		"dash": "res://soundeffect/Boitata/Dash.wav",
 		"bite": "res://soundeffect/Boitata/Ataque.wav",
 		"fireball": "res://soundeffect/Boitata/Bola de fogo.wav",
-	})
+	}, {"bite": 6.8, "fireball": 1.0})
 	body_color = $Sprite.modulate
 	# Keep the boss on the connected stretch of road where she spawned.
 	home_bounds = Rect2(40, 340, 3720, 220)
