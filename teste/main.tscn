@@ -168,8 +168,8 @@ script = ExtResource("4")
 max_hp = 6
 is_boss = true
 [node name="Sprite" type="AnimatedSprite2D" parent="Boss"]
-position = Vector2(0, -84)
-scale = Vector2(1.5, 1.5)
+position = Vector2(0, -105)
+scale = Vector2(1.875, 1.875)
 script = ExtResource("visual")
 character = "boitata"
 sprite_frames = ExtResource("frames_boitata")
