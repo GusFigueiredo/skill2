@@ -408,7 +408,7 @@ func _show_frame() -> void:
 			player_figure.position = Vector2(445, 505)
 			player_figure.play("idle")
 			boitata_figure.position = Vector2(1110, 505)
-			boitata_figure.play("walk")
+			boitata_figure.play("idle")
 			boitata_figure.flip_h = true
 			corpo_seco.position = Vector2(795, 400)
 			corpo_seco.scale = Vector2.ONE * 1.2

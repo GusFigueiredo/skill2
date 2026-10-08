@@ -1,5 +1,13 @@
 # Diário de Aprendizado
 
+## Correção de arquivos após merge — 2026-10-08
+
+- Os únicos arquivos em conflito eram caches gerados em `teste/.godot`: cache do editor, atualização do sistema de arquivos e cache binário de UIDs. Foram preservadas cópias dos três no diretório temporário e os caches foram regenerados pelo Godot.
+- `.gitignore` passou a excluir `teste/.godot/`; arquivos desse diretório foram retirados apenas do índice do Git, mantendo os caches locais e todos os scripts, cenas e assets originais.
+- O VS Code oculta a pasta gerada `.godot`, exclui seus arquivos de busca/monitoramento e trata seus metadados de editor como texto simples. O merge corrigido foi preparado para conclusão, eliminando as exclusões de cache pendentes no controle de versão.
+- A validação encontrou no prólogo uma referência a `walk` da Boitatá, ausente em seus SpriteFrames. A entrada agora usa `idle`, preservando o movimento de posição da cena.
+- Importação completa do projeto e checks de Iara, inicialização e menu passaram. Não restam entradas em conflito no Git. Os avisos conhecidos de certificados do ambiente e objetos/recursos no encerramento são independentes dos arquivos corrigidos.
+
 ## Apresentação da sedução e teclas do transe — 2026-10-08
 
 - O início da luta ganhou 1,25s em idle. Preparação e lançamento são estados separados, para mostrar os sprites do ataque e o trajeto do feitiço antes de aplicar a hipnose.

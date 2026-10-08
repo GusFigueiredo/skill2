@@ -1,0 +1,16 @@
+{
+    "files.exclude": {
+        "**/.godot": true
+    },
+    "search.exclude": {
+        "**/.godot/**": true
+    },
+    "files.watcherExclude": {
+        "**/.godot/**": true
+    },
+    "files.associations": {
+        "**/.godot/**/*.cfg": "plaintext",
+        "**/.godot/editor/filesystem_cache10": "plaintext",
+        "**/.godot/editor/filesystem_update4": "plaintext"
+    }
+}
