@@ -112,6 +112,10 @@ func complete_level(level: Node2D, path: String) -> void:
 	# Leave the tree running so death animations and their fade can finish.
 	while _has_defeat_visuals(level):
 		await get_tree().process_frame
+	phase = "celebrating"
+	var victory := preload("res://scripts/VictoryFeedback.gd").new()
+	level.add_child(victory)
+	await victory.finished
 	phase = "walking_out"
 	visual.play("walk")
 	level.get_node("HUD").hide()

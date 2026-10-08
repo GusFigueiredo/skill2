@@ -10,6 +10,9 @@ static func spawn(actor: Node2D, _amount: int) -> void:
 	actor.get_parent().add_child(impact)
 	impact.global_position = actor.get_node("Sprite").global_position
 	impact.z_index = 20
+	var feedback = actor.get_parent().get_node_or_null("CombatFeedback")
+	if feedback != null:
+		feedback.hit(actor)
 	var visual = actor.get_node("Sprite")
 	if visual.has_method("flash_damage"):
 		visual.flash_damage()

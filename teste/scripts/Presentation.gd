@@ -17,6 +17,7 @@ static func panel(rect: Rect2) -> Panel:
 
 static func setup(level: Node2D) -> void:
 	level.add_child(preload("res://scripts/Atmosphere.gd").new())
+	level.add_child(preload("res://scripts/CombatFeedback.gd").new())
 	var overlay := CanvasLayer.new()
 	overlay.layer = 1
 	level.add_child(overlay)
@@ -36,8 +37,8 @@ static func setup(level: Node2D) -> void:
 		"HealthBar": Rect2(24, 20, 400, 65),
 		"HealthLabel": Rect2(48, 80, 340, 26),
 		"WaveLabel": Rect2(48, 106, 360, 26),
-		"AttackCooldown": Rect2(48, 90, 156, 6),
-		"DodgeCooldown": Rect2(222, 90, 156, 6),
+		"AttackCooldown": Rect2(48, 112, 64, 82),
+		"DodgeCooldown": Rect2(128, 112, 64, 82),
 		"CooldownLabel": Rect2(48, 149, 340, 24),
 		"ControlsLabel": Rect2(820, 24, 430, 54),
 		"TutorialLabel": Rect2(44, 650, 1192, 42),
@@ -55,16 +56,6 @@ static func setup(level: Node2D) -> void:
 	for label_name in ["HealthLabel", "WaveLabel", "CooldownLabel"]:
 		hud.get_node(label_name).hide()
 	hud.get_node("ControlsLabel").horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	for bar_name in ["AttackCooldown", "DodgeCooldown"]:
-		var bar: ProgressBar = hud.get_node(bar_name)
-		var background := StyleBoxFlat.new()
-		background.bg_color = Color("172827")
-		background.set_corner_radius_all(3)
-		var fill := StyleBoxFlat.new()
-		fill.bg_color = Color("d9ae62") if bar_name == "AttackCooldown" else Color("69bfae")
-		fill.set_corner_radius_all(3)
-		bar.add_theme_stylebox_override("background", background)
-		bar.add_theme_stylebox_override("fill", fill)
 	hud.get_node("BossHealth/BossName").text = "BOITATÁ"
 	var death := level.get_node("DeathScreen")
 	var veil := ColorRect.new()

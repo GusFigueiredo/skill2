@@ -41,6 +41,7 @@ var combat_bounds := Rect2()
 var attack_reach: float = 90.0
 var dodge_protected_frame: int = -1
 var dodge_vfx_timer: float = 0.0
+var dodge_rewarded := false
 
 @onready var attack_area: Area2D = $AttackArea
 @onready var sprite: AnimatedSprite2D = $Sprite
@@ -147,6 +148,8 @@ func _physics_process(delta: float) -> void:
     get_parent().check_player_floor(previous_position)
 
 func _input(event: InputEvent) -> void:
+    if get_parent().get("finished") or get_parent().get("boss_intro_running"):
+        return
     if not event is InputEventKey or not event.pressed or event.echo:
         return
     if event.keycode != KEY_SHIFT and event.physical_keycode != KEY_SHIFT:
@@ -175,7 +178,7 @@ func _orient_attack_area() -> void:
     attack_area.rotation = heading.angle()
 
 func _attack() -> void:
-    if attack_cooldown_timer > 0.0 or is_dodging or hp <= 0:
+    if attack_cooldown_timer > 0.0 or is_dodging or hp <= 0 or get_parent().get("finished") or get_parent().get("boss_intro_running"):
         return
 
     attack_cooldown_timer = attack_cooldown
@@ -205,9 +208,10 @@ func _is_airborne() -> bool:
     return jump_height > 0.0 or jump_speed > 0.0
 
 func _start_dodge(move_input: float) -> void:
-    if not can_dodge or is_dodging or hp <= 0 or _is_airborne():
+    if not can_dodge or is_dodging or hp <= 0 or _is_airborne() or get_parent().get("finished") or get_parent().get("boss_intro_running"):
         return
     is_dodging = true
+    dodge_rewarded = false
     dodge_vfx_timer = 0.0
     preload("res://scripts/CombatVFX.gd").spawn(self, "smoke", global_position, Vector2.RIGHT, Color("b8d5ce"), 38.0)
     sprite.play("dodge")
@@ -233,6 +237,7 @@ func _update_dodge(delta: float) -> void:
     dodge_vfx_timer -= delta
     if dodge_vfx_timer <= 0.0:
         preload("res://scripts/CombatVFX.gd").afterimage(self)
+        preload("res://scripts/CombatVFX.gd").spawn(self, "dash", global_position, dodge_vector, Color(0.65, 0.88, 0.83, 0.3), 26.0)
         dodge_vfx_timer = 0.045
     var step := minf(delta, dodge_timer)
     velocity = dodge_vector * dodge_distance / maxf(dodge_duration, 0.001) * step / delta
@@ -262,7 +267,16 @@ func _end_dodge(protect_current_frame: bool = false) -> void:
     dodge_collision_exceptions.clear()
 
 func take_damage(amount: int) -> bool:
-    if hp <= 0 or is_falling or is_dodge_invulnerable() or damage_cooldown > 0.0:
+    if hp <= 0 or is_falling or amount <= 0:
+        return false
+    if is_dodge_invulnerable():
+        if not dodge_rewarded:
+            dodge_rewarded = true
+            var feedback = get_parent().get_node_or_null("CombatFeedback")
+            if feedback != null:
+                feedback.evaded(self)
+        return false
+    if damage_cooldown > 0.0:
         return false
     damage_cooldown = damage_interval
     hp = max(0, hp - amount)

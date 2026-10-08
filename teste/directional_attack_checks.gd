@@ -12,6 +12,9 @@ func run_checks() -> void:
 		actor.get_node("Sprite").set_process(false)
 	var player = scene.get_node("Player")
 	var enemy = scene.get_node("Enemy1")
+	enemy.spawn_finished = true
+	scene._set_enemy_active(enemy, true)
+	enemy.set_physics_process(false)
 	player.position = Vector2(800, 430)
 	enemy.hp = 100
 	for heading in [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]:

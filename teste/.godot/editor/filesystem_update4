@@ -15,3 +15,6 @@ res://scripts/DamageImpact.gd
 res://scripts/DeathPresentation.gd
 res://scripts/FramedHealthBar.gd
 res://health_bar_checks.gd
+res://directional_attack_checks.gd
+res://scripts/Player.gd
+res://scripts/Presentation.gd

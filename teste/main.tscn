@@ -1,7 +1,8 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 [ext_resource type="SpriteFrames" path="res://sprites/characters/player.tres" id="frames_player"]
 [ext_resource type="SpriteFrames" path="res://sprites/characters/enemy.tres" id="frames_enemy"]
 [ext_resource type="SpriteFrames" path="res://sprites/characters/boitata.tres" id="frames_boitata"]
+[ext_resource type="Script" path="res://scripts/AbilityCooldown.gd" id="ability_cooldown"]
 [ext_resource type="Script" path="res://scripts/FramedHealthBar.gd" id="health_frame"]
 [ext_resource type="Script" path="res://scripts/CharacterVisual.gd" id="visual"]
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1"]
@@ -229,12 +230,18 @@ offset_top = 210.0
 offset_right = 145.0
 offset_bottom = 223.0
 show_percentage = false
+value = 100.0
+script = ExtResource("ability_cooldown")
+ability = "attack"
 [node name="DodgeCooldown" type="ProgressBar" parent="HUD"]
 offset_left = 160.0
 offset_top = 210.0
 offset_right = 273.0
 offset_bottom = 223.0
 show_percentage = false
+value = 100.0
+script = ExtResource("ability_cooldown")
+ability = "dodge"
 [node name="CooldownLabel" type="Label" parent="HUD"]
 offset_left = 32.0
 offset_top = 230.0

@@ -27,6 +27,10 @@ func run_checks() -> void:
     while transition.phase == "waiting_for_defeat":
         await process_frame
     assert(get_nodes_in_group("enemy_defeat_visuals").is_empty())
+    assert(not paused and transition.phase == "celebrating")
+    assert(level.player.sprite.animation == "idle")
+    while transition.phase == "celebrating":
+        await process_frame
     assert(paused and transition.phase == "walking_out")
     assert(not transition.screen.visible and not transition.fade_screen.visible)
     assert(level.player.sprite.animation == "walk" and not level.player.sprite.flip_h)

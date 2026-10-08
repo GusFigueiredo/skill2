@@ -26,6 +26,7 @@ var dodge_enemy_activated: bool = false
 var road_open: bool = false
 var waves: Array = []
 var tutorial: Control
+var ambience := preload("res://scripts/BossAmbience.gd").new()
 var music := preload("res://scripts/MusicPlayer.gd").new()
 @onready var player = $Player
 @onready var boss = $Boss
@@ -49,6 +50,7 @@ func _ready() -> void:
         scenery.material = extension
         scenery.region_filter_clip_enabled = false
     add_to_group("game_manager")
+    add_child(ambience)
     add_child(music)
     music.play_track("res://music/Fase1.mp3")
     var pause_menu = preload("res://scripts/GameMenu.gd").new()
@@ -139,6 +141,7 @@ func _process(_delta: float) -> void:
 func _walk_into_boss_arena() -> void:
     boss_intro_running = true
     music.stop()
+    ambience.begin()
     $HUD/BossHealth.hide()
     player.set_physics_process(false)
     player.velocity = Vector2.ZERO
@@ -258,6 +261,7 @@ func _start_boss_intro() -> void:
         visual.play("bite")
         visual.set_frame_and_progress(0, 0.0)
         visual.pause()
+        ambience.duck()
         roar.play()
         entrance.roar()
         preload("res://scripts/CombatVFX.gd").spawn(boss, "eruption", boss.global_position + Vector2(0, -60), Vector2.RIGHT, Color("ffb23f"), 170.0)
@@ -281,6 +285,7 @@ func _start_boss_intro() -> void:
         player_visual.set_process(true)
         player.set_physics_process(true)
         _set_enemy_active(boss, true)
+        ambience.end()
         music.play_track("res://music/Boitata.mp3")
     )
     roar.finished.connect(roar.queue_free)
