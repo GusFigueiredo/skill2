@@ -8,6 +8,7 @@ var damage: int = 2
 var lifetime: float = 6.0
 var animation_elapsed: float = 0.0
 const FIREBALL_TEXTURE := preload("res://sprites/characters/boitata/projectile.png")
+var ember_timer := 0.0
 var hitbox: CollisionShape2D
 
 func _ready() -> void:
@@ -41,10 +42,15 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player) or not is_instance_valid(game_manager) or game_manager.finished or player.hp <= 0:
 		queue_free()
 		return
+	ember_timer -= delta
+	if ember_timer <= 0.0:
+		ember_timer = 0.045
+		preload("res://scripts/CombatVFX.gd").spawn(self, "embers", global_position - travel_direction * 22.0, travel_direction, Color("ffb345"), 32.0)
 	var previous := global_position
 	global_position += travel_direction * speed * delta
 	if _swept_hits_player(previous):
 		preload("res://scripts/CombatVFX.gd").spawn(self, "ring", global_position, Vector2.RIGHT, Color("ffac42"), 42.0)
+		preload("res://scripts/CombatVFX.gd").spawn(self, "fire_burst", global_position, travel_direction, Color("ffb345"), 75.0)
 		player.take_damage(damage)
 		queue_free()
 	lifetime -= delta
@@ -73,7 +79,11 @@ func _swept_hits_player(previous: Vector2) -> bool:
 
 func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, travel_direction.angle())
-	var pulse := 1.0 + sin(lifetime * 18.0) * 0.08
+	var pulse := 1.0 + sin(animation_elapsed * 18.0) * 0.08
+	draw_circle(Vector2.ZERO, 10.0 * pulse, Color(1, 0.86, 0.4, 0.45))
+	for i in range(3):
+		var angle := animation_elapsed * 9.0 + i * TAU / 3.0
+		draw_arc(Vector2(-12, 0), 17.0 + i * 3.0, angle, angle + 1.5, 12, Color(1, 0.6, 0.08, 0.35), 2.0, true)
 	for i in range(4, 0, -1):
 		draw_circle(Vector2.ZERO, (9.0 + i * 6.0) * pulse, Color(1, 0.35, 0.04, 0.035 * (5 - i)))
 	for i in range(7):

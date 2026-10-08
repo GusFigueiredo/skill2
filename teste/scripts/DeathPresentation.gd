@@ -29,9 +29,7 @@ func show_death() -> void:
 	var veil: ColorRect = $Veil
 	var box: VBoxContainer = $CenterContainer/VBoxContainer
 	box.add_theme_constant_override("separation", 56)
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Times New Roman", "Liberation Serif", "serif"])
-	title.add_theme_font_override("font", font)
+	title.add_theme_font_override("font", button.get_theme_font("font"))
 	title.add_theme_font_size_override("font_size", 96)
 	title.add_theme_color_override("font_color", Color("a32b28"))
 	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))

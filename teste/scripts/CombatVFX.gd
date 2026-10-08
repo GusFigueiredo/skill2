@@ -11,7 +11,7 @@ static func spawn(actor: Node2D, effect: String, point: Vector2, heading: Vector
 	visual.kind = effect
 	visual.tint = color
 	visual.radius = size
-	visual.duration = 0.55 if effect == "smoke" else 0.3
+	visual.duration = {"smoke": 0.55, "eruption": 1.4, "fire_burst": 0.65, "embers": 0.45}.get(effect, 0.3)
 	actor.get_parent().add_child(visual)
 	visual.global_position = point
 	visual.rotation = heading.angle()
@@ -55,7 +55,22 @@ func _draw() -> void:
 	var progress := clampf(elapsed / duration, 0.0, 1.0)
 	var color := tint
 	color.a = (1.0 - progress) * 0.85
-	if kind == "smoke":
+	if kind in ["eruption", "fire_burst", "embers"]:
+		var count := 24 if kind == "eruption" else (14 if kind == "fire_burst" else 5)
+		for i in range(count):
+			var heading := Vector2.from_angle(i * 2.399)
+			var distance := radius * (0.25 + float(i % 5) * 0.15) * progress
+			var point := heading * distance + Vector2(0, -progress * progress * radius * 0.55)
+			var tail := point - heading * (8.0 + 18.0 * (1.0 - progress))
+			draw_line(tail, point, Color(1, 0.3, 0.02, color.a * 0.5), 4.0 * (1.0 - progress) + 0.5, true)
+			draw_circle(point, (2.0 + i % 3) * (1.0 - progress), Color(1, 0.85, 0.35, color.a))
+		if kind != "embers":
+			for i in range(3):
+				var wave := clampf(progress * 1.8 - i * 0.22, 0.0, 1.0)
+				draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.45))
+				draw_arc(Vector2.ZERO, maxf(1.0, radius * wave), 0, TAU, 64, Color(1, 0.5, 0.08, (1.0 - wave) * color.a * 0.55), 3.0, true)
+			draw_set_transform(Vector2.ZERO)
+	elif kind == "smoke":
 		for i in range(10):
 			var heading := Vector2.from_angle(i * 2.4)
 			var point := heading * radius * progress * 0.7 + Vector2(0, -progress * 18)

@@ -197,6 +197,7 @@ func _update_fireball(delta: float) -> void:
 		projectile.global_position = mouth
 		preload("res://scripts/CombatVFX.gd").spawn(self, "ring", mouth, projectile.travel_direction, Color("ffc16a"), 24.0)
 		sound_effects.play_effect("fireball")
+		preload("res://scripts/CombatVFX.gd").spawn(self, "fire_burst", mouth, projectile.travel_direction, Color("ffc16a"), 48.0)
 	if fireball_elapsed >= 3.0 / fireball_fps:
 		fireball_timer = fireball_interval
 		state = State.PURSUIT

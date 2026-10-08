@@ -39,6 +39,9 @@ func run_checks() -> void:
 	hero.jump_height = 0.0
 	hero.jump_speed = 0.0
 	guide.advance(0.1)
+	assert(guide.reward_timer == 0.0, "Jump must cross the tutorial pit")
+	hero.position.x = 1240.0
+	guide.advance(0.1)
 	guide.advance(2.6)
 	assert(guide.step == guide.Step.ATTACK and guide.introducing_enemy)
 	assert(not paused and not guide.visible)

@@ -1,6 +1,7 @@
 extends Control
 
 const BACKGROUND := preload("res://sprites/Menu/Background.png")
+const Progress = preload("res://scripts/CampaignProgress.gd")
 const GAMEPLAY_SCENE := "res://main.tscn"
 const STAGES: Array[Dictionary] = [
 	{"place": "Ratanabá", "short": "Ratanabá\nTutorial"},
@@ -24,6 +25,7 @@ var route_line: Line2D
 var details_label: Label
 var start_button: Button
 var transitioning: bool = false
+var selected_stage := 0
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -83,9 +85,9 @@ func _build_scene() -> void:
 		button.size = Vector2(68, 68)
 		button.add_theme_font_size_override("font_size", 25)
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		button.disabled = index != 0
-		button.focus_mode = Control.FOCUS_ALL if index == 0 else Control.FOCUS_NONE
-		_style_stage_button(button, index == 0)
+		button.disabled = not Progress.is_available(index)
+		button.focus_mode = Control.FOCUS_ALL if Progress.is_available(index) else Control.FOCUS_NONE
+		_style_stage_button(button, Progress.is_available(index))
 		button.pressed.connect(_show_stage.bind(index))
 		add_child(button)
 		stage_buttons.append(button)
@@ -96,7 +98,7 @@ func _build_scene() -> void:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.custom_minimum_size = Vector2(126, 0)
 		label.add_theme_font_size_override("font_size", 14)
-		label.add_theme_color_override("font_color", Color("e7dfc8") if index == 0 else Color("a5a28f"))
+		label.add_theme_color_override("font_color", Color("e7dfc8") if Progress.is_available(index) else Color("a5a28f"))
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(label)
 		stage_labels.append(label)
@@ -203,18 +205,24 @@ func _layout_route() -> void:
 func _show_stage(index: int) -> void:
 	if index < 0 or index >= STAGES.size():
 		return
+	selected_stage = index
+	start_button.text = "Jogar fase %d" % (index + 1)
 	var stage: Dictionary = STAGES[index]
-	if index == 0:
+	if not Progress.is_available(index):
+		details_label.text = "FASE %d - %s - conclua a fase anterior" % [index + 1, stage["place"]]
+	elif index == 0:
 		details_label.text = "FASE 1  •  %s — tutorial disponível" % stage["place"]
+	elif index == 1:
+		details_label.text = "FASE 2 - Ratanab\u00e1 - Boitat\u00e1 dispon\u00edvel"
 	else:
 		details_label.text = "FASE %d  •  %s — bloqueada" % [index + 1, stage["place"]]
-	start_button.disabled = index != 0
+	start_button.disabled = not Progress.is_available(index)
 
 func _start_selected_stage() -> void:
-	if transitioning or start_button.disabled:
+	if transitioning or start_button.disabled or not Progress.is_available(selected_stage):
 		return
 	transitioning = true
-	get_node("/root/SceneTransition").load_level(GAMEPLAY_SCENE)
+	get_node("/root/SceneTransition").load_level(GAMEPLAY_SCENE if selected_stage == 0 else "res://ratanaba2.tscn")
 
 func _return_to_menu() -> void:
 	if transitioning:

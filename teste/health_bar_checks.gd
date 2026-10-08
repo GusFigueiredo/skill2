@@ -13,6 +13,12 @@ func run_checks() -> void:
 	assert(scene.get_node("Enemy1/HealthBar").frame_kind == "enemy")
 	assert(scene.get_node("Boss/HealthBar").frame_kind == "boss")
 	assert(scene.get_node("HUD/BossHealth").frame_kind == "boss")
+	var boss_hud = scene.get_node("HUD/BossHealth")
+	var viewport_size := root.get_visible_rect().size
+	assert(boss_hud.wide_boss_layout)
+	assert(boss_hud.size.x >= viewport_size.x * 0.79)
+	assert(boss_hud.position.y > viewport_size.y * 0.85)
+	assert(root.get_visible_rect().encloses(boss_hud.get_global_rect()))
 	scene.player.take_damage(4)
 	scene._update_hud()
 	assert(is_equal_approx(scene.health_bar.get_fill_ratio(), 0.6))

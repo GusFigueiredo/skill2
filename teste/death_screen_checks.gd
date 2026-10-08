@@ -17,6 +17,7 @@ func run_checks() -> void:
 	assert(button.get_theme_stylebox("normal") is StyleBoxTexture)
 	assert(menu.get_theme_stylebox("normal").texture == button.get_theme_stylebox("normal").texture)
 	assert(screen.visible and title.text == "MORREU")
+	assert(title.get_theme_font("font") == button.get_theme_font("font"))
 	assert(is_zero_approx(title.modulate.a))
 	assert(button.disabled and is_zero_approx(button.modulate.a))
 	assert(menu.disabled and is_zero_approx(menu.modulate.a))

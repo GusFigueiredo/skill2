@@ -179,7 +179,7 @@ func take_damage(amount: int) -> void:
 		queue_free()
 
 func _show_defeat() -> void:
-	# A detached visual lets the wave advance immediately while the fall plays.
+	# Keep the detached death visual discoverable until it completely disappears.
 	var visual := $Sprite as AnimatedSprite2D
 	var remains := AnimatedSprite2D.new()
 	remains.sprite_frames = visual.sprite_frames
@@ -187,10 +187,14 @@ func _show_defeat() -> void:
 	remains.scale = visual.scale
 	remains.flip_h = visual.flip_h
 	get_parent().add_child(remains)
+	remains.add_to_group("enemy_defeat_visuals")
 	remains.global_position = visual.global_position
 	remains.play("death" if remains.sprite_frames.has_animation("death") else "idle")
 	var fade := remains.create_tween()
-	fade.tween_interval(0.6)
+	var death_duration := 0.6
+	if remains.sprite_frames.has_animation("death"):
+		death_duration = maxf(death_duration, float(remains.sprite_frames.get_frame_count("death")) / maxf(0.1, remains.sprite_frames.get_animation_speed("death")))
+	fade.tween_interval(death_duration)
 	fade.tween_property(remains, "modulate:a", 0.0, 0.3)
 	fade.tween_callback(remains.queue_free)
 

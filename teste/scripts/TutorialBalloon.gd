@@ -116,7 +116,7 @@ func advance(delta: float) -> void:
 			if hero.has_dodged and not hero.is_dodging:
 				_complete_action("Boa esquiva! Vamos experimentar o pulo.")
 		Step.JUMP:
-			if hero.has_jumped and not hero._is_airborne():
+			if hero.has_jumped and not hero._is_airborne() and not hero.is_falling and hero.position.x > 1166.0:
 				_complete_action("Boa! Você está pronto para enfrentar um inimigo.")
 		Step.ATTACK:
 			var enemy = level.waves[0][0]
@@ -159,6 +159,7 @@ func intercept_attack(enemy: CharacterBody2D) -> bool:
 	cinematic_camera.global_position = original_camera_center
 	cinematic_camera.zoom = original_camera.zoom
 	cinematic_camera.make_current()
+	level.music.process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 	dodge_camera_tween = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS).set_parallel(true)
 	dodge_camera_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -183,6 +184,7 @@ func _input(event: InputEvent) -> void:
 	hero.dodge_key_was_pressed = true
 	waiting_for_dodge = false
 	get_tree().paused = false
+	level.music.process_mode = Node.PROCESS_MODE_INHERIT
 	process_mode = Node.PROCESS_MODE_INHERIT
 	if is_instance_valid(lesson_enemy):
 		lesson_enemy._release_attack()
@@ -290,7 +292,7 @@ func _show_step() -> void:
 			message.text = "Pressione Shift para rolar. Segure uma direção para escolher para onde ir. Durante a rolada, você evita golpes!"
 		Step.JUMP:
 			heading.text = "3 / 4 • Pular"
-			message.text = "Pressione Espaço para pular e espere aterrissar. Você também pode andar durante o salto para atravessar buracos."
+			message.text = "Avance para a direita e use Espa\u00e7o para saltar sobre o buraco e chegar na segunda \u00e1rea."
 		Step.ATTACK:
 			heading.text = "4 / 4 • Combate"
 			message.text = "Use K para atacar na direção do movimento. A caixa amarela anuncia o golpe inimigo: use Shift para desviar durante o ataque!"
