@@ -1,5 +1,5 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1791423180
+::res://::1791474778
 attack_sprite_checks.gd::GDScript::8655330759426183183::1791374025::0::1::::<>SceneTree<><>0<>0<><>::
 boitata_checks-contact-fix.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 boitata_checks-dodge.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
@@ -21,7 +21,7 @@ contact_checks-sprites.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 contact_checks.gd::GDScript::5493577635029501208::1791374025::0::1::::<>SceneTree<><>0<>0<><>::
 contact_checks.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 contact_dodge_checks-contact-fix.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
-contact_dodge_checks.gd::GDScript::8103493110140950067::1791374025::0::1::::<>SceneTree<><>0<>0<><>::
+contact_dodge_checks.gd::GDScript::8103493110140950067::1791469293::0::1::::<>SceneTree<><>0<>0<><>::
 death_screen_checks.gd::GDScript::1368972464473506326::1791421884::0::1::::<>SceneTree<><>0<>0<><>::
 directional_attack_checks.gd::GDScript::3099781011696337184::1791423086::0::1::::<>SceneTree<><>0<>0<><>::
 dodge_checks-contact-fix.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
@@ -39,6 +39,40 @@ hud-import.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 hud-preview.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 hud-probe.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 hud_resize_checks.gd::GDScript::1648528805361432634::1791374025::0::1::::<>SceneTree<><>0<>0<><>::
+iara-adjust-attack-checks.log::TextFile::-1::1791470682::0::1::::<><><>0<>0<><>::
+iara-adjust-checks.log::TextFile::-1::1791470630::0::1::::<><><>0<>0<><>::
+iara-adjust-preview.log::TextFile::-1::1791470686::0::1::::<><><>0<>0<><>::
+iara-attack-checks.log::TextFile::-1::1791469295::0::1::::<><><>0<>0<><>::
+iara-casting-preview.png::CompressedTexture2D::4234532259170176935::1791474784::1791474591::1::::<><><>0<>0<>99cf3fe8f46a66f6d87f355fb5fe66d7<>res://.godot/imported/iara-casting-preview.png-8a6e02dd3099717208722d209f8de9a7.ctex::
+iara-checks2.log::TextFile::-1::1791469079::0::1::::<><><>0<>0<><>::
+iara-checks.log::TextFile::-1::1791469069::0::1::::<><><>0<>0<><>::
+iara-contact-checks.log::TextFile::-1::1791469297::0::1::::<><><>0<>0<><>::
+iara-dodge-checks.log::TextFile::-1::1791469166::0::1::::<><><>0<>0<><>::
+iara-drowning-preview.png::CompressedTexture2D::8515741260264433884::1791474787::1791474861::1::::<><><>0<>0<>d222b32ab30a1a7cf66fa08355a8de20<>res://.godot/imported/iara-drowning-preview.png-6dfb95af816ada64123dce6da3ae4af2.ctex::
+iara-fallen-preview.png::CompressedTexture2D::6463247588273117990::1791474786::1791474861::1::::<><><>0<>0<>90a77999c06878706bc732be71980ab8<>res://.godot/imported/iara-fallen-preview.png-7c844b535796dfefddc74bdb20d53656.ctex::
+iara-final-checks.log::TextFile::-1::1791469595::0::1::::<><><>0<>0<><>::
+iara-idle-preview.png::CompressedTexture2D::8802839144075342666::1791474783::1791474861::1::::<><><>0<>0<>a45cd8f19dfc77e5b22e4508f339cd60<>res://.godot/imported/iara-idle-preview.png-42fb5a2d5ee209172744da172563158c.ctex::
+iara-import.log::TextFile::-1::1791468882::0::1::::<><><>0<>0<><>::
+iara-key-pressed-preview.png::CompressedTexture2D::8199628123330345386::1791474785::1791474861::1::::<><><>0<>0<>2a36ff5a8f945d57513f4acd7a8bf530<>res://.godot/imported/iara-key-pressed-preview.png-6c90065246d1fe3be388e280030f3c65.ctex::
+iara-magic-checks.log::TextFile::-1::1791474528::0::1::::<><><>0<>0<><>::
+iara-magic-preview-final.log::TextFile::-1::1791474787::0::1::::<><><>0<>0<><>::
+iara-magic-preview.log::TextFile::-1::1791474589::0::1::::<><><>0<>0<><>::
+iara-magic-startup.log::TextFile::-1::1791474372::0::1::::<><><>0<>0<><>::
+iara-preparing-preview.png::CompressedTexture2D::5896145538392708915::1791474784::1791474591::1::::<><><>0<>0<>11bb09f633675110b5933619a1640bd4<>res://.godot/imported/iara-preparing-preview.png-810666ae337b64314e0d6a97e8bb4a1a.ctex::
+iara-preview2.log::TextFile::-1::1791469373::0::1::::<><><>0<>0<><>::
+iara-preview-final.log::TextFile::-1::1791469720::0::1::::<><><>0<>0<><>::
+iara-preview.log::TextFile::-1::1791469145::0::1::::<><><>0<>0<><>::
+iara-ratanaba-checks.log::TextFile::-1::1791469166::0::1::::<><><>0<>0<><>::
+iara-rio-checks.log::TextFile::-1::1791469193::0::1::::<><><>0<>0<><>::
+iara-roll-checks.log::TextFile::-1::1791469295::0::1::::<><><>0<>0<><>::
+iara-seduction-preview.png::CompressedTexture2D::6601505144043943489::1791474785::1791474861::1::::<><><>0<>0<>fe27386bafaf27c6672eb7b63a6f6f77<>res://.godot/imported/iara-seduction-preview.png-38b77e9ac228f12653d3af1bf551633a.ctex::
+iara-spawn-preview.log::TextFile::-1::1791471797::0::1::::<><><>0<>0<><>::
+iara-startup.log::TextFile::-1::1791468895::0::1::::<><><>0<>0<><>::
+iara-trance-pace-checks.log::TextFile::-1::1791471269::0::1::::<><><>0<>0<><>::
+iara-trance-pace-final-checks.log::TextFile::-1::1791471317::0::1::::<><><>0<>0<><>::
+iara-vulnerable-preview.png::CompressedTexture2D::5195939700614113738::1791474786::1791474861::1::::<><><>0<>0<>a7bfa9393dece5cf801e3fa9f05f83fd<>res://.godot/imported/iara-vulnerable-preview.png-e704f0f897890b4ebc8215d33295834e.ctex::
+iara_checks.gd::GDScript::5933889871596102866::1791474511::0::1::::<>SceneTree<><>0<>0<><>::
+iara_preview.gd::GDScript::8417736397519511988::1791474512::0::1::::<>SceneTree<><>0<>0<><>::
 level_map.tscn::PackedScene::-1::1791374025::0::1::::<><><>0<>0<><>::res://scripts/LevelMap.gd
 main.tscn::PackedScene::-1::1791423015::0::1::::<><><>0<>0<><>::res://sprites/characters/player.tres<>res://sprites/characters/enemy.tres<>res://sprites/characters/boitata.tres<>res://scripts/FramedHealthBar.gd<>res://scripts/CharacterVisual.gd<>res://scripts/Player.gd<>res://scripts/Enemy.gd<>res://scripts/Level1.gd<>res://scripts/Boitata.gd<>res://sprites/cenario/Fases1e2/backgroundFases.png<>res://sprites/cenario/Fases1e2/chao.png
 menu-art-checks.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
@@ -58,9 +92,22 @@ projectile-import.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 projectile-size-check.log::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
 prologue.tscn::PackedScene::-1::1791374025::0::1::::<><><>0<>0<><>::res://scripts/Prologue.gd
 prologue_map_checks.gd::GDScript::5132022193771211597::1791374025::0::1::::<>SceneTree<><>0<>0<><>::
-ratanaba2.tscn::PackedScene::-1::1791420511::0::1::::<><><>0<>0<><>::res://main.tscn
+ratanaba2.tscn::PackedScene::-1::1791460425::0::1::::<><><>0<>0<><>::res://main.tscn
 ratanaba_stage_checks.gd::GDScript::3776082239151746394::1791421277::0::1::::<>SceneTree<><>0<>0<><>::
 RETOMADA-SPRITES.md::TextFile::-1::1791374025::0::1::::<><><>0<>0<><>::
+rio-negro3-preview.png::CompressedTexture2D::29022326898888421::1791460676::1791461352::1::::<><><>0<>0<>707a5b1c769772e06a1ec4288bc19246<>res://.godot/imported/rio-negro3-preview.png-3dd52b4fd322e3ca73d7d8ff9229a524.ctex::
+rio-negro4-preview.png::CompressedTexture2D::4453771467110605581::1791460676::1791461352::1::::<><><>0<>0<>1c91775eb705b15c9134ea4e48657e2b<>res://.godot/imported/rio-negro4-preview.png-ec4544d8f90aee57153ff611bc5a6c95.ctex::
+rio-negro-campaign-checks.log::TextFile::-1::1791460546::0::1::::<><><>0<>0<><>::
+rio-negro-checks.log::TextFile::-1::1791460600::0::1::::<><><>0<>0<><>::
+rio-negro-final-checks.log::TextFile::-1::1791460770::0::1::::<><><>0<>0<><>::
+rio-negro-import.log::TextFile::-1::1791460443::0::1::::<><><>0<>0<><>::
+rio-negro-preview.log::TextFile::-1::1791460676::0::1::::<><><>0<>0<><>::
+rio-negro-ratanaba-checks.log::TextFile::-1::1791460546::0::1::::<><><>0<>0<><>::
+rio-negro-transition-checks.log::TextFile::-1::1791460583::0::1::::<><><>0<>0<><>::
+rio_negro3.tscn::PackedScene::-1::1791460427::0::1::::<><><>0<>0<><>::
+rio_negro4.tscn::PackedScene::-1::1791468878::0::1::::<><><>0<>0<><>::
+rio_negro_checks.gd::GDScript::8254630899161701910::1791469139::0::1::::<>SceneTree<><>0<>0<><>::
+rio_negro_preview.gd::GDScript::5683450135099904275::1791469139::0::1::::<>SceneTree<><>0<>0<><>::
 splash.tscn::PackedScene::-1::1791374026::0::1::::<><><>0<>0<><>::res://scripts/CompanySplash.gd
 sprite-build.log::TextFile::-1::1791374026::0::1::::<><><>0<>0<><>::
 sprite-import.log::TextFile::-1::1791374026::0::1::::<><><>0<>0<><>::
@@ -75,7 +122,7 @@ sprite-update-health_bar_checks.log::TextFile::-1::1791374026::0::1::::<><><>0<>
 sprite-update-import.log::TextFile::-1::1791374026::0::1::::<><><>0<>0<><>::
 sprite-update-visual.log::TextFile::-1::1791374026::0::1::::<><><>0<>0<><>::
 sprite-update-visual_checks.log::TextFile::-1::1791374026::0::1::::<><><>0<>0<><>::
-stage_transition_checks.gd::GDScript::4536945954709984155::1791423086::0::1::::<>SceneTree<><>0<>0<><>::
+stage_transition_checks.gd::GDScript::4536945954709984155::1791460512::0::1::::<>SceneTree<><>0<>0<><>::
 startup_checks.gd::GDScript::3484464402241800027::1791374027::0::1::::<>SceneTree<><>0<>0<><>::
 tutorial_checks.gd::GDScript::6573251455643196950::1791419160::0::1::::<>SceneTree<><>0<>0<><>::
 update-attack_sprite_checks.log::TextFile::-1::1791374027::0::1::::<><><>0<>0<><>::
@@ -104,16 +151,16 @@ Boitata.mp3::AudioStreamMP3::820978667477433340::1791374025::1791374081::1::::<>
 Fase1.mp3::AudioStreamMP3::4592721728014265648::1791374025::1791374081::1::::<><><>0<>0<>530731b8213c5c1b44659546d464c035<>res://.godot/imported/Fase1.mp3-efaee48823899e4fd5d981713a89dc22.mp3str::
 Menu.mp3::AudioStreamMP3::1235815389420816458::1791374025::1791374081::1::::<><><>0<>0<>7d689bcb6034bbba8b7a36606c497c2c<>res://.godot/imported/Menu.mp3-1dceb5597ef9ae5d913951dec9632aab.mp3str::
 ::res://scenes/::1791374100
-Enemy.tscn::PackedScene::-1::1791374025::0::1::::<><><>0<>0<><>::res://sprites/characters/enemy.tres<>res://scripts/CharacterVisual.gd<>res://scripts/Enemy.gd
+Enemy.tscn::PackedScene::-1::1791469065::0::1::::<><><>0<>0<><>::res://sprites/characters/enemy.tres<>res://scripts/CharacterVisual.gd<>res://scripts/Enemy.gd
 Level1.tscn::PackedScene::-1::1791374025::0::1::::<><><>0<>0<><>::res://sprites/characters/player.tres<>res://sprites/characters/enemy.tres<>res://scripts/CharacterVisual.gd<>res://scripts/Player.gd<>res://scripts/Enemy.gd
 Player.tscn::PackedScene::-1::1791374025::0::1::::<><><>0<>0<><>::res://sprites/characters/player.tres<>res://scripts/CharacterVisual.gd<>res://scripts/Player.gd
-::res://scripts/::1791423017
+::res://scripts/::1791474591
 AbilityCooldown.gd::GDScript::8177456513647081375::1791423015::0::1::::<>ProgressBar<><>0<>0<><>::
 Atmosphere.gd::GDScript::4430579172549650193::1791374025::0::1::::<>Node2D<><>0<>0<><>::
 Boitata.gd::GDScript::2658707936255837121::1791419763::0::1::::<>CharacterBody2D<><>0<>0<><>::
 BossAmbience.gd::GDScript::3444225588888233265::1791423086::0::1::::<>Node<><>0<>0<><>::
 BossEntrance.gd::GDScript::4117958757333056301::1791420511::0::1::::<>CanvasLayer<><>0<>0<><>::
-CampaignProgress.gd::GDScript::5558565527672800868::1791419724::0::1::::<>Node<><>0<>0<><>::
+CampaignProgress.gd::GDScript::5558565527672800868::1791460543::0::1::::<>Node<><>0<>0<><>::
 CharacterVisual.gd::GDScript::6614026697954371956::1791374025::0::1::::<>AnimatedSprite2D<><>0<>0<><>::
 CombatFeedback.gd::GDScript::4144311581676918337::1791423015::0::1::::<>Node<><>0<>0<><>::
 CombatGeometry.gd::GDScript::6372581572700395612::1791374025::0::1::::<>RefCounted<><>0<>0<><>::
@@ -126,17 +173,24 @@ Fireball.gd::GDScript::3461417569136709494::1791419763::0::1::::<>Node2D<><>0<>0
 FlameTrail.gd::GDScript::199147277389739350::1791419817::0::1::::<>Node2D<><>0<>0<><>::
 FramedHealthBar.gd::GDScript::2437552150112379268::1791421884::0::1::::<>ProgressBar<><>0<>0<><>::
 GameMenu.gd::GDScript::658626262899736182::1791383015::0::1::::<>CanvasLayer<><>0<>0<><>::
-Level1.gd::GDScript::8988369636021216320::1791423015::0::1::::<>Node2D<><>0<>0<><>::
-LevelMap.gd::GDScript::5878102746447291082::1791419724::0::1::::<>Control<><>0<>0<><>::
+Iara.gd::GDScript::3590585996038588137::1791470447::0::1::::<>CharacterBody2D<><>0<>0<><>::
+IaraBossFight.gd::GDScript::5590716355428540304::1791474511::0::1::::<>Node2D<><>0<>0<><>::
+IaraFrames.gd::GDScript::6440899638706917379::1791474321::0::1::::<>RefCounted<><>0<>0<><>::
+IaraSpellEffects.gd::GDScript::6489931878309205671::1791474320::0::1::::<>Node2D<><>0<>0<><>::
+IaraVisual.gd::GDScript::5033690647677890016::1791474321::0::1::::<>AnimatedSprite2D<><>0<>0<><>::
+Level1.gd::GDScript::8988369636021216320::1791460425::0::1::::<>Node2D<><>0<>0<><>::
+LevelMap.gd::GDScript::5878102746447291082::1791468878::0::1::::<>Control<><>0<>0<><>::
 MenuAtmosphere.gd::GDScript::6028037289394792912::1791374025::0::1::::<>Control<><>0<>0<><>::
 MusicPlayer.gd::GDScript::7096782575801522890::1791374025::0::1::::<>AudioStreamPlayer<><>0<>0<><>::
-Player.gd::GDScript::5451311110774802853::1791423153::0::1::::<>CharacterBody2D<><>0<>0<><>::
+Player.gd::GDScript::5451311110774802853::1791469032::0::1::::<>CharacterBody2D<><>0<>0<><>::
 Presentation.gd::GDScript::5756141742294096488::1791423015::0::1::::<>RefCounted<><>0<>0<><>::
 Prologue.gd::GDScript::381318763212012496::1791374025::0::1::::<>Control<><>0<>0<><>::
+RioNegro.gd::GDScript::8599152885515291080::1791460426::0::1::::<>Node2D<><>0<>0<><>::
 SceneTransition.gd::GDScript::7393499108857639403::1791423015::0::1::::<>CanvasLayer<><>0<>0<><>::
 SoundEffects.gd::GDScript::8251955402121123041::1791375464::0::1::::<>Node<><>0<>0<><>::
+TranceKeyPrompt.gd::GDScript::4517560782876368841::1791474774::0::1::::<>Control<><>0<>0<><>::
 TutorialBalloon.gd::GDScript::6007924970645229826::1791419724::0::1::::<>Control<><>0<>0<><>::
-VictoryFeedback.gd::GDScript::4821361499977778803::1791423086::0::1::::<>CanvasLayer<><>0<>0<><>::
+VictoryFeedback.gd::GDScript::4821361499977778803::1791455893::0::1::::<>CanvasLayer<><>0<>0<><>::
 ::res://shaders/::1791419774
 atmosphere.gdshader::Shader::7585001870693650163::1791374026::0::1::::<><><>0<>0<><>::
 damage_flash.gdshader::Shader::7839570609632904965::1791374026::0::1::::<><><>0<>0<><>::
@@ -166,10 +220,14 @@ Pulo.wav::AudioStreamWAV::8443442154319497756::1791374026::1791374097::1::::<><>
 buraco.png::CompressedTexture2D::4037858294562226591::1791374026::1791374088::1::::<><><>0<>0<>ff466d2c051e626fd25d92edbd785396<>res://.godot/imported/buraco.png-84b112ab62e4a279c7c6da0d52a2e4af.ctex::
 logo empresa.png::CompressedTexture2D::5380078458271071896::1791374027::1791374088::1::::<><><>0<>0<>41fc66cfd81f6b3b32aaf433e291867c<>res://.godot/imported/logo empresa.png-b34f2e3462aa84f405ed23fdc2c6a8b9.ctex::
 sprites sheets personagens.png::CompressedTexture2D::1818142401839714844::1791374027::1791374088::1::::<><><>0<>0<>5733fc5966ec078c4e939e1f22bd68b3<>res://.godot/imported/sprites sheets personagens.png-787a11e0231aba3770b594a018fdaf42.ctex::
-::res://sprites/cenario/::1791374103
+::res://sprites/cenario/::1791459245
 ::res://sprites/cenario/Fases1e2/::1791374103
 backgroundFases.png::CompressedTexture2D::7812983217646673593::1791374026::1791374092::1::::<><><>0<>0<>57158dbedabf8d92c9e84674dcf3e939<>res://.godot/imported/backgroundFases.png-e40d274f3df22d236c0550ed9deb1b2a.ctex::
 chao.png::CompressedTexture2D::6324341702126613001::1791374026::1791374093::1::::<><><>0<>0<>cdc8bd6d825c44ea11009b4249d5e1fb<>res://.godot/imported/chao.png-87c87a56a34e73fe10c4df2a4abf53ba.ctex::
+::res://sprites/cenario/Fases3e4/::1791468309
+background.png::CompressedTexture2D::4091740211261081208::1791460233::1791460440::1::::<><><>0<>0<>c40ac02a3ac1d07079a42e5f19374141<>res://.godot/imported/background.png-9a5693ec15d68f6cd85508233b6907e8.ctex::
+chao boss fight Iara.png::CompressedTexture2D::5362500054118136400::1791468300::1791468309::1::::<><><>0<>0<>a5a87f8df445553b0b5617d0bca1a453<>res://.godot/imported/chao boss fight Iara.png-854cb5f6370d99718f1812b4b194a63a.ctex::
+chao.png::CompressedTexture2D::646652563365050482::1791460237::1791460440::1::::<><><>0<>0<>818316e9e108db59ab7bfaa579afb0ea<>res://.godot/imported/chao.png-c83675d61c8948abe509e7db328fbe84.ctex::
 ::res://sprites/characters/::1791374102
 boitata.tres::SpriteFrames::-1::1791374026::0::1::::<><><>0<>0<><>::res://sprites/characters/boitata/bite_00.png<>res://sprites/characters/boitata/bite_01.png<>res://sprites/characters/boitata/bite_02.png<>res://sprites/characters/boitata/bite_03.png<>res://sprites/characters/boitata/dash_00.png<>res://sprites/characters/boitata/fireball_00.png<>res://sprites/characters/boitata/fireball_01.png<>res://sprites/characters/boitata/fireball_02.png<>res://sprites/characters/boitata/idle_00.png<>res://sprites/characters/boitata/idle_01.png<>res://sprites/characters/boitata/idle_02.png<>res://sprites/characters/boitata/idle_03.png<>res://sprites/characters/boitata/windup_00.png<>res://sprites/characters/boitata/windup_01.png<>res://sprites/characters/boitata/windup_02.png<>res://sprites/characters/boitata/windup_03.png
 enemy.tres::SpriteFrames::-1::1791374026::0::1::::<><><>0<>0<><>::res://sprites/characters/enemy/attack_00.png<>res://sprites/characters/enemy/attack_01.png<>res://sprites/characters/enemy/attack_02.png<>res://sprites/characters/enemy/attack_03.png<>res://sprites/characters/enemy/attack_04.png<>res://sprites/characters/enemy/attack_05.png<>res://sprites/characters/enemy/death_00.png<>res://sprites/characters/enemy/death_01.png<>res://sprites/characters/enemy/death_02.png<>res://sprites/characters/enemy/death_03.png<>res://sprites/characters/enemy/death_04.png<>res://sprites/characters/enemy/death_05.png<>res://sprites/characters/enemy/dodge_00.png<>res://sprites/characters/enemy/dodge_01.png<>res://sprites/characters/enemy/dodge_02.png<>res://sprites/characters/enemy/dodge_03.png<>res://sprites/characters/enemy/dodge_04.png<>res://sprites/characters/enemy/dodge_05.png<>res://sprites/characters/enemy/hurt_00.png<>res://sprites/characters/enemy/hurt_01.png<>res://sprites/characters/enemy/hurt_02.png<>res://sprites/characters/enemy/hurt_03.png<>res://sprites/characters/enemy/idle_00.png<>res://sprites/characters/enemy/idle_01.png<>res://sprites/characters/enemy/idle_02.png<>res://sprites/characters/enemy/idle_03.png<>res://sprites/characters/enemy/walk_00.png<>res://sprites/characters/enemy/walk_01.png<>res://sprites/characters/enemy/walk_02.png<>res://sprites/characters/enemy/walk_03.png<>res://sprites/characters/enemy/walk_04.png<>res://sprites/characters/enemy/walk_05.png<>res://sprites/characters/enemy/walk_06.png<>res://sprites/characters/enemy/walk_07.png<>res://sprites/characters/enemy/walk_down_00.png<>res://sprites/characters/enemy/walk_down_01.png<>res://sprites/characters/enemy/walk_down_02.png<>res://sprites/characters/enemy/walk_down_03.png<>res://sprites/characters/enemy/walk_down_04.png<>res://sprites/characters/enemy/walk_down_05.png<>res://sprites/characters/enemy/walk_up_00.png<>res://sprites/characters/enemy/walk_up_01.png<>res://sprites/characters/enemy/walk_up_02.png<>res://sprites/characters/enemy/walk_up_03.png<>res://sprites/characters/enemy/walk_up_04.png<>res://sprites/characters/enemy/walk_up_05.png
@@ -294,13 +352,14 @@ walk_up_02.png::CompressedTexture2D::1341170549349691225::1791374026::1791374089
 walk_up_03.png::CompressedTexture2D::5806124364465202937::1791374026::1791374089::1::::<><><>0<>0<>b603ecf4464975eedf412896af1e2c1e<>res://.godot/imported/walk_up_03.png-bc8157d462acbbbe361489b2450ade09.ctex::
 walk_up_04.png::CompressedTexture2D::3843751627480089023::1791374026::1791374089::1::::<><><>0<>0<>a5da007169031236aeee6bbf8b0344af<>res://.godot/imported/walk_up_04.png-c68e8cd5cf8b8d1e65eb6c9f5c88f2aa.ctex::
 walk_up_05.png::CompressedTexture2D::7628333335928814643::1791374026::1791374089::1::::<><><>0<>0<>8a199810ce57dc1a7fd82b339ae72d2d<>res://.godot/imported/walk_up_05.png-a343b4a63f6e364034678133af5fc1d3.ctex::
-::res://sprites/hud/::1791423017
+::res://sprites/hud/::1791473760
 attack-icon.svg::CompressedTexture2D::1546593180385724458::1791422951::1791423219::1::::<><><>0<>0<>98fd2be5adda48606b95d37a61d86410<>res://.godot/imported/attack-icon.svg-55213b9bbfa668e0741b73d3d84b20b2.ctex::
 barra de vida boss.png::CompressedTexture2D::6048600161292489418::1791374027::1791374091::1::::<><><>0<>0<>f2ea17a1eba9cde3d4afbed1912f5403<>res://.godot/imported/barra de vida boss.png-c64988a779bf9447a67ff6030a41c003.ctex::
 barra de vida personagem e inimigo.png::CompressedTexture2D::4126861739020874470::1791374027::1791374091::1::::<><><>0<>0<>d8f8ce96a6919eb1bb8cf18776440ccf<>res://.godot/imported/barra de vida personagem e inimigo.png-a23dfd95d713fabd1f3547e247516258.ctex::
 boss-layout-preview.png::CompressedTexture2D::6889885031795801801::1791374027::1791374090::1::::<><><>0<>0<>7390d9c3c66672c22ae721a9aa3083ee<>res://.godot/imported/boss-layout-preview.png-91898e6841b0f96758cbd753d0da410e.ctex::
 dodge-icon.svg::CompressedTexture2D::3783082828328723764::1791422951::1791423219::1::::<><><>0<>0<>c1b03b9a6a557b7d3aa62ca1eaa2199c<>res://.godot/imported/dodge-icon.svg-d2cd84feea78354391665ad3a3b055f4.ctex::
 health-preview.png::CompressedTexture2D::6335727503316701446::1791374027::1791374085::1::::<><><>0<>0<>fb4f2a2a6e1aad498712d7263f0debc1<>res://.godot/imported/health-preview.png-ac615d1aa72d0f41777ee5f98bd4d98f.ctex::
+Ícones Pixelados de Teclas A e D.png::CompressedTexture2D::5871031493634835204::1791473598::1791473760::1::::<><><>0<>0<>e1964f24b171d0b4b248403cfc1e3cb2<>res://.godot/imported/Ícones Pixelados de Teclas A e D.png-78dc8e54753bc5495271687b27f0eac5.ctex::
 ::res://sprites/Menu/::1791374102
 Background.png::CompressedTexture2D::3571279269416604008::1791374026::1791374087::1::::<><><>0<>0<>c2701631f9b88ae8dcb9751b3032c9c7<>res://.godot/imported/Background.png-56438c3a7fc5e8f02ed72c6030682099.ctex::
 botões menu.png::CompressedTexture2D::6717284914344709364::1791374026::1791374087::1::::<><><>0<>0<>29a806d86890fae5502c550426da7943<>res://.godot/imported/botões menu.png-2b47c094de135e36899fabb4c4d73610.ctex::
@@ -314,8 +373,9 @@ button_pressed.png::CompressedTexture2D::747793107350827573::1791374026::1791374
 cursor.png::CompressedTexture2D::5869806423470579796::1791374026::1791374085::1::::<><><>0<>0<>e4eb839297e289f7f7bb4b273ceac6a6<>res://.godot/imported/cursor.png-66c27680d68b9c4e790fa798c7c95d38.ctex::
 logo.png::CompressedTexture2D::4788674083371092530::1791374026::1791374085::1::::<><><>0<>0<>9e0b57d0bc62a03f0e9a6d98672f1974<>res://.godot/imported/logo.png-48092ff09d9e3a8e1417f9fdf6f086e4.ctex::
 menu-preview.png::CompressedTexture2D::6490604740383245713::1791374026::1791374086::1::::<><><>0<>0<>8da8e136f82f725079f85877521146d6<>res://.godot/imported/menu-preview.png-057011a0b2b231ce64c9fa6d99656005.ctex::
-::res://sprites/Personagens/::1791374102
+::res://sprites/Personagens/::1791473761
 sprite sheet boitata.png::CompressedTexture2D::8461636678035295389::1791374026::1791374087::1::::<><><>0<>0<>c5c99279b76e082a95dd2eb849d88473<>res://.godot/imported/sprite sheet boitata.png-ff336104b365401065ae350c6178137d.ctex::
+Sprite Sheet da Sereia Encantadora.png::CompressedTexture2D::5285363216539910956::1791473736::1791473761::1::::<><><>0<>0<>db3b5db8089d64a4da7eb2f329ee6479<>res://.godot/imported/Sprite Sheet da Sereia Encantadora.png-722395869ad8ce3f11cea588d65302b6.ctex::
 sprite sheet inimigo.png::CompressedTexture2D::83556580305425714::1791374026::1791374086::1::::<><><>0<>0<>61074942ad26f440540c0d5c07c6a85a<>res://.godot/imported/sprite sheet inimigo.png-5b2c315fe90ea8bf717f409fa23460c5.ctex::
 sprite sheet personagem.png::CompressedTexture2D::9220123881976063270::1791374026::1791374087::1::::<><><>0<>0<>6ed3154a773133de7e5cf7f56ebe4bc3<>res://.godot/imported/sprite sheet personagem.png-0f72940504dae222bbc650d2e218068f.ctex::
 ::res://themes/::1791374101

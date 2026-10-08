@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Assertion failed: A new contact after separation must cause damage normally
+   at: run_checks (res://contact_dodge_checks.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] run_checks (res://contact_dodge_checks.gd:34)
+       [1] frames (res://contact_dodge_checks.gd:6)

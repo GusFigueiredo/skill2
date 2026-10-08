@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://rio_negro3.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/IaraBossFight.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/Iara.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/IaraVisual.gd" id="4"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fases3e4/chao boss fight Iara.png" id="5"]
+
+[node name="RioNegro4" instance=ExtResource("1")]
+script = ExtResource("2")
+stage_index = 3
+next_stage_path = "res://level_map.tscn"
+
+[node name="Ground" parent="." index="1"]
+texture = ExtResource("5")
+
+[node name="Boss" parent="." index="7"]
+script = ExtResource("3")
+
+[node name="Sprite" parent="Boss" index="0"]
+script = ExtResource("4")
+position = Vector2(0, -90)
+scale = Vector2(0.75, 0.75)

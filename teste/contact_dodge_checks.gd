@@ -12,6 +12,9 @@ func run_checks():
    scene.set_process(false)
    var player=scene.player
    var enemy=scene.get_node("Enemy1")
+   # Tutorial enemies start inactive; this check needs a live contact collider.
+   enemy.spawn_finished=true
+   scene._set_enemy_active(enemy,true)
    var half_width: float=(player.get_node("CollisionShape2D").shape.size.x+enemy.get_node("CollisionShape2D").shape.size.x)*0.5
    var distance: float=half_width+10.0 if not overlapping_finish else maxf(half_width+10.0,player.dodge_distance-half_width+10.0)
    player.position=Vector2(400,430)

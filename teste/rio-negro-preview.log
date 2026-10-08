@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 - Build 32.0.101.7088 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+ERROR: Can't change visibility of main window.
+   at: set_visible (scene/main/window.cpp:1017)
+   GDScript backtrace (most recent call first):
+       [0] capture (res://rio_negro_preview.gd:7)
+PASS: captured both Rio Negro stage previews

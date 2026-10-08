@@ -1,7 +1,14 @@
 extends Node
 
 const SAVE_PATH := "user://campaign_progress.cfg"
-const IMPLEMENTED_STAGES := 2
+const STAGE_PATHS: Array[String] = [
+    "res://main.tscn", "res://ratanaba2.tscn",
+    "res://rio_negro3.tscn", "res://rio_negro4.tscn"
+]
+const IMPLEMENTED_STAGES := 4
+
+static func stage_path(index: int) -> String:
+    return STAGE_PATHS[index] if index >= 0 and index < IMPLEMENTED_STAGES else ""
 
 static func completed_stages() -> int:
     var save := ConfigFile.new()

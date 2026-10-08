@@ -4,4 +4,5 @@
 
 [node name="Ratanaba2" instance=ExtResource("1")]
 tutorial_stage = false
-next_stage_path = "res://level_map.tscn"
+stage_index = 1
+next_stage_path = "res://rio_negro3.tscn"

@@ -1,0 +1,47 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+ERROR: Song must be telegraphed before the trance
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] check (res://iara_checks.gd:12)
+       [1] run_checks (res://iara_checks.gd:41)
+ERROR: Node not found: "HealthBar" (relative to "/root/RioNegro4/IaraMinion1_0").
+   at: get_node (scene/main/node.cpp:1975)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/Enemy.gd:25)
+       [1] _spawn_minions (res://scripts/IaraBossFight.gd:226)
+       [2] _physics_process (res://scripts/IaraBossFight.gd:153)
+       [3] run_checks (res://iara_checks.gd:68)
+SCRIPT ERROR: Invalid access to property or key 'visible' on a base object of type 'null instance'.
+   at: play_spawn_animation (res://scripts/Enemy.gd:78)
+   GDScript backtrace (most recent call first):
+       [0] play_spawn_animation (res://scripts/Enemy.gd:78)
+       [1] _set_enemy_active (res://scripts/Level1.gd:96)
+       [2] _spawn_minions (res://scripts/IaraBossFight.gd:229)
+       [3] _physics_process (res://scripts/IaraBossFight.gd:153)
+       [4] run_checks (res://iara_checks.gd:68)
+ERROR: Node not found: "HealthBar" (relative to "/root/RioNegro4/IaraMinion1_1").
+   at: get_node (scene/main/node.cpp:1975)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/Enemy.gd:25)
+       [1] _spawn_minions (res://scripts/IaraBossFight.gd:226)
+       [2] _physics_process (res://scripts/IaraBossFight.gd:153)
+       [3] run_checks (res://iara_checks.gd:68)
+SCRIPT ERROR: Invalid access to property or key 'visible' on a base object of type 'null instance'.
+   at: play_spawn_animation (res://scripts/Enemy.gd:78)
+   GDScript backtrace (most recent call first):
+       [0] play_spawn_animation (res://scripts/Enemy.gd:78)
+       [1] _set_enemy_active (res://scripts/Level1.gd:96)
+       [2] _spawn_minions (res://scripts/IaraBossFight.gd:229)
+       [3] _physics_process (res://scripts/IaraBossFight.gd:153)
+       [4] run_checks (res://iara_checks.gd:68)
+SCRIPT ERROR: Invalid call. Nonexistent function 'custom_step' in base 'Nil'.
+   at: run_checks (res://iara_checks.gd:71)
+   GDScript backtrace (most recent call first):
+       [0] run_checks (res://iara_checks.gd:71)
+ERROR: Iara checks timed out
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (res://iara_checks.gd:16)

@@ -2,7 +2,6 @@ extends Control
 
 const BACKGROUND := preload("res://sprites/Menu/Background.png")
 const Progress = preload("res://scripts/CampaignProgress.gd")
-const GAMEPLAY_SCENE := "res://main.tscn"
 const STAGES: Array[Dictionary] = [
 	{"place": "Ratanabá", "short": "Ratanabá\nTutorial"},
 	{"place": "Floresta da Ratanabá", "short": "Floresta\nBoitatá"},
@@ -215,14 +214,14 @@ func _show_stage(index: int) -> void:
 	elif index == 1:
 		details_label.text = "FASE 2 - Ratanab\u00e1 - Boitat\u00e1 dispon\u00edvel"
 	else:
-		details_label.text = "FASE %d  •  %s — bloqueada" % [index + 1, stage["place"]]
+		details_label.text = "FASE %d - %s - dispon\u00edvel" % [index + 1, stage["place"]]
 	start_button.disabled = not Progress.is_available(index)
 
 func _start_selected_stage() -> void:
 	if transitioning or start_button.disabled or not Progress.is_available(selected_stage):
 		return
 	transitioning = true
-	get_node("/root/SceneTransition").load_level(GAMEPLAY_SCENE if selected_stage == 0 else "res://ratanaba2.tscn")
+	get_node("/root/SceneTransition").load_level(Progress.stage_path(selected_stage))
 
 func _return_to_menu() -> void:
 	if transitioning:

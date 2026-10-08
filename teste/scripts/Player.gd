@@ -42,6 +42,9 @@ var attack_reach: float = 90.0
 var dodge_protected_frame: int = -1
 var dodge_vfx_timer: float = 0.0
 var dodge_rewarded := false
+var seduction_source: Node2D
+var seduction_input := 0
+var control_locked := false
 
 @onready var attack_area: Area2D = $AttackArea
 @onready var sprite: AnimatedSprite2D = $Sprite
@@ -74,6 +77,8 @@ func _ready() -> void:
     attack_area.collision_mask = 4
 
 func _physics_process(delta: float) -> void:
+    if control_locked:
+        return
     if is_falling:
         fall_timer -= delta
         sprite.scale = Vector2.ONE * 0.9375 * maxf(0.05, fall_timer / 0.45)
@@ -84,7 +89,7 @@ func _physics_process(delta: float) -> void:
     attack_flash_timer = maxf(0.0, attack_flash_timer - delta)
     queue_redraw()
     var jump_pressed := Input.is_key_pressed(KEY_SPACE)
-    if jump_pressed and not jump_key_was_pressed and jump_height <= 0.0:
+    if jump_pressed and not jump_key_was_pressed and jump_height <= 0.0 and not is_instance_valid(seduction_source):
         jump_speed = -jump_velocity
         has_jumped = true
         sound_effects.play_effect("jump")
@@ -107,6 +112,10 @@ func _physics_process(delta: float) -> void:
 
     if damage_cooldown > 0.0:
         damage_cooldown = max(0.0, damage_cooldown - delta)
+
+    if is_instance_valid(seduction_source):
+        _update_seduction(delta)
+        return
 
     if is_dodging:
         _update_dodge(delta)
@@ -148,6 +157,8 @@ func _physics_process(delta: float) -> void:
     get_parent().check_player_floor(previous_position)
 
 func _input(event: InputEvent) -> void:
+    if control_locked or is_instance_valid(seduction_source):
+        return
     if get_parent().get("finished") or get_parent().get("boss_intro_running"):
         return
     if not event is InputEventKey or not event.pressed or event.echo:
@@ -178,7 +189,7 @@ func _orient_attack_area() -> void:
     attack_area.rotation = heading.angle()
 
 func _attack() -> void:
-    if attack_cooldown_timer > 0.0 or is_dodging or hp <= 0 or get_parent().get("finished") or get_parent().get("boss_intro_running"):
+    if control_locked or attack_cooldown_timer > 0.0 or is_dodging or hp <= 0 or is_instance_valid(seduction_source) or get_parent().get("finished") or get_parent().get("boss_intro_running"):
         return
 
     attack_cooldown_timer = attack_cooldown
@@ -208,7 +219,7 @@ func _is_airborne() -> bool:
     return jump_height > 0.0 or jump_speed > 0.0
 
 func _start_dodge(move_input: float) -> void:
-    if not can_dodge or is_dodging or hp <= 0 or _is_airborne() or get_parent().get("finished") or get_parent().get("boss_intro_running"):
+    if control_locked or not can_dodge or is_dodging or hp <= 0 or is_instance_valid(seduction_source) or _is_airborne() or get_parent().get("finished") or get_parent().get("boss_intro_running"):
         return
     is_dodging = true
     dodge_rewarded = false
@@ -300,6 +311,37 @@ func is_dodge_invulnerable() -> bool:
 func _clamp_to_arena() -> void:
     var bounds: Rect2 = get_parent().arena_bounds
     global_position = global_position.clamp(bounds.position, bounds.end)
+
+func begin_seduction(source: Node2D) -> void:
+    _end_dodge()
+    seduction_source = source
+    seduction_input = 0
+    jump_height = 0.0
+    jump_speed = 0.0
+    sprite.position = sprite_base_position
+    attack_vertical = 0
+
+func end_seduction() -> void:
+    seduction_source = null
+    seduction_input = 0
+    velocity = Vector2.ZERO
+
+func _update_seduction(delta: float) -> void:
+    var left := Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
+    var right := Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D)
+    var direction := int(right) - int(left)
+    if direction != 0 and direction != seduction_input:
+        get_parent().register_resistance(direction)
+    seduction_input = direction
+    if not is_instance_valid(seduction_source):
+        return
+    var pull: Vector2 = (seduction_source.global_position - global_position).normalized()
+    facing = 1 if pull.x >= 0.0 else -1
+    velocity = Vector2(direction * speed * 0.2, 0) + pull * get_parent().seduction_pull_speed()
+    var previous_position := position
+    move_and_slide()
+    _clamp_to_arena()
+    get_parent().check_player_floor(previous_position)
 
 func _draw() -> void:
     draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))

@@ -74,7 +74,7 @@ func run_checks() -> void:
     assert(not level.death_screen.visible, "Victory uses stage exit, not death presentation")
     while transition.busy:
         await process_frame
-    assert(current_scene.scene_file_path == "res://level_map.tscn")
+    assert(current_scene.scene_file_path == "res://rio_negro3.tscn")
     assert(preload("res://scripts/CampaignProgress.gd").completed_stages() == 2)
     assert(not paused)
     print("PASS: walking right offscreen, stationary camera, fade-out before loading, next-stage fade-in and shared boss-stage exit")

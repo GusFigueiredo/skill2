@@ -6,6 +6,7 @@ const PIT_DEATH_MARGIN := 6.0
 const PIT_VISUAL_SIDE_MARGIN := 72.0
 
 @export var tutorial_stage := true
+@export_range(0, 6) var stage_index := 0
 @export_file("*.tscn") var next_stage_path := "res://ratanaba2.tscn"
 var boss_intro_running := false
 var boss_intro_tween: Tween
@@ -57,20 +58,7 @@ func _ready() -> void:
     pause_menu.name = "PauseMenu"
     pause_menu.main_menu = false
     add_child(pause_menu)
-    if tutorial_stage:
-        pits = [Rect2(1060, 325, 100, 255)]
-        waves = [[$Enemy1, $Enemy2]]
-        arena_bounds.size.x = 2260
-        $Enemy1.position = Vector2(1560, 430)
-        $Enemy2.position = Vector2(2000, 510)
-        player.get_node("Camera2D").limit_right = 2300
-    else:
-        pits = [Rect2(2450, 325, 110, 255)]
-        var extra = $Enemy4.duplicate()
-        extra.name = "Enemy5"
-        extra.position = Vector2(2180, 450)
-        add_child(extra)
-        waves = [[$Enemy1, $Enemy2], [$Enemy3, $Enemy4, extra], [$Boss]]
+    _setup_encounters()
     for enemy in [$Enemy1, $Enemy2, $Enemy3, $Enemy4, $Boss]:
         _set_enemy_active(enemy, false)
     for index in waves.size():
@@ -86,6 +74,22 @@ func _ready() -> void:
             _set_enemy_active(enemy, true)
     reset_button.pressed.connect(_reset_scene)
     _update_hud()
+
+func _setup_encounters() -> void:
+    if tutorial_stage:
+        pits = [Rect2(1060, 325, 100, 255)]
+        waves = [[$Enemy1, $Enemy2]]
+        arena_bounds.size.x = 2260
+        $Enemy1.position = Vector2(1560, 430)
+        $Enemy2.position = Vector2(2000, 510)
+        player.get_node("Camera2D").limit_right = 2300
+    else:
+        pits = [Rect2(2450, 325, 110, 255)]
+        var extra = $Enemy4.duplicate()
+        extra.name = "Enemy5"
+        extra.position = Vector2(2180, 450)
+        add_child(extra)
+        waves = [[$Enemy1, $Enemy2], [$Enemy3, $Enemy4, extra], [$Boss]]
 
 func _set_enemy_active(enemy: CharacterBody2D, active: bool) -> void:
     if active and not enemy.spawn_finished:
@@ -115,7 +119,7 @@ func _process(_delta: float) -> void:
     if wave_index == waves.size() - 1:
         if tutorial_stage and tutorial.step != tutorial.Step.COMPLETE:
             return
-        preload("res://scripts/CampaignProgress.gd").complete_stage(0 if tutorial_stage else 1)
+        preload("res://scripts/CampaignProgress.gd").complete_stage(stage_index)
         finished = true
         get_node("/root/SceneTransition").complete_level(self, next_stage_path)
         return
@@ -167,7 +171,7 @@ func _update_hud() -> void:
     $HUD/CooldownLabel.text = "K: %s | Shift: %s" % ["PRONTO" if player.attack_cooldown_timer <= 0 else "%.1fs" % player.attack_cooldown_timer, "PRONTO" if player.can_dodge else "%.1fs" % player.dodge_cooldown_timer]
     if finished or player.hp <= 0:
         return
-    $HUD/WaveLabel.text = "\u00c1rea %d / %d - %s" % [ (1 if player.position.x < 1166 else 2) if tutorial_stage else wave_index + 1, 2 if tutorial_stage else 3, "caminho aberto >>" if road_open else "derrote os inimigos"]
+    $HUD/WaveLabel.text = "\u00c1rea %d / %d - %s" % [ (1 if player.position.x < 1166 else 2) if tutorial_stage else wave_index + 1, 2 if tutorial_stage else waves.size(), "caminho aberto >>" if road_open else "derrote os inimigos"]
     $HUD/BossHealth.visible = wave_index == 2 and not boss_intro_running and is_instance_valid(boss)
     if is_instance_valid(boss):
         $HUD/BossHealth.max_value = boss.max_hp
@@ -178,7 +182,7 @@ func trigger_death() -> void:
 
 func _reset_scene() -> void:
     get_tree().paused = false
-    get_node("/root/SceneTransition").load_level("res://main.tscn" if tutorial_stage else "res://ratanaba2.tscn")
+    get_node("/root/SceneTransition").load_level(scene_file_path)
 
 func _draw() -> void:
     for pit in pits:
@@ -249,6 +253,7 @@ func _start_boss_intro() -> void:
     camera.make_current()
     var roar := AudioStreamPlayer.new()
     roar.stream = preload("res://soundeffect/Boitata/rujido.mp3")
+    roar.volume_db = 8.0
     add_child(roar)
     var roar_duration := maxf(0.1, roar.stream.get_length())
     boss_intro_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

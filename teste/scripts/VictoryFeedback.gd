@@ -4,7 +4,7 @@ signal finished
 var elapsed := 0.0
 var screen: Control
 var title: Label
-const DURATION := 0.75
+const DURATION := 2.5
 
 func _ready() -> void:
     layer = 5
