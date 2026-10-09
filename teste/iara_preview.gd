@@ -16,7 +16,7 @@ func capture() -> void:
     fight._physics_process(fight.INTRO_IDLE_SECONDS + 0.01)
     fight._physics_process(1.25)
     fight.boss.get_node("Sprite")._process(0)
-    fight.boss.get_node("Sprite").set_frame_and_progress(3, 0)
+    fight.boss.get_node("Sprite").set_frame_and_progress(1, 0)
     await capture_frame(view, "preparing")
     fight._physics_process(fight.state_timer + 0.01)
     fight._physics_process(fight.CAST_SECONDS * 0.4)

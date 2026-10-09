@@ -1,5 +1,31 @@
 # Diário de Aprendizado
 
+## Submersão progressiva e corpo após afogamento — 2026-10-08
+
+- O shader de afogamento oculta o corpo abaixo da superfície ondulada da água. A exposição aumenta dos pés em direção ao tronco; recuar para a margem restaura o material e a sombra originais.
+- Na sequência fatal, o sprite desce sem deformação. A morte mantém a profundidade e a cor já atingidas; o corpo continua descendo 65px e desaparece suavemente em 1,8s, enquanto a câmera e a superfície permanecem estáveis. A sombra também desaparece.
+- A tela de derrota aparece no instante normal e a apresentação do corpo continua ao fundo. O processamento da cena permite a descida após HP zero, respeita pausa e é descartado no reinício.
+- Checks da Iara passaram para cobertura progressiva, recuperação ao recuar, descida e transparência após a morte por transe ou exposição, pausa, reinício e três segundos até a morte. Capturas com OpenGL no Godot conferiram a superfície, a silhueta submersa e as etapas de desaparecimento; a Iara foi ocultada somente no script de preview para permitir essa inspeção.
+
+## Acabamento do afogamento — 2026-10-08
+
+- A exposição à água mostra ondulações e um arco decrescente nos pés, indicando os três segundos disponíveis para voltar à margem. Sair da água continua zerando a exposição.
+- O afogamento fatal preserva as proporções do personagem: arrasto com aceleração suave, pequeno movimento de resistência e descida progressiva substituem a compressão vertical. Cor, escurecimento e filtro de áudio evoluem com a submersão.
+- Camadas de água com bordas onduladas, anéis e bolhas substituem o retângulo sobre o personagem. As ondulações desaparecem suavemente após a morte. A passagem para a animação normal de derrota preserva a posição visual do sprite.
+- Checks da Iara passaram, incluindo proporções durante a submersão, progressão visual/sonora, morte aos três segundos, pausa e reinício. A avaliação estética final e a legibilidade dependem de playtest visual.
+
+## Recortes do ataque e coração da preparação — 2026-10-08
+
+- O sheet revisado distribui cinco poses pela segunda linha inteira. Os limites antigos cortavam a Iara e incluíam partes das poses vizinhas, principalmente no loop final. Os recortes agora usam os limites horizontais 0, 280, 570, 870, 1170 e 1448, mantendo o ataque completo e o loop 4–5.
+- A preparação usa a partícula de coração fornecida depois da terceira pose da linha 3, recortada por atlas e emitida visualmente ao redor da Iara, subindo e desaparecendo suavemente.
+- Os checks da Iara verificam os novos limites e a origem da partícula, além do ciclo de combate existente.
+
+## Animações da Iara e remoção do tutorial — 2026-10-08
+
+- O recorte anterior atribuía sequências incorretas às linhas do sheet e mantinha um painel textual de instruções no alto da tela. Cada linha agora tem recortes próprios: quatro frames de idle, cinco de ataque, três de preparação, quatro de queda e três de derrota.
+- `IaraVisual.gd` escolhe a animação pelo estado do combate. A preparação alterna dois frames e termina no terceiro, o primeiro frame de idle aparece na transição, e o ataque completo dá lugar ao loop 4–5; a pose final da queda permanece durante a janela de ataque.
+- O painel de texto foi retirado sem remover o medidor de resistência, que aparece somente durante o transe. Os checks foram ampliados para verificar quantidade, linha de origem e ordem dos frames. O ataque completo termina antes da troca para o loop, mesmo se o transe começar durante a animação; o idle volta a tocar caso tenha sido pausado na transição. Os checks headless da Iara passaram no Godot 4.7.2, incluindo linhas, contagem e ordem dos frames, ausência do painel, combate, vitória e reinício. O motor ainda emite os avisos conhecidos de recursos em uso no encerramento.
+
 ## Correção de arquivos após merge — 2026-10-08
 
 - Os únicos arquivos em conflito eram caches gerados em `teste/.godot`: cache do editor, atualização do sistema de arquivos e cache binário de UIDs. Foram preservadas cópias dos três no diretório temporário e os caches foram regenerados pelo Godot.

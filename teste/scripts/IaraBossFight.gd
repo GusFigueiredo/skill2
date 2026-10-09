@@ -9,6 +9,7 @@ const TRANSE_SECONDS := 7.0
 const FALL_SECONDS := 0.75
 const ATTACK_WINDOW_SECONDS := 2.0
 const DROWNING_SECONDS := 3.0
+const CORPSE_SINK_SECONDS := 1.8
 const RESISTANCE_COOLDOWN := 0.2
 const RESISTANCE_REQUIRED := 8
 const WATER_EDGE := 620.0
@@ -28,7 +29,6 @@ var trance_enemy: CharacterBody2D
 var minions: Array[CharacterBody2D] = []
 var cycle_count := 0
 var fight_elapsed := 0.0
-var status: Label
 var resistance_bar: ProgressBar
 var veil: ColorRect
 var river_effects: Node2D
@@ -36,6 +36,13 @@ var audio_bus_name := ""
 var low_pass: AudioEffectLowPassFilter
 var original_music_volume := -10.0
 var drowning_start_position := Vector2.ZERO
+var drowning_start_depth := 0.0
+var water_surface := Vector2.ZERO
+var submersion_material: ShaderMaterial
+var normal_player_material: Material
+var corpse_elapsed := -1.0
+var corpse_start_offset := Vector2.ZERO
+var corpse_start_color := Color.WHITE
 var key_prompt: Control
 var camera_tween: Tween
 var camera_is_focused := false
@@ -72,35 +79,17 @@ func _ready() -> void:
     _update_hud()
 
 func _build_fight_feedback() -> void:
-    var card := PanelContainer.new()
-    card.name = "IaraInstructions"
-    card.position = Vector2(460, 24)
-    card.size = Vector2(790, 112)
-    card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    var style := StyleBoxFlat.new()
-    style.bg_color = Color(0.025, 0.09, 0.13, 0.9)
-    style.border_color = Color("57beb5")
-    style.set_border_width_all(1)
-    style.set_corner_radius_all(8)
-    style.content_margin_left = 18
-    style.content_margin_right = 18
-    style.content_margin_top = 12
-    style.content_margin_bottom = 12
-    card.add_theme_stylebox_override("panel", style)
-    $HUD.add_child(card)
-    var box := VBoxContainer.new()
-    card.add_child(box)
-    status = Label.new()
-    status.custom_minimum_size = Vector2(735, 52)
-    status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    status.add_theme_font_size_override("font_size", 21)
-    status.add_theme_color_override("font_color", Color("defaf1"))
-    box.add_child(status)
     resistance_bar = ProgressBar.new()
+    resistance_bar.name = "IaraResistance"
+    resistance_bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+    resistance_bar.offset_left = -110
+    resistance_bar.offset_top = 100
+    resistance_bar.offset_right = 110
+    resistance_bar.offset_bottom = 112
     resistance_bar.custom_minimum_size = Vector2(0, 12)
     resistance_bar.max_value = RESISTANCE_REQUIRED
     resistance_bar.show_percentage = false
-    box.add_child(resistance_bar)
+    $HUD.add_child(resistance_bar)
     var overlay := CanvasLayer.new()
     overlay.layer = 1
     add_child(overlay)
@@ -136,6 +125,10 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
     _update_hud()
+    if corpse_elapsed >= 0.0:
+        _update_sinking_corpse(delta)
+    if submersion_material != null and player.sprite.material == submersion_material:
+        submersion_material.set_shader_parameter("phase", river_effects.clock)
     if camera_is_focused and state == State.SEDUCING and player.hp > 0:
         var camera := player.get_node("Camera2D") as Camera2D
         var target: Vector2 = player.global_position + player.combat_bounds.get_center()
@@ -309,10 +302,12 @@ func _update_water(delta: float) -> void:
     var exposed: bool = _water_is_active() and player.position.x >= WATER_EDGE
     if not exposed:
         water_exposure = 0.0
+        _restore_water_visual()
         return
     water_exposure += delta
     if not player.is_dodging:
         player.position = player.position.move_toward(WATER_POSITION, (15.0 + water_exposure * 8.0) * delta)
+    _set_submersion(clampf(water_exposure / DROWNING_SECONDS, 0.0, 1.0))
     if water_exposure >= DROWNING_SECONDS:
         _finish_drowning()
 
@@ -330,22 +325,32 @@ func _begin_drowning() -> void:
     player.jump_height = 0.0
     player.jump_speed = 0.0
     drowning_start_position = player.position
-    veil.color.a = 0.46
+    drowning_start_depth = clampf(water_exposure / DROWNING_SECONDS, 0.0, 1.0)
+    _set_submersion(drowning_start_depth)
+    veil.color.a = 0.18
     music.volume_db = original_music_volume - 12.0
     low_pass.cutoff_hz = 450.0
     if is_instance_valid(trance_enemy):
         _set_enemy_active(trance_enemy, false)
 
 func _update_drowning() -> void:
-    var progress := 1.0 - state_timer / DROWNING_SECONDS
-    player.position = drowning_start_position.lerp(Vector2(850, 470), progress)
-    player.sprite.position = player.sprite_base_position + Vector2(0, 64.0 * progress)
-    player.sprite.scale.y = 0.9375 * (1.0 - 0.75 * progress)
-    player.sprite.modulate = Color(0.6, 0.85, 1.0, clampf((1.0 - progress) / 0.3, 0, 1))
+    var progress := clampf(1.0 - state_timer / DROWNING_SECONDS, 0.0, 1.0)
+    var eased := smoothstep(0.0, 1.0, progress)
+    player.position = drowning_start_position.lerp(Vector2(850, 470), eased)
+    # Preserve the silhouette: sinking is translation, never sprite compression.
+    var struggle := sin(progress * TAU * 4.0) * (1.0 - eased)
+    player.sprite.position = player.sprite_base_position + Vector2(struggle * 2.0, eased * 16.0)
+    player.sprite.modulate = Color.WHITE.lerp(Color(0.65, 0.85, 1.0), eased)
+    _set_submersion(lerpf(drowning_start_depth, 1.0, progress))
+    veil.color.a = lerpf(0.18, 0.5, eased)
+    low_pass.cutoff_hz = lerpf(850.0, 220.0, eased)
+    music.volume_db = original_music_volume - lerpf(8.0, 16.0, eased)
     if state_timer <= 0.0:
         _finish_drowning()
 
 func _finish_drowning() -> void:
+    if player.hp <= 0:
+        return
     # Environmental death ignores roll immunity and uses the standard death animation.
     state = State.DROWNING
     state_timer = 0.0
@@ -354,17 +359,45 @@ func _finish_drowning() -> void:
     player.dodge_protected_frame = -1
     player.damage_cooldown = 0.0
     player.control_locked = true
-    player.sprite.position = player.sprite_base_position
     player.sprite.scale = Vector2(0.9375, 0.9375)
-    player.sprite.modulate = Color.WHITE
+    _set_submersion(1.0)
+    corpse_elapsed = 0.0
+    corpse_start_offset = player.sprite.position
+    corpse_start_color = player.sprite.modulate
     player.sprite.set_process(true)
     player.take_damage(player.hp)
+
+func _set_submersion(progress: float) -> void:
+    if submersion_material == null:
+        normal_player_material = player.sprite.material
+        submersion_material = ShaderMaterial.new()
+        submersion_material.shader = preload("res://shaders/drowning.gdshader")
+    player.sprite.material = submersion_material
+    player.shadow_opacity = 1.0 - smoothstep(0.0, 1.0, progress)
+    player.queue_redraw()
+    water_surface = player.position + Vector2(0.0, -lerpf(4.0, 48.0, smoothstep(0.0, 1.0, progress)))
+    submersion_material.set_shader_parameter("surface_y", water_surface.y)
+    submersion_material.set_shader_parameter("surface_x", water_surface.x)
+    submersion_material.set_shader_parameter("phase", river_effects.clock)
+
+func _restore_water_visual() -> void:
+    if submersion_material != null and player.sprite.material == submersion_material:
+        player.sprite.material = normal_player_material
+        player.shadow_opacity = 1.0
+        player.queue_redraw()
+
+func _update_sinking_corpse(delta: float) -> void:
+    corpse_elapsed = minf(CORPSE_SINK_SECONDS, corpse_elapsed + delta)
+    var progress := smoothstep(0.0, 1.0, corpse_elapsed / CORPSE_SINK_SECONDS)
+    # Move only the rendered body so the camera and the water surface stay steady.
+    player.sprite.position = corpse_start_offset + Vector2(0.0, 65.0 * progress)
+    player.sprite.modulate = Color(corpse_start_color, corpse_start_color.a * (1.0 - progress))
 
 func iara_defeated() -> void:
     state = State.DEFEATED
     _clear_seduction()
     $HUD/BossHealth.value = 0
-    $HUD/IaraInstructions.hide()
+    resistance_bar.hide()
     preload("res://scripts/CampaignProgress.gd").complete_stage(stage_index)
     finished = true
     get_node("/root/SceneTransition").complete_level(self, next_stage_path)
@@ -372,30 +405,7 @@ func iara_defeated() -> void:
 func _update_hud() -> void:
     super._update_hud()
     $HUD/BossHealth.visible = not finished and is_instance_valid(boss)
-    if status == null:
+    if resistance_bar == null:
         return
     resistance_bar.visible = state == State.SEDUCING
     resistance_bar.value = resistance
-    match state:
-        State.IDLE:
-            status.text = "Iara observa voc\u00ea da margem do rio...\nFique na terra firme e prepare-se."
-        State.PREPARING:
-            status.text = "Iara est\u00e1 cantando... fique longe da \u00e1gua!\nPrepare-se para alternar A / D ou \u2190 / \u2192."
-        State.SEDUCING:
-            status.text = "QUEBRE O ENCANTO! Alterne A / D ou \u2190 / \u2192 a cada 0,2s.\nResist\u00eancia: %d / %d | %s" % [int(resistance), RESISTANCE_REQUIRED, "PRONTO" if resistance_cooldown <= 0.0001 else "Aguarde %.1fs" % resistance_cooldown]
-        State.CASTING:
-            status.text = "Iara lan\u00e7ou o feiti\u00e7o!\nPrepare-se para quebrar a hipnose com A / D."
-        State.FALLING:
-            status.text = "Encanto quebrado! Iara caiu na margem.\nPrepare-se: os capangas est\u00e3o surgindo."
-        State.MINIONS:
-            var alive := 0
-            for minion in minions:
-                if is_instance_valid(minion) and minion.hp > 0:
-                    alive += 1
-            status.text = "Iara est\u00e1 protegida pelos capangas.\nDerrote os %d restantes para abrir a brecha!" % alive
-        State.VULNERABLE:
-            status.text = "IARA VULNER\u00c1VEL! Aproxime-se e ataque com K!\nBrecha: %.1f segundos" % state_timer
-        State.DROWNING:
-            status.text = "O rio est\u00e1 levando voc\u00ea...\nAfogamento: %.1f segundos" % state_timer
-    if water_exposure > 0.0 and player.hp > 0:
-        status.text += "\nSaia da \u00e1gua! Afogamento em %.1fs" % maxf(0, DROWNING_SECONDS - water_exposure)

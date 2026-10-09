@@ -32,6 +32,7 @@ var attack_flash_timer: float = 0.0
 var jump_height: float = 0.0
 var jump_speed: float = 0.0
 var sprite_base_position: Vector2
+var shadow_opacity := 1.0
 var dodge_vector := Vector2.RIGHT
 var is_falling: bool = false
 var fall_timer: float = 0.0
@@ -345,7 +346,7 @@ func _update_seduction(delta: float) -> void:
 
 func _draw() -> void:
     draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))
-    draw_circle(Vector2.ZERO, 16, Color(0, 0, 0, 0.35))
+    draw_circle(Vector2.ZERO, 16, Color(0, 0, 0, 0.35 * shadow_opacity))
     draw_set_transform(Vector2.ZERO)
 
 func fall_into_pit() -> void:

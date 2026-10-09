@@ -2,12 +2,17 @@ extends Node2D
 
 var fight: Node2D
 var clock := 0.0
+var death_elapsed := 0.0
+var preparation_heart: AtlasTexture = preload("res://scripts/IaraFrames.gd").preparation_heart()
 
 func _ready() -> void:
     z_index = 4
+    texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _process(delta: float) -> void:
     clock += delta
+    if fight.player.hp <= 0:
+        death_elapsed += delta
     queue_redraw()
 
 func _draw() -> void:
@@ -19,8 +24,14 @@ func _draw() -> void:
         draw_set_transform(fight.WATER_POSITION, 0, Vector2(1.0, 0.3))
         draw_arc(Vector2.ZERO, radius, 0, TAU, 48, Color(river, river.a * (1.0 - radius / 180.0)), 1.5)
     draw_set_transform(Vector2.ZERO)
-    if fight.finished or fight.player.hp <= 0:
+    if fight.finished:
         return
+    if fight.player.hp <= 0:
+        if fight.state == fight.State.DROWNING and death_elapsed < fight.CORPSE_SINK_SECONDS:
+            _draw_drowning(1.0, 1.0 - death_elapsed / fight.CORPSE_SINK_SECONDS)
+        return
+    if fight.water_exposure > 0.0 and fight.state != fight.State.DROWNING:
+        _draw_water_warning(clampf(fight.water_exposure / fight.DROWNING_SECONDS, 0.0, 1.0))
     if fight.state == fight.State.PREPARING:
         var progress: float = 1.0 - fight.state_timer / fight.preparation_duration
         # First show the attack pose, then build the visible spell around her hands.
@@ -32,10 +43,46 @@ func _draw() -> void:
     elif fight.state == fight.State.SEDUCING:
         _draw_trance()
     elif fight.state == fight.State.DROWNING:
-        var progress: float = 1.0 - fight.state_timer / fight.DROWNING_SECONDS
-        var top: float = fight.player.position.y - progress * 105.0
-        draw_rect(Rect2(fight.player.position.x - 50, top, 100, fight.player.position.y - top + 20), Color(0.025, 0.16, 0.25, 0.7))
-        draw_line(Vector2(fight.player.position.x - 50, top), Vector2(fight.player.position.x + 50, top), Color("7fcbd6"), 2.0)
+        _draw_drowning(clampf(1.0 - fight.state_timer / fight.DROWNING_SECONDS, 0.0, 1.0))
+
+func _draw_water_warning(progress: float) -> void:
+    _draw_drowning(progress, 0.55)
+    var center: Vector2 = fight.player.position
+    draw_set_transform(center, 0.0, Vector2(1.0, 0.3))
+    for index in range(3):
+        var phase := fposmod(clock * 0.7 + index / 3.0, 1.0)
+        draw_arc(Vector2.ZERO, 18.0 + phase * 42.0, 0.0, TAU, 48, Color(0.45, 0.85, 0.9, (1.0 - phase) * (0.15 + progress * 0.4)), 1.5)
+    # A diminishing ring communicates the remaining chance to return to shore.
+    draw_arc(Vector2.ZERO, 24.0, -PI * 0.5, -PI * 0.5 + TAU * maxf(0.001, 1.0 - progress), 48, Color(0.95, 0.75, 0.4, 0.35 + progress * 0.5), 2.0)
+    draw_set_transform(Vector2.ZERO)
+
+func _draw_drowning(progress: float, opacity: float = 1.0) -> void:
+    var center: Vector2 = fight.player.position
+    var depth := smoothstep(0.0, 1.0, progress)
+    var surface_y: float = fight.water_surface.y
+    # Layered curved water avoids a rectangular overlay across the character.
+    for layer in range(3):
+        var surface := PackedVector2Array()
+        var width := 48.0 + layer * 10.0
+        for index in range(25):
+            var phase := index / 24.0
+            var x := lerpf(-width, width, phase)
+            var wave := sin(x * 0.09 + clock * 3.0 + layer) * 2.0
+            surface.append(Vector2(center.x + x, surface_y + layer * 5.0 + wave + pow(absf(x) / width, 3.0) * 18.0))
+        var pool := surface.duplicate()
+        pool.append(Vector2(center.x + width, center.y + 40.0))
+        pool.append(Vector2(center.x - width, center.y + 40.0))
+        draw_colored_polygon(pool, Color(0.035, 0.23, 0.3, opacity * (0.12 + depth * 0.12)))
+        draw_polyline(surface, Color(0.45, 0.8, 0.85, opacity * (0.4 - layer * 0.1)), 1.2, true)
+    draw_set_transform(Vector2(center.x, surface_y + 10.0), 0.0, Vector2(1.0, 0.24))
+    for index in range(4):
+        var phase := fposmod(clock * 0.8 + index * 0.25, 1.0)
+        draw_arc(Vector2.ZERO, 20.0 + phase * 55.0, 0.0, TAU, 48, Color(0.55, 0.9, 0.92, opacity * (1.0 - phase) * 0.4), 1.3)
+    draw_set_transform(Vector2.ZERO)
+    for index in range(12):
+        var phase := fposmod(clock * 0.55 + index * 0.0833, 1.0)
+        var point := Vector2(center.x + sin(index * 2.4 + clock) * 27.0, surface_y + 28.0 - phase * 62.0)
+        draw_arc(point, 1.5 + index % 3, 0.0, TAU, 12, Color(0.65, 0.9, 0.95, opacity * sin(phase * PI) * (0.25 + depth * 0.5)), 1.0)
 
 func _draw_charge(charge: float) -> void:
     var center: Vector2 = fight.boss.position + Vector2(-40, -100)
@@ -53,7 +100,11 @@ func _draw_charge(charge: float) -> void:
     draw_set_transform(fight.boss.position, 0, Vector2(1, 0.28))
     draw_arc(Vector2.ZERO, 60.0 + charge * 35.0, 0, TAU, 64, Color(0.3, 1.0, 0.85, charge * 0.45), 2.0)
     draw_set_transform(Vector2.ZERO)
-    _heart(center + Vector2(0, -18), 7.0 + charge * 4.0, Color(0.6, 1, 0.9, charge * 0.9))
+    for index in range(6):
+        var phase := fposmod(clock * 0.65 + index / 6.0, 1.0)
+        var point := center + Vector2(sin(clock * 2.0 + index) * 28.0, -12.0 - phase * 65.0)
+        var size := Vector2(26, 28) * (0.8 + charge * 0.4)
+        draw_texture_rect(preparation_heart, Rect2(point - size * 0.5, size), false, Color(1, 1, 1, charge * sin(phase * PI)))
 
 func _draw_launch(progress: float) -> void:
     var source: Vector2 = fight.boss.position + Vector2(-40, -100)

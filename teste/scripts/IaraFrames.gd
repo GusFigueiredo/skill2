@@ -1,31 +1,90 @@
 extends RefCounted
 
 const SHEET := preload("res://sprites/Personagens/Sprite Sheet da Sereia Encantadora.png")
+const FRAME_SIZE := Vector2(400, 260)
 
-# The supplied sheet has irregular cells. Atlas margins align every pose at the feet.
 static func build() -> SpriteFrames:
     var frames := SpriteFrames.new()
     frames.remove_animation("default")
+
+    var idle := [
+        Rect2(30, 0, 240, 227),
+        Rect2(300, 0, 260, 227),
+        Rect2(570, 0, 270, 227),
+        Rect2(890, 0, 290, 227),
+    ]
+    # The revised sheet spreads five complete poses across the entire second row.
+    var attack := cells([0, 280, 570, 870, 1170, 1448], 227, 478)
+    var preparation := [
+        Rect2(30, 478, 280, 242),
+        Rect2(350, 478, 325, 242),
+        Rect2(690, 478, 300, 242),
+    ]
+    var attack_loop: Array[Rect2] = [attack[3], attack[4]]
     var animations := {
-        "idle": cells([150, 335, 530, 708, 920], 0, 226),
-        "wave": cells([0, 245, 480, 708, 928, 1160, 1448], 226, 435),
-        "sing": cells([28, 250, 478, 710, 930, 1160, 1448], 435, 638),
-        "seduction": cells([28, 250, 478, 710, 930, 1160, 1448], 435, 638),
-        "fall": [Rect2(85, 644, 203, 184), Rect2(288, 647, 247, 181), Rect2(535, 645, 215, 183), Rect2(750, 688, 310, 140), Rect2(1060, 704, 350, 124)],
-        "hurt": cells([296, 535, 738, 997], 828, 978),
-        "death": [Rect2(0, 928, 264, 158), Rect2(264, 982, 316, 104), Rect2(580, 994, 288, 92), Rect2(868, 1000, 262, 86), Rect2(1130, 1001, 318, 85)],
+        "idle": {"regions": idle, "speed": 6.0, "loop": true},
+        "attack": {"regions": attack, "speed": 14.0, "loop": false},
+        "attack_loop": {"regions": attack_loop, "speed": 6.0, "loop": true},
+        "preparation": {"regions": [preparation[0], preparation[1]], "speed": 6.0, "loop": true},
+        "preparation_finish": {"regions": [preparation[2]], "speed": 6.0, "loop": false},
+        "fall": {
+            "regions": [
+                Rect2(60, 720, 270, 214),
+                Rect2(350, 720, 250, 214),
+                Rect2(620, 720, 350, 214),
+                Rect2(990, 720, 380, 214),
+            ],
+            "speed": 7.0,
+            "loop": false,
+        },
+        "death": {
+            "regions": [
+                Rect2(60, 934, 340, 152),
+                Rect2(400, 934, 350, 152),
+                Rect2(750, 934, 370, 152),
+            ],
+            "speed": 6.0,
+            "loop": false,
+        },
     }
-    for animation_name in animations:
-        frames.add_animation(animation_name)
-        frames.set_animation_speed(animation_name, 7.0 if animation_name == "fall" else 6.0)
-        frames.set_animation_loop(animation_name, animation_name in ["idle", "wave", "sing"])
-        for region: Rect2 in animations[animation_name]:
-            var texture := AtlasTexture.new()
-            texture.atlas = SHEET
-            texture.region = region
-            texture.margin = Rect2(Vector2((340.0 - region.size.x) * 0.5, 240.0 - region.size.y), Vector2(340, 240) - region.size)
-            frames.add_frame(animation_name, texture)
+
+    for animation_name: String in animations:
+        var animation: Dictionary = animations[animation_name]
+        _add_animation(
+            frames,
+            animation_name,
+            animation["regions"],
+            animation["speed"],
+            animation["loop"]
+        )
     return frames
+
+static func preparation_heart() -> AtlasTexture:
+    var texture := AtlasTexture.new()
+    texture.atlas = SHEET
+    texture.region = Rect2(1170, 540, 65, 70)
+    return texture
+
+static func _add_animation(
+    frames: SpriteFrames,
+    animation_name: StringName,
+    regions: Array,
+    speed: float,
+    loop: bool
+) -> void:
+    frames.add_animation(animation_name)
+    frames.set_animation_speed(animation_name, speed)
+    frames.set_animation_loop(animation_name, loop)
+    for region: Rect2 in regions:
+        var texture := AtlasTexture.new()
+        texture.atlas = SHEET
+        texture.region = region
+        var margin_size := FRAME_SIZE - region.size
+        texture.margin = Rect2(
+            Vector2(margin_size.x * 0.5, margin_size.y),
+            margin_size
+        )
+        frames.add_frame(animation_name, texture)
 
 static func cells(edges: Array, top: float, bottom: float) -> Array[Rect2]:
     var result: Array[Rect2] = []
