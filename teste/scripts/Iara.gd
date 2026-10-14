@@ -20,7 +20,8 @@ func _update_hurtbox() -> void:
     var key := "%s:%d" % [visual.animation, visual.frame]
     var atlas := visual.sprite_frames.get_frame_texture(visual.animation, visual.frame) as AtlasTexture
     if not pose_bounds.has(key):
-        var used := Rect2(sheet_image.get_region(Rect2i(atlas.region)).get_used_rect())
+        var image := sheet_image if atlas.atlas == preload("res://scripts/IaraFrames.gd").SHEET else atlas.atlas.get_image()
+        var used := Rect2(image.get_region(Rect2i(atlas.region)).get_used_rect())
         used.position += atlas.margin.position - Vector2(atlas.get_size()) * 0.5
         pose_bounds[key] = used
     var bounds: Rect2 = pose_bounds[key]
@@ -40,9 +41,10 @@ func _physics_process(_delta: float) -> void:
 
 func take_damage(amount: int) -> void:
     var fight = get_parent()
-    if hp <= 0 or amount <= 0 or fight.state != fight.State.VULNERABLE:
+    if hp <= 0 or amount <= 0 or not fight.boss_area_entered or fight.boss_intro_running or fight.state != fight.State.VULNERABLE:
         return
     hp = maxi(0, hp - amount)
+    fight.sound_effects.play_effect("hit")
     preload("res://scripts/DamageImpact.gd").spawn(self, amount)
     if hp == 0:
         _show_defeat()

@@ -12,10 +12,22 @@ const DROWNING_SECONDS := 3.0
 const CORPSE_SINK_SECONDS := 1.8
 const RESISTANCE_COOLDOWN := 0.2
 const RESISTANCE_REQUIRED := 8
-const WATER_EDGE := 620.0
-const WATER_POSITION := Vector2(780, 450)
-const SHORE_POSITION := Vector2(570, 450)
-const MINION_SCENE := preload("res://scenes/Enemy.tscn")
+const STAGE_START := Vector2(180, 460)
+const SECOND_STAGE_GATE := 1500.0
+const SECOND_ARENA_END := 2700.0
+const BOSS_ARENA_START := 2700.0
+const BOSS_ENTRY_MIN_DISTANCE := 30.0
+const BOSS_GATE := BOSS_ARENA_START + BOSS_ENTRY_MIN_DISTANCE
+const BOSS_MUSIC_PATH := "res://music/Iara.mp3"
+const APPROACH_MUSIC_MIN_VOLUME := 0.15
+const APPROACH_MUSIC_FADE_END := SECOND_ARENA_END - 100.0
+const WATER_EDGE := BOSS_ARENA_START + 620.0
+const WATER_POSITION := Vector2(BOSS_ARENA_START + 780.0, 450)
+const SHORE_POSITION := Vector2(BOSS_ARENA_START + 570.0, 450)
+const BOSS_GROUND_TEXTURE := preload("res://sprites/cenario/Fases3e4/chao boss fight Iara.png")
+const CHANT_AUDIO := preload("res://soundeffect/Iara/Canto.mp3")
+const CHANT_MAX_VOLUME := 0.85
+const MINION_SCENE := preload("res://scenes/RiverEnemy.tscn")
 
 var state: State = State.IDLE
 var state_timer := INTRO_IDLE_SECONDS
@@ -49,21 +61,69 @@ var camera_is_focused := false
 var normal_camera_zoom := Vector2.ONE
 var normal_camera_position := Vector2.ZERO
 var normal_camera_smoothing := true
+var entrance: Node
+var sound_effects := preload("res://scripts/SoundEffects.gd").new()
+var spell_sound_played := false
+var spell_lead_seconds := 0.0
+var chant: AudioStreamPlayer
+var boss_ground: Sprite2D
+var approach_music_volume := 0.0
 
 func _setup_encounters() -> void:
-    pits = []
-    arena_bounds = Rect2(55, 345, 1025, 210)
-    waves = [[boss]]
+    pits = [Rect2(1060, 325, 110, 255)]
+    arena_bounds = Rect2(40, 345, 1000, 210)
+    $Enemy1.position = Vector2(500, 395)
+    $Enemy2.position = Vector2(880, 510)
+    $Enemy3.position = Vector2(1660, 390)
+    $Enemy4.position = Vector2(2110, 520)
+    var extra = MINION_SCENE.instantiate()
+    extra.name = "Enemy5"
+    extra.position = Vector2(2490, 440)
+    add_child(extra)
+    waves = [[$Enemy1, $Enemy2], [$Enemy3, $Enemy4, extra], [boss]]
     boss.position = WATER_POSITION
-    player.position = Vector2(440, 460)
+    player.position = STAGE_START
+    player.get_node("Camera2D").limit_right = 3850
+
+static func boss_point(local_position: Vector2) -> Vector2:
+    return local_position + Vector2(BOSS_ARENA_START, 0)
+
+func _initialize_checkpoint() -> void:
+    var saved: Dictionary = get_node("/root/SceneTransition").take_checkpoint(scene_file_path)
+    var restored: bool = not saved.is_empty() and saved["stage"] == stage_index
+    if restored:
+        checkpoint_id = saved["id"]
+        wave_index = 2 if checkpoint_id == "boss" else 1 if checkpoint_id == "wave_2" else 0
+        if wave_index == 1:
+            arena_bounds.size.x = SECOND_ARENA_END - arena_bounds.position.x
+        elif wave_index == 2:
+            arena_bounds = Rect2(BOSS_ARENA_START, 345, 1080, 210)
+        player.position = saved["position"].clamp(arena_bounds.position, arena_bounds.end)
+        if wave_index == 2:
+            player.position.x = BOSS_GATE
+        for previous_wave in range(wave_index):
+            for enemy in waves[previous_wave]:
+                enemy.queue_free()
+    player.last_safe_position = player.position
+    if wave_index < 2:
+        for enemy in waves[wave_index]:
+            _set_enemy_active(enemy, true)
+    _save_checkpoint(checkpoint_id, "Checkpoint retomado" if restored else "Checkpoint salvo")
 
 func _ready() -> void:
     super._ready()
-    # Match the supplied composition: dry bank on the left, water on the right.
-    $Ground.position = Vector2(0, 200)
-    $Ground.scale.y = 0.6
-    $Ground.region_rect.position = Vector2.ZERO
-    $Ground.region_rect.size.x = $Ground.texture.get_width()
+    # The road continues into the original dry-bank/river composition at the boss.
+    boss_ground = Sprite2D.new()
+    boss_ground.name = "BossGround"
+    boss_ground.texture = BOSS_GROUND_TEXTURE
+    boss_ground.centered = false
+    boss_ground.z_index = -1
+    boss_ground.position = Vector2(BOSS_ARENA_START, 200)
+    boss_ground.scale = Vector2($Ground.scale.x, 0.6)
+    boss_ground.region_enabled = true
+    boss_ground.region_rect = Rect2(0, 0, 1280.0 / boss_ground.scale.x, 1800.0 / boss_ground.scale.y)
+    boss_ground.material = $Ground.material.duplicate()
+    add_child(boss_ground)
     $Background.position.y = -80.0
     $Background.region_rect.position.y = 0.0
     var camera := player.get_node("Camera2D") as Camera2D
@@ -71,11 +131,23 @@ func _ready() -> void:
     normal_camera_position = camera.position
     normal_camera_smoothing = camera.position_smoothing_enabled
     # Keep the inherited 1.8 zoom, actor scales and player-following camera.
-    camera.limit_right = ceili(arena_bounds.end.x + 70)
+    camera.limit_right = 3850
     camera.reset_smoothing()
     $HUD/BossHealth/BossName.text = "IARA"
     _build_fight_feedback()
     _setup_river_audio()
+    approach_music_volume = music.volume_linear
+    _update_approach_music()
+    add_child(sound_effects)
+    sound_effects.setup({
+        "spell": "res://soundeffect/Iara/Preprando e soltando ataque.mp3",
+        "hit": "res://soundeffect/Iara/hit.mp3",
+    })
+    # Let the same short clip span the end of preparation and the spell launch.
+    spell_lead_seconds = maxf(0.0, sound_effects.players["spell"].stream.get_length() - CAST_SECONDS * 0.5)
+    _setup_chant()
+    if checkpoint_id == "boss":
+        _begin_boss_arena()
     _update_hud()
 
 func _build_fight_feedback() -> void:
@@ -125,6 +197,11 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
     _update_hud()
+    _update_chant()
+    _update_approach_music()
+    if not boss_area_entered:
+        _advance_approach()
+        return
     if corpse_elapsed >= 0.0:
         _update_sinking_corpse(delta)
     if submersion_material != null and player.sprite.material == submersion_material:
@@ -135,7 +212,7 @@ func _process(delta: float) -> void:
         camera.global_position = camera.global_position.lerp(target, 1.0 - exp(-delta * 12.0))
 
 func _physics_process(delta: float) -> void:
-    if finished or player.hp <= 0:
+    if finished or player.hp <= 0 or boss_intro_running or not boss_area_entered:
         return
     fight_elapsed += delta
     resistance_cooldown = maxf(0.0, resistance_cooldown - delta)
@@ -146,6 +223,9 @@ func _physics_process(delta: float) -> void:
                 _start_cycle()
         State.PREPARING:
             boss.position = boss.position.move_toward(WATER_POSITION, 260.0 * delta)
+            if not spell_sound_played and state_timer <= spell_lead_seconds:
+                spell_sound_played = true
+                sound_effects.play_effect("spell")
             if state_timer <= 0.0:
                 state = State.CASTING
                 state_timer = CAST_SECONDS
@@ -180,6 +260,71 @@ func _physics_process(delta: float) -> void:
     if state != State.DROWNING:
         _update_water(delta)
 
+func _advance_approach() -> void:
+    if finished or player.hp <= 0:
+        return
+    for enemy in waves[wave_index]:
+        if is_instance_valid(enemy) and enemy.hp > 0:
+            return
+    road_open = true
+    if wave_index == 0:
+        arena_bounds.size.x = SECOND_ARENA_END - arena_bounds.position.x
+        if player.position.x >= SECOND_STAGE_GATE and player.jump_height <= 0.0 and not player.is_falling:
+            wave_index = 1
+            road_open = false
+            _save_checkpoint("wave_2")
+            for enemy in waves[1]:
+                _set_enemy_active(enemy, true)
+            _update_chant()
+    elif wave_index == 1:
+        arena_bounds.size.x = BOSS_ARENA_START + 1080.0 - arena_bounds.position.x
+        if player.position.x >= BOSS_GATE and player.jump_height <= 0.0 and not player.is_falling:
+            _begin_boss_arena()
+    queue_redraw()
+
+func _begin_boss_arena() -> void:
+    boss_area_entered = true
+    wave_index = 2
+    road_open = false
+    arena_bounds = Rect2(BOSS_ARENA_START, 345, 1080, 210)
+    player.position = player.position.clamp(arena_bounds.position, arena_bounds.end)
+    var camera := player.get_node("Camera2D") as Camera2D
+    camera.limit_left = int(BOSS_ARENA_START - 180.0)
+    camera.reset_smoothing()
+    _save_checkpoint("boss")
+    _set_enemy_active(boss, true)
+    chant.stop()
+    entrance = preload("res://scripts/IaraEntrance.gd").new()
+    add_child(entrance)
+    entrance.start(self)
+
+func _setup_chant() -> void:
+    chant = AudioStreamPlayer.new()
+    chant.name = "IaraDistantChant"
+    chant.stream = CHANT_AUDIO.duplicate()
+    chant.stream.loop = true
+    chant.volume_linear = 0.0
+    add_child(chant)
+    _update_chant()
+
+func _update_chant() -> void:
+    if chant == null:
+        return
+    if boss_area_entered or finished or player.hp <= 0 or wave_index != 1 or player.position.x < SECOND_STAGE_GATE:
+        chant.stop()
+        chant.volume_linear = 0.0
+        return
+    var progress := clampf((player.position.x - SECOND_STAGE_GATE) / (BOSS_GATE - SECOND_STAGE_GATE), 0.0, 1.0)
+    chant.volume_linear = progress * CHANT_MAX_VOLUME
+    if not chant.playing:
+        chant.play()
+
+func _update_approach_music() -> void:
+    if boss_area_entered or finished or player.hp <= 0:
+        return
+    var progress := clampf((player.position.x - SECOND_STAGE_GATE) / (APPROACH_MUSIC_FADE_END - SECOND_STAGE_GATE), 0.0, 1.0)
+    music.volume_linear = approach_music_volume * lerpf(1.0, APPROACH_MUSIC_MIN_VOLUME, progress)
+
 func _start_cycle() -> void:
     state = State.PREPARING
     state_timer = PREPARATION_SECONDS if boss.hp > boss.max_hp / 2 else 2.0
@@ -187,6 +332,7 @@ func _start_cycle() -> void:
     resistance = 0.0
     last_resistance_direction = 0
     water_exposure = 0.0
+    spell_sound_played = false
     _clear_seduction()
 
 func _begin_seduction() -> void:
@@ -265,6 +411,8 @@ func _restore_camera() -> void:
     )
 
 func trigger_death() -> void:
+    if boss_intro_running and entrance != null:
+        entrance.abort()
     _clear_seduction()
     super.trigger_death()
 
@@ -275,7 +423,7 @@ func _spawn_minions() -> void:
         minions.append(trance_enemy)
     cycle_count += 1
     var count := 2 if boss.hp > boss.max_hp / 2 else 3
-    var spawn_positions := [Vector2(145, 385), Vector2(450, 525), Vector2(340, 365)]
+    var spawn_positions := [boss_point(Vector2(145, 385)), boss_point(Vector2(450, 525)), boss_point(Vector2(340, 365))]
     for index in count:
         var minion = MINION_SCENE.instantiate()
         minion.name = "IaraMinion%d_%d" % [cycle_count, index]
@@ -296,7 +444,7 @@ func _spawn_trance_enemy() -> void:
     _set_enemy_active(trance_enemy, true)
 
 func _water_is_active() -> bool:
-    return state in [State.IDLE, State.PREPARING, State.CASTING, State.SEDUCING]
+    return boss_area_entered and state in [State.IDLE, State.PREPARING, State.CASTING, State.SEDUCING]
 
 func _update_water(delta: float) -> void:
     var exposed: bool = _water_is_active() and player.position.x >= WATER_EDGE
@@ -336,7 +484,7 @@ func _begin_drowning() -> void:
 func _update_drowning() -> void:
     var progress := clampf(1.0 - state_timer / DROWNING_SECONDS, 0.0, 1.0)
     var eased := smoothstep(0.0, 1.0, progress)
-    player.position = drowning_start_position.lerp(Vector2(850, 470), eased)
+    player.position = drowning_start_position.lerp(boss_point(Vector2(850, 470)), eased)
     # Preserve the silhouette: sinking is translation, never sprite compression.
     var struggle := sin(progress * TAU * 4.0) * (1.0 - eased)
     player.sprite.position = player.sprite_base_position + Vector2(struggle * 2.0, eased * 16.0)
@@ -404,7 +552,7 @@ func iara_defeated() -> void:
 
 func _update_hud() -> void:
     super._update_hud()
-    $HUD/BossHealth.visible = not finished and is_instance_valid(boss)
+    $HUD/BossHealth.visible = boss_area_entered and not finished and not boss_intro_running and is_instance_valid(boss)
     if resistance_bar == null:
         return
     resistance_bar.visible = state == State.SEDUCING

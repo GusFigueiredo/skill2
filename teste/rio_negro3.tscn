@@ -1,18 +1,32 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://main.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/RioNegro.gd" id="2"]
 [ext_resource type="Texture2D" path="res://sprites/cenario/Fases3e4/background.png" id="3"]
 [ext_resource type="Texture2D" path="res://sprites/cenario/Fases3e4/chao.png" id="4"]
+[ext_resource type="SpriteFrames" path="res://sprites/characters/enemy_map2.tres" id="5"]
 
 [node name="RioNegro3" instance=ExtResource("1")]
 script = ExtResource("2")
 tutorial_stage = false
 stage_index = 2
 next_stage_path = "res://rio_negro4.tscn"
+level_music_path = "res://music/Fase3.mp3"
 
 [node name="Background" parent="." index="0"]
 texture = ExtResource("3")
 
 [node name="Ground" parent="." index="1"]
 texture = ExtResource("4")
+
+[node name="Sprite" parent="Enemy1" index="0"]
+frames_override = ExtResource("5")
+sprite_frames = ExtResource("5")
+
+[node name="Sprite" parent="Enemy2" index="0"]
+frames_override = ExtResource("5")
+sprite_frames = ExtResource("5")
+
+[node name="Sprite" parent="Enemy3" index="0"]
+frames_override = ExtResource("5")
+sprite_frames = ExtResource("5")

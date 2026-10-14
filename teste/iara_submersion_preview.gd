@@ -10,6 +10,8 @@ func capture() -> void:
     root.add_child(view)
     var fight = load("res://rio_negro4.tscn").instantiate()
     view.add_child(fight)
+    preload("res://iara_test_support.gd").reach_boss(fight)
+    fight.entrance.finish()
     fight.set_physics_process(false)
     fight.set_process(false)
     fight.player.set_physics_process(false)
@@ -18,7 +20,7 @@ func capture() -> void:
     fight.boss.hide()
     var camera: Camera2D = fight.player.get_node("Camera2D")
     camera.position_smoothing_enabled = false
-    fight.player.position = Vector2(760, 460)
+    fight.player.position = fight.boss_point(Vector2(760, 460))
     camera.reset_smoothing()
     fight.state = fight.State.IDLE
     fight.state_timer = 20.0

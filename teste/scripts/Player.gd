@@ -279,6 +279,8 @@ func _end_dodge(protect_current_frame: bool = false) -> void:
     dodge_collision_exceptions.clear()
 
 func take_damage(amount: int) -> bool:
+    if get_parent().get("boss_intro_running") == true:
+        return false
     if hp <= 0 or is_falling or amount <= 0:
         return false
     if is_dodge_invulnerable():

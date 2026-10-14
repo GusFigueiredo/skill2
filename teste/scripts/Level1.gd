@@ -8,6 +8,7 @@ const PIT_VISUAL_SIDE_MARGIN := 72.0
 @export var tutorial_stage := true
 @export_range(0, 6) var stage_index := 0
 @export_file("*.tscn") var next_stage_path := "res://ratanaba2.tscn"
+@export_file("*.mp3") var level_music_path := "res://music/Fase1.mp3"
 var boss_intro_running := false
 var boss_intro_tween: Tween
 var boss_entry_tween: Tween
@@ -18,6 +19,9 @@ const BOSS_REVEAL_SECONDS := 0.6
 const AFTER_ROAR_SECONDS := 0.5
 var boss_area_entered := false
 var pit_texture_region: Rect2
+var checkpoint_id := "start"
+var checkpoint_notice: Label
+var checkpoint_notice_tween: Tween
 
 var arena_bounds := Rect2(40, 340, 860, 220)
 var pits: Array[Rect2] = [Rect2(1060, 325, 100, 255), Rect2(2450, 325, 110, 255)]
@@ -53,7 +57,7 @@ func _ready() -> void:
     add_to_group("game_manager")
     add_child(ambience)
     add_child(music)
-    music.play_track("res://music/Fase1.mp3")
+    music.play_track(level_music_path)
     var pause_menu = preload("res://scripts/GameMenu.gd").new()
     pause_menu.name = "PauseMenu"
     pause_menu.main_menu = false
@@ -70,10 +74,74 @@ func _ready() -> void:
     if not tutorial_stage:
         tutorial.step = tutorial.Step.COMPLETE
         tutorial.hide()
-        for enemy in waves[0]:
-            _set_enemy_active(enemy, true)
     reset_button.pressed.connect(_reset_scene)
+    _initialize_checkpoint()
     _update_hud()
+
+func _initialize_checkpoint() -> void:
+    var saved: Dictionary = get_node("/root/SceneTransition").take_checkpoint(scene_file_path)
+    var restored: bool = not saved.is_empty() and saved["stage"] == stage_index
+    if restored:
+        checkpoint_id = saved["id"]
+        if stage_index == 1 and checkpoint_id != "start":
+            wave_index = 2 if checkpoint_id == "boss" else 1
+            arena_bounds.size.x = (3760.0 if wave_index == 2 else 2300.0) - arena_bounds.position.x
+            for previous_wave in range(wave_index):
+                for enemy in waves[previous_wave]:
+                    enemy.queue_free()
+        player.position = saved["position"].clamp(arena_bounds.position, arena_bounds.end)
+        # Keep a malformed/stale save away from the holes and the Iara's water.
+        for pit in pits:
+            if pit.grow(28.0).has_point(player.position):
+                player.position.x = minf(arena_bounds.end.x, pit.end.x + 40.0)
+        if stage_index == 3:
+            player.position.x = minf(player.position.x, 440.0)
+        player.last_safe_position = player.position
+        player.get_node("Camera2D").reset_smoothing()
+    if tutorial_stage and checkpoint_id == "tutorial_combat":
+        tutorial.step = tutorial.Step.ATTACK
+        tutorial._show_step()
+        tutorial.previous_position = player.position
+        tutorial._start_enemy_arrival()
+    elif stage_index == 1 and checkpoint_id == "boss":
+        boss_area_entered = true
+        boss_landing_position = player.position
+        _walk_into_boss_arena()
+    elif not tutorial_stage:
+        for enemy in waves[wave_index]:
+            _set_enemy_active(enemy, true)
+    _save_checkpoint(checkpoint_id, "Checkpoint retomado" if restored else "Checkpoint salvo")
+
+func _save_checkpoint(next_id: String, message: String = "Checkpoint salvo") -> void:
+    checkpoint_id = next_id
+    var respawn_position: Vector2 = player.position
+    for pit in pits:
+        if pit.grow(28.0).has_point(respawn_position):
+            respawn_position.x = pit.end.x + 40.0
+    preload("res://scripts/CampaignProgress.gd").save_checkpoint(stage_index, checkpoint_id, respawn_position)
+    if checkpoint_notice == null:
+        checkpoint_notice = Label.new()
+        checkpoint_notice.name = "CheckpointNotice"
+        checkpoint_notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        checkpoint_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+        checkpoint_notice.add_theme_font_size_override("font_size", 20)
+        checkpoint_notice.add_theme_color_override("font_color", Color("efcd85"))
+        checkpoint_notice.add_theme_color_override("font_shadow_color", Color.BLACK)
+        checkpoint_notice.add_theme_constant_override("shadow_offset_x", 2)
+        checkpoint_notice.add_theme_constant_override("shadow_offset_y", 2)
+        $HUD.add_child(checkpoint_notice)
+        checkpoint_notice.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+        checkpoint_notice.offset_left = -300
+        checkpoint_notice.offset_top = 24
+        checkpoint_notice.offset_right = -24
+        checkpoint_notice.offset_bottom = 55
+    if checkpoint_notice_tween != null and checkpoint_notice_tween.is_valid():
+        checkpoint_notice_tween.kill()
+    checkpoint_notice.text = message
+    checkpoint_notice.modulate.a = 1.0
+    checkpoint_notice_tween = create_tween()
+    checkpoint_notice_tween.tween_interval(2.5)
+    checkpoint_notice_tween.tween_property(checkpoint_notice, "modulate:a", 0.0, 0.5)
 
 func _setup_encounters() -> void:
     if tutorial_stage:
@@ -133,11 +201,13 @@ func _process(_delta: float) -> void:
             boss_landing_position = player.position
             wave_index = 2
             road_open = false
+            _save_checkpoint("boss")
             _walk_into_boss_arena()
         return
     if player.position.x >= 1500.0:
         wave_index = 1
         road_open = false
+        _save_checkpoint("wave_2")
         for enemy in waves[wave_index]:
             _set_enemy_active(enemy, true)
         queue_redraw()
@@ -182,7 +252,7 @@ func trigger_death() -> void:
 
 func _reset_scene() -> void:
     get_tree().paused = false
-    get_node("/root/SceneTransition").load_level(scene_file_path)
+    get_node("/root/SceneTransition").load_level(scene_file_path, true)
 
 func _draw() -> void:
     for pit in pits:

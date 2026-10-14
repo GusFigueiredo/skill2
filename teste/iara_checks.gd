@@ -39,7 +39,7 @@ func run_checks() -> void:
     check(fight.player.get_node("Camera2D").zoom == Vector2(1.8, 1.8), "Iara fight must use normal gameplay zoom")
     check(not fight.player.get_node("Camera2D").top_level, "Camera must follow the hero normally")
     check(fight.player.sprite.scale == Vector2(0.9375, 0.9375), "Hero keeps the normal gameplay scale")
-    check(fight.get_node("Ground").texture.resource_path.ends_with("chao boss fight Iara.png"), "Boss ground must use the supplied art")
+    check(fight.boss_ground.texture.resource_path.ends_with("chao boss fight Iara.png"), "Boss ground must use the supplied art")
     check(fight.get_node("HUD/BossHealth/BossName").text == "IARA", "HUD must name Iara")
     check(fight.get_node("HUD/BossHealth").visible, "Boss health must be visible")
     check(fight.player.position.x < fight.WATER_EDGE and fight.boss.position.x > fight.WATER_EDGE, "Start on dry bank, boss in water")
@@ -222,7 +222,7 @@ func run_checks() -> void:
     fight._begin_seduction()
     fight.trance_enemy.spawn_tween.custom_step(2)
     fight.trance_enemy.set_physics_process(false)
-    hero.position = Vector2(260, 460)
+    hero.position = fight.boss_point(Vector2(260, 460))
     break_charm(fight)
     fight._physics_process(0.76)
     check(fight.minions.size() == 4, "Half-health cycle must keep the pursuer and summon three guards")
@@ -258,7 +258,7 @@ func run_checks() -> void:
     var first_surface: float = fight.water_surface.y
     fight._update_water(1.0)
     check(fight.water_surface.y < first_surface, "The water must cover more of the hero as exposure increases")
-    hero.position.x = 400
+    hero.position.x = fight.BOSS_ARENA_START + 400
     fight._update_water(1)
     check(fight.water_exposure == 0, "Retreat to the bank must reset exposure")
     check(hero.sprite.material == fight.normal_player_material, "Retreat must restore the original player material")
@@ -298,10 +298,11 @@ func run_checks() -> void:
     while transition.busy:
         await process_frame
     check(current_scene.scene_file_path == "res://rio_negro4.tscn", "Restart must reload the Iara fight")
-    check(current_scene.boss.hp == 6 and not current_scene.player.control_locked, "Restart must reset boss and player control")
+    check(current_scene.boss.hp == 6 and current_scene.boss_intro_running and current_scene.player.control_locked, "Restart must reset Iara and replay her introduction")
     check(current_scene.corpse_elapsed < 0.0 and current_scene.player.sprite.modulate == Color.WHITE, "Restart must restore full visibility and clear corpse sinking")
     fight = current_scene
     freeze_fight(fight)
+    check(not fight.player.control_locked, "Finishing the restarted introduction must restore player control")
     hero = fight.player
     hero.position.x = fight.WATER_EDGE + 10
     fight._update_water(2.99)
@@ -318,6 +319,9 @@ func run_checks() -> void:
     quit(0 if failures == 0 else 1)
 
 func freeze_fight(fight: Node) -> void:
+    preload("res://iara_test_support.gd").reach_boss(fight)
+    if fight.boss_intro_running:
+        fight.entrance.finish()
     fight.set_process(false)
     fight.set_physics_process(false)
     for actor in get_nodes_in_group("player") + get_nodes_in_group("enemy"):

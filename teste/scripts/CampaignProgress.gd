@@ -20,11 +20,50 @@ static func is_available(index: int) -> bool:
     return index >= 0 and index < IMPLEMENTED_STAGES and index <= completed_stages()
 
 static func complete_stage(index: int) -> void:
-    var completed := completed_stages()
-    if index != completed or index >= IMPLEMENTED_STAGES:
+    if stage_path(index).is_empty():
         return
+    var completed := completed_stages()
     var save := ConfigFile.new()
-    save.set_value("campaign", "completed", completed + 1)
+    save.load(SAVE_PATH)
+    var changed := false
+    if index == completed and index < IMPLEMENTED_STAGES:
+        save.set_value("campaign", "completed", completed + 1)
+        changed = true
+    if int(save.get_value("checkpoint", "stage", -1)) == index:
+        save.erase_section("checkpoint")
+        changed = true
+    if not changed:
+        return
     var error := save.save(SAVE_PATH)
     if error != OK:
         push_error("Could not save campaign progress: %s" % error)
+
+static func save_checkpoint(index: int, checkpoint_id: String, position: Vector2) -> void:
+    if stage_path(index).is_empty():
+        return
+    var save := ConfigFile.new()
+    save.load(SAVE_PATH)
+    save.set_value("checkpoint", "stage", index)
+    save.set_value("checkpoint", "id", checkpoint_id)
+    save.set_value("checkpoint", "position", position)
+    var error := save.save(SAVE_PATH)
+    if error != OK:
+        push_error("Could not save checkpoint: %s" % error)
+
+static func checkpoint() -> Dictionary:
+    var save := ConfigFile.new()
+    if save.load(SAVE_PATH) != OK or not save.has_section_key("checkpoint", "position"):
+        return {}
+    var index := int(save.get_value("checkpoint", "stage", -1))
+    var checkpoint_id := str(save.get_value("checkpoint", "id", ""))
+    var position = save.get_value("checkpoint", "position", null)
+    if stage_path(index).is_empty() or not position is Vector2 or not position.is_finite():
+        return {}
+    var allowed_ids := ["start"]
+    if index == 0:
+        allowed_ids.append("tutorial_combat")
+    elif index in [1, 3]:
+        allowed_ids.append_array(["wave_2", "boss"])
+    if not checkpoint_id in allowed_ids:
+        return {}
+    return {"stage": index, "id": checkpoint_id, "position": position}

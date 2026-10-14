@@ -2,6 +2,7 @@ extends AnimatedSprite2D
 
 # Visual state follows gameplay; animation never changes damage or movement.
 @export_enum("player", "enemy", "boitata") var character: String = "player"
+@export var frames_override: SpriteFrames
 var hurt_timer: float = 0.0
 var previous_hp: int = -1
 var flash_timer: float = 0.0
@@ -14,7 +15,7 @@ func flash_damage() -> void:
 func _ready() -> void:
 	material = ShaderMaterial.new()
 	material.shader = preload("res://shaders/damage_flash.gdshader")
-	sprite_frames = load("res://sprites/characters/%s.tres" % character)
+	sprite_frames = frames_override if frames_override != null else load("res://sprites/characters/%s.tres" % character)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	play("idle")
 	previous_hp = get_parent().hp

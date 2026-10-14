@@ -16,6 +16,8 @@ func _process(delta: float) -> void:
     queue_redraw()
 
 func _draw() -> void:
+    if not fight.boss_area_entered:
+        return
     var active: bool = fight._water_is_active()
     var river := Color(0.2, 0.85, 0.95, 0.5 if active else 0.15)
     draw_line(Vector2(fight.WATER_EDGE, 345), Vector2(fight.WATER_EDGE, 555), river, 2.0)

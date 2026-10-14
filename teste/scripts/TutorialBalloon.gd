@@ -216,6 +216,7 @@ func _enemy_spawn_position() -> Vector2:
 	return (hero_position + Vector2(side * 260.0, 0)).clamp(bounds.position, bounds.end)
 
 func _start_enemy_arrival() -> void:
+	level._save_checkpoint("tutorial_combat")
 	introducing_enemy = true
 	hide()
 	lesson_enemy = level.waves[0][0]

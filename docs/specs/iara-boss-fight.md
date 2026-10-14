@@ -1,5 +1,33 @@
 # Boss Fight: Iara
 
+## Fase em três trechos e canto distante — 2026-10-13
+
+- A fase 4 agora começa em `(180, 460)` com dois inimigos comuns. Após derrotá-los, o caminho abre para o único buraco, em `x=1060..1170`.
+- A segunda área começa em `x=1500` e tem três inimigos. Cada um usa o sprite do Rio Negro.
+- Derrotar a segunda onda abre um caminho contínuo até a Iara, sem outro buraco. O trecho 3 começa em `x=2700`; a cutscene dispara em `x=2730`, depois de 30px de caminhada em terra firme. O checkpoint da bossfight retoma essa apresentação.
+- A bossfight conserva a composição e as mecânicas existentes, transladadas em 2700 pixels. O rio perigoso começa em `x=3320`; Iara fica em `(3480, 450)` e se aproxima da margem em `(3270, 450)`.
+- `soundeffect/Iara/Canto.mp3` fica parado no trecho 1 e começa em loop ao entrar no trecho 2, em `x=1500`, inclusive enquanto seus inimigos estão vivos. Cresce de 0% nessa entrada a 85% em `x=2730`, sem ultrapassar esse limite. Recuar ao trecho 1 interrompe o canto.
+- `Fase3.mp3` mantém o volume normal no trecho 1. A partir de `x=1500`, diminui linearmente até 15% desse volume em `x=2600`, 100px antes do fim do segundo trecho. Mantém 15% no caminho até a cutscene. A bossfight usa `Iara.mp3` no volume normal, após a apresentação.
+- O canto distante para ao iniciar a cutscene, dando espaço ao beijo/risada e, depois, à trilha da bossfight. Pausa e morte suspendem o som do percurso.
+- Cada trecho salva seu checkpoint. A segunda área retoma depois do buraco; a bossfight retoma a cutscene sem repetir as duas ondas anteriores.
+- O último frame da risada fica na tela por mais 0,5s após terminar o áudio, antes do retorno de câmera de 0,5s.
+
+Validação: `iara_course_checks.gd` cobre ondas, buraco, canto no trecho 2 com limite de 85%, música em 15% antes de sair do trecho 2, controle aos 29px e cutscene aos 30px, além dos checkpoints. `iara_entrance_checks.gd` verifica silêncio musical na cutscene e início de `Iara.mp3` ao terminar. `iara_course_preview.gd` captura o caminho e a arena.
+
+## Apresentação e sons — 2026-10-13
+
+- Antes do combate, a câmera aproxima do protagonista por 0,6s e segura o enquadramento por 0,6s. Depois viaja para a Iara por 1,8s e segura por 0,6s, usando zoom de 1,4× sobre o zoom normal, como a entrada da Boitatá.
+- Na aproximação da Iara, ela manda um beijo (três poses) e depois ri (seis poses) usando `Sprite Sheet Iara cutscene.png`. As poses preservam o tamanho visual e a linha dos pés do idle.
+- `soundeffect/Iara/Cutscene.mp3` toca inteiro uma vez junto da animação. O beijo ocupa os primeiros 0,88s; a risada ocupa o restante do áudio, aproximadamente 1,48s.
+- O jogador e o combate ficam travados e sem dano durante a apresentação. A trilha para, o HUD se oculta e as barras cinematográficas usam a apresentação existente da Boitatá. Pausar também pausa a câmera, as poses e o áudio.
+- Ao acabar a animação e o áudio, a última pose da risada permanece por mais 0,5s; depois a câmera volta ao enquadramento normal em 0,5s. O HUD e os controles retornam, a trilha `music/Iara.mp3` começa no volume normal e o idle inicial de 1,25s antecede o primeiro feitiço. Nenhuma música ou canto distante toca durante a cutscene; apenas seu áudio de beijo/risada.
+- O checkpoint antes da Iara reinicia essa apresentação ao repetir a luta.
+- `Preprando e soltando ataque.mp3` toca uma vez por ciclo, começando ao final da preparação para atravessar o lançamento. `hit.mp3` toca apenas quando um golpe aceito realmente tira vida da Iara.
+
+Implementação: `IaraEntrance.gd`, `IaraCutsceneFrames.gd`, `IaraBossFight.gd`, `Iara.gd` e suporte a MP3 em `SoundEffects.gd`.
+
+Validação: `iara_entrance_checks.gd` cobre enquadramentos, sequência beijo/risada, áudio completo, pausa, proteção durante a cutscene, retorno ao combate, sons da luta e repetição após checkpoint. `iara_entrance_preview.gd` gera capturas dos cinco momentos para conferência visual.
+
 ## Recorte implementado — 2026-10-08
 
 Por solicitação do usuário, este incremento implementa primeiro o combate e a derrota normal da Iara. O feitiço final impossível e o resgate pela Vitória Régia ficam para depois; não impedem o último golpe nesta versão.
@@ -8,7 +36,7 @@ Por solicitação do usuário, este incremento implementa primeiro o combate e a
 - Arena: margem seca à esquerda e rio à direita, conforme o novo `chao boss fight Iara.png`. Esta composição resolve a divergência entre esquerda/direita citada abaixo usando o asset fornecido.
 - A batalha começa com Iara em idle por 1,25s. Depois ela prepara a sedução com os sprites próprios desse ataque: 2,5s de preparação, ou 2s com metade da vida ou menos. As partículas surgem depois do início da pose. O lançamento tem 0,55s de trajeto visível antes de aplicar hipnose.
 - Câmera: zoom padrão de 1,8 fora do transe; durante a hipnose, aproxima suavemente para 2,43 e centra o personagem. Quebrar o encanto, morrer ou terminar a luta restaura o enquadramento normal.
-- Posição inicial do jogador: `(440, 460)`, na terra firme, 180px antes da linha de água e com a Iara visível no enquadramento inicial.
+- Entrada da bossfight: `x=2730`, após caminhar 30px pelo trecho 3, em terra firme. A fase começa em `(180, 460)`.
 - Transe: arrasto crescente, movimento reduzido a 20%, bloqueio de ataque, pulo e rolada, escurecimento e filtro de áudio. O jogador tem 7 segundos para quebrá-lo.
 - Resistência: 8 entradas alternadas A/D ou esquerda/direita, com cooldown compartilhado de 0,2 segundo entre ações aceitas. Segurar uma direção não acumula; parar por mais de 1,25 segundo reduz o progresso. Os ícones acima do jogador indicam a próxima tecla e a barra de resistência mostra o progresso, sem painel textual de instruções no canto superior direito.
 - No transe, os sprites pixelados de A/D aparecem acima da cabeça, acompanhando a posição do personagem e o zoom. Só a próxima tecla indicada treme. Pressionar A ou D exibe a versão pressionada fornecida na imagem; uma ação aceita muda a indicação para a outra tecla. Ao terminar o efeito, os ícones desaparecem.

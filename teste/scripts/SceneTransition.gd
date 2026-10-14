@@ -10,6 +10,7 @@ var status_label: Label
 var elapsed: float = 0.0
 var fade_screen: ColorRect
 var phase := "idle"
+var checkpoint_destination := ""
 var exit_camera: Camera2D
 var exit_target_x := 0.0
 var exit_tween: Tween
@@ -83,11 +84,18 @@ func _draw_embers() -> void:
 		var opacity := (0.12 + 0.12 * sin(elapsed * 1.8 + i)) * sin(PI * y / maxf(screen.size.y, 1.0))
 		screen.draw_circle(Vector2(x + sin(elapsed + i) * 10.0, y), 1.5, Color(0.85, 0.65, 0.3, opacity))
 
-func load_level(path: String = "res://main.tscn") -> void:
+func load_level(path: String = "res://main.tscn", resume_checkpoint: bool = false) -> void:
 	if busy:
 		return
 	busy = true
+	checkpoint_destination = path if resume_checkpoint else ""
 	await _load_destination(path)
+
+func take_checkpoint(path: String) -> Dictionary:
+	if checkpoint_destination != path:
+		return {}
+	checkpoint_destination = ""
+	return preload("res://scripts/CampaignProgress.gd").checkpoint()
 
 # Every gameplay stage calls the same exit and loading sequence.
 func complete_level(level: Node2D, path: String) -> void:
@@ -208,6 +216,7 @@ func _fail_loading() -> void:
 	_close()
 
 func _close() -> void:
+	checkpoint_destination = ""
 	screen.hide()
 	fade_screen.hide()
 	phase = "idle"

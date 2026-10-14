@@ -36,7 +36,8 @@ func show_death() -> void:
 	title.add_theme_constant_override("shadow_offset_y", 3)
 	title.text = "MORREU"
 	title.modulate.a = 0.0
-	button.text = "Reiniciar fase"
+	button.text = "Voltar ao checkpoint"
+	button.add_theme_font_size_override("font_size", 24)
 	for action in [button, menu]:
 		action.modulate.a = 0.0
 		action.disabled = true

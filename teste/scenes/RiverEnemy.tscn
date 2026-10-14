@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/Enemy.tscn" id="1"]
+[ext_resource type="SpriteFrames" path="res://sprites/characters/enemy_map2.tres" id="2"]
+
+[node name="RiverEnemy" instance=ExtResource("1")]
+
+[node name="Sprite" parent="." index="0"]
+frames_override = ExtResource("2")
+sprite_frames = ExtResource("2")

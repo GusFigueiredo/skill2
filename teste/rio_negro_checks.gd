@@ -69,16 +69,25 @@ func check_stage(index: int, enemy_count: int) -> void:
     level.set_physics_process(false)
     assert(level.stage_index == index and not level.tutorial_stage)
     assert(level.tutorial.step == level.tutorial.Step.COMPLETE and not level.tutorial.visible)
-    assert(level.pits.is_empty())
+    assert(level.level_music_path == "res://music/Fase3.mp3")
+    if not level.boss_intro_running:
+        assert(level.music.playing and level.music.stream.data == load(level.level_music_path).data, "Both Rio Negro phases must play Fase3.mp3")
     if index == 3:
-        assert(level.waves == [[level.boss]])
+        assert(level.pits.size() == 1 and level.pits[0].position.x == 1060)
+        assert(level.waves.size() == 3 and level.waves[0].size() == 2 and level.waves[1].size() == 3)
+        preload("res://iara_test_support.gd").reach_boss(level)
+        assert(level.boss_intro_running and level.player.control_locked, "Iara's introduction must play when entering or retrying phase four")
+        level.entrance.finish()
+        assert(not level.boss_intro_running and not level.player.control_locked)
+        assert(level.waves[2] == [level.boss])
         assert(level.boss.visible and level.boss.hp == 6)
         assert(level.get_node("HUD/BossHealth").visible)
-        assert(level.get_node("Ground").texture.resource_path.ends_with("chao boss fight Iara.png"))
+        assert(level.boss_ground.texture.resource_path.ends_with("chao boss fight Iara.png"))
         level.player.set_physics_process(false)
         level.boss.set_physics_process(false)
         await process_frame
         return
+    assert(level.pits.is_empty())
     assert(level.waves.size() == 1 and level.waves[0].size() == enemy_count)
     assert(not level.boss.visible and not level.boss.is_physics_processing())
     assert(not level.get_node("HUD/BossHealth").visible)
@@ -108,7 +117,7 @@ func defeat_wave() -> void:
     if level.stage_index == 3:
         # The full charm/minion cycle is covered by iara_checks.gd.
         level.state = level.State.VULNERABLE
-    for enemy in level.waves[0]:
+    for enemy in level.waves[level.wave_index]:
         enemy.take_damage(enemy.hp)
     level._process(0.016)
     assert(level.finished and transition.busy)

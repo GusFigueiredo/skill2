@@ -10,6 +10,8 @@ func capture() -> void:
     root.add_child(view)
     var fight = load("res://rio_negro4.tscn").instantiate()
     view.add_child(fight)
+    preload("res://iara_test_support.gd").reach_boss(fight)
+    fight.entrance.finish()
     fight.set_physics_process(false)
     fight.player.set_physics_process(false)
     await capture_frame(view, "idle")
@@ -24,7 +26,7 @@ func capture() -> void:
     fight._physics_process(fight.state_timer + 0.01)
     fight.trance_enemy.spawn_tween.custom_step(2)
     fight.trance_enemy.set_physics_process(false)
-    fight.player.position = Vector2(440, 460)
+    fight.player.position = fight.boss_point(Vector2(440, 460))
     fight.camera_tween.custom_step(0.4)
     fight._process(0.5)
     await capture_frame(view, "seduction")
@@ -45,7 +47,7 @@ func capture() -> void:
     await capture_frame(view, "fallen")
     fight.state = fight.State.VULNERABLE
     fight.state_timer = 2
-    fight.player.position = Vector2(470, 450)
+    fight.player.position = fight.boss_point(Vector2(470, 450))
     for minion in fight.minions:
         minion.hide()
     await capture_frame(view, "vulnerable")

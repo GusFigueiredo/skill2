@@ -11,14 +11,17 @@ func capture() -> void:
     for stage_number in [3, 4]:
         var level = load("res://rio_negro%d.tscn" % stage_number).instantiate()
         view.add_child(level)
+        if stage_number == 4:
+            preload("res://iara_test_support.gd").reach_boss(level)
+            level.entrance.finish()
         level.set_process(false)
         level.set_physics_process(false)
-        for enemy in level.waves[0]:
+        for enemy in level.waves[level.wave_index]:
             if enemy.spawn_tween != null:
                 enemy.spawn_tween.custom_step(2.0)
         for actor in get_nodes_in_group("player") + get_nodes_in_group("enemy"):
             actor.set_physics_process(false)
-        level.player.position.x = 500.0 if stage_number == 3 else 260.0
+        level.player.position.x = 500.0 if stage_number == 3 else level.BOSS_ARENA_START + 260.0
         var camera = level.player.get_node("Camera2D")
         camera.reset_smoothing()
         camera.force_update_scroll()

@@ -1,5 +1,19 @@
 # Spec: Fases 3 e 4 — Rio Negro
 
+- Trilha da fase 3 e do percurso da fase 4: `teste/music/Fase3.mp3`, em loop. Na fase 4, diminui gradualmente a partir do trecho 2 até 15% do volume normal antes de terminar esse trecho. A cutscene para a música e o canto; ao terminar, começa `teste/music/Iara.mp3` na bossfight. Os efeitos sonoros continuam independentes.
+
+## Estrutura atual da fase 4 — 2026-10-13
+
+- Três trechos: dois inimigos → um buraco → três inimigos → caminho contínuo → bossfight da Iara.
+- Canto distante começa no trecho 2 e cresce até 85%. O jogador caminha 30px pelo terceiro trecho antes da cutscene. A apresentação conserva os 0,5s adicionais na última pose da risada.
+- Checkpoints na primeira onda, na segunda onda e antes da bossfight. Detalhes em `iara-boss-fight.md` e `checkpoints.md`.
+
+## Inimigos e checkpoints — 2026-10-13
+
+- Os três inimigos da fase 3, os capangas da Iara e o perseguidor do transe na fase 4 usam o novo sheet `sprite sheet personagem mapa2.png`, com idle, caminhada lateral/costas/frente, ataque, dano e morte. O sprite das fases 1 e 2 e os sprites das bosses permanecem próprios de cada personagem.
+- `teste/build_enemy_map2.gd` exporta apenas esse personagem pela rotina existente de recorte transparente e alinhamento dos pés. `enemy_map2.tres` é selecionado por override visual; `scenes/RiverEnemy.tscn` serve às invocações da Iara.
+- As fases 3 e 4 salvam checkpoints ao entrar; a fase 4 também salva na segunda onda e antes da bossfight. Morrer contra a Iara retoma a margem seca e reinicia a luta. As regras comuns estão em `checkpoints.md`.
+
 ## Incremento solicitado — 2026-10-08
 
 - Criar duas fases ambientadas no Rio Negro usando `teste/sprites/cenario/Fases3e4/background.png` e `chao.png` fornecidos pelo usuário.
