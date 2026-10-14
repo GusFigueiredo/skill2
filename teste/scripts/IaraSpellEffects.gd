@@ -124,7 +124,8 @@ func _draw_launch(progress: float) -> void:
 func _draw_trance() -> void:
     var hero = fight.player
     var center: Vector2 = hero.position + Vector2(0, hero.combat_bounds.get_center().y)
-    var pulse := 0.5 + sin(clock * 5.0) * 0.5
+    var urgency: float = clampf(1.0 - fight.state_timer / fight.TRANSE_SECONDS, 0.0, 1.0)
+    var pulse := 0.5 + sin(clock * (5.0 + urgency * 5.0)) * 0.5
     for ring in range(4, 0, -1):
         draw_circle(center, 15.0 + ring * 9.0, Color(0.22, 0.75, 0.8, 0.018 + pulse * 0.008))
     var spiral := PackedVector2Array()
@@ -139,6 +140,9 @@ func _draw_trance() -> void:
         _heart(point, 3.3, Color(0.65, 1, 0.9, 0.35 + 0.25 * sin(phase + clock)))
     draw_set_transform(hero.position, 0, Vector2(1, 0.25))
     draw_arc(Vector2.ZERO, 30 + pulse * 7, clock, clock + TAU * 0.8, 48, Color(0.4, 1, 0.9, 0.4), 1.5)
+    var warning := Color(0.65, 1.0, 0.9).lerp(Color(1.0, 0.35, 0.25), urgency)
+    warning.a = 0.55 + pulse * 0.25
+    draw_arc(Vector2.ZERO, 43.0, -PI * 0.5, -PI * 0.5 + TAU * maxf(0.001, 1.0 - urgency), 64, warning, 2.5, true)
     draw_set_transform(Vector2.ZERO)
 
 func _heart(center: Vector2, radius: float, color: Color) -> void:

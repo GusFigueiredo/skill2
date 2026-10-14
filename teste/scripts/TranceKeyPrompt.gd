@@ -10,6 +10,7 @@ var pressed_textures: Array[AtlasTexture] = []
 var clock := 0.0
 var flash_direction := 0
 var flash_time := 0.0
+var urgency_label: Label
 
 func _ready() -> void:
     name = "TranceKeyPrompt"
@@ -28,6 +29,15 @@ func _ready() -> void:
         icon.texture = normal_textures[index]
         add_child(icon)
         keys.append(icon)
+    urgency_label = Label.new()
+    urgency_label.position = Vector2(-40, -29)
+    urgency_label.size = Vector2(240, 28)
+    urgency_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    urgency_label.add_theme_font_size_override("font_size", 18)
+    urgency_label.add_theme_color_override("font_shadow_color", Color.BLACK)
+    urgency_label.add_theme_constant_override("shadow_offset_x", 2)
+    urgency_label.add_theme_constant_override("shadow_offset_y", 2)
+    add_child(urgency_label)
     hide()
 
 func _texture(cell: Rect2i) -> AtlasTexture:
@@ -53,12 +63,17 @@ func _process(delta: float) -> void:
     var viewport_size := get_viewport_rect().size
     position = Vector2(clampf(head_on_screen.x - size.x * 0.5, 16, viewport_size.x - size.x - 16), clampf(head_on_screen.y - size.y - 16, 142, viewport_size.y - size.y - 16))
     var next_direction := -1 if fight.last_resistance_direction >= 0 else 1
+    var urgency: float = clampf(1.0 - fight.state_timer / fight.TRANSE_SECONDS, 0.0, 1.0)
+    var beat := 0.5 + 0.5 * sin(clock * (5.0 + urgency * 5.0))
+    urgency_label.text = "ALTERNE A / D!" if urgency < 0.65 else "RESISTA! A / D!"
+    urgency_label.modulate = Color.WHITE.lerp(Color(1.0, 0.45, 0.35), urgency)
     for index in range(2):
         var direction := -1 if index == 0 else 1
         var down := Input.is_key_pressed(KEY_A if index == 0 else KEY_D) or Input.is_action_pressed("ui_left" if index == 0 else "ui_right")
         down = down or (flash_time > 0.0 and flash_direction == direction)
         keys[index].texture = pressed_textures[index] if down else normal_textures[index]
         var expected := direction == next_direction
-        keys[index].position = Vector2(index * 88, 0) + (Vector2(sin(clock * 55.0) * 3.0, cos(clock * 39.0) * 1.4) if expected and not down else Vector2.ZERO)
+        keys[index].scale = Vector2.ONE * (1.0 + (0.04 + urgency * 0.12) * beat if expected and not down else 1.0)
+        keys[index].position = Vector2(index * 88, 0) + (Vector2(sin(clock * 55.0) * (3.0 + urgency * 3.0), cos(clock * 39.0) * 1.4) if expected and not down else Vector2.ZERO)
         keys[index].rotation = sin(clock * 43.0) * 0.035 if expected and not down else 0.0
         keys[index].modulate = Color.WHITE if expected or down else Color(0.55, 0.65, 0.61, 0.75)

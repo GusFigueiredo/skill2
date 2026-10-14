@@ -235,10 +235,33 @@ func run_checks() -> void:
     check(fight.state == fight.State.VULNERABLE, "Third minion must also gate the window")
     fight.boss.hp = 1
     fight.boss.take_damage(hero.attack_damage)
-    check(fight.finished and fight.state == fight.State.DEFEATED, "The last normal hit must defeat Iara without rescue")
+    check(fight.final_spell and not fight.rescue_running and not fight.finished and fight.boss.hp == 1, "One hit remaining must trigger the final normal spell before rescue")
+    fight._physics_process(fight.state_timer + 0.01)
+    check(fight.state == fight.State.CASTING, "Final spell must use the normal launch")
+    fight._physics_process(fight.CAST_SECONDS + 0.01)
+    check(fight.state == fight.State.SEDUCING and fight.key_prompt.visible, "Final trance must show A/D")
+    for index in range(20):
+        fight.resistance_cooldown = 0.0
+        fight.register_resistance(-1 if index % 2 == 0 else 1)
+    check(fight.state == fight.State.SEDUCING and fight.resistance < fight.RESISTANCE_REQUIRED, "Even repeated valid A/D presses cannot escape the final trance")
+    hero.position.x = fight.WATER_EDGE + 1.0
+    fight._physics_process(0.01)
+    check(fight.state == fight.State.DROWNING and not fight.rescue_running, "Entering water must start gradual drowning")
+    fight._physics_process(fight.DROWNING_SECONDS * 0.91)
+    check(fight.rescue_running and hero.hp > 0, "Rescue must begin only when the player is almost submerged")
+    var rescue = fight.get_node("VitoriaRescue")
+    while not fight.finished:
+        if rescue.waiting:
+            rescue.dialogue_opened = 0
+            var advance := InputEventKey.new()
+            advance.keycode = KEY_ENTER
+            advance.pressed = true
+            rescue._unhandled_input(advance)
+        await process_frame
+    check(fight.state == fight.State.DEFEATED and hero.hp > 0, "Vitoria must defeat Iara and save the living player")
     check(Progress.completed_stages() == 4, "Defeat must save completion of phase four")
     var transition = root.get_node("SceneTransition")
-    check(transition.phase == "waiting_for_defeat", "Stage exit must wait for Iara's death animation")
+    check(transition.busy, "Stage exit must begin only after the rescue dialogue")
     while transition.busy:
         await process_frame
     check(current_scene.scene_file_path == "res://level_map.tscn", "Victory must return to the map")

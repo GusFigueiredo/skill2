@@ -4,15 +4,15 @@
 
 - A fase 4 agora começa em `(180, 460)` com dois inimigos comuns. Após derrotá-los, o caminho abre para o único buraco, em `x=1060..1170`.
 - A segunda área começa em `x=1500` e tem três inimigos. Cada um usa o sprite do Rio Negro.
-- Derrotar a segunda onda abre um caminho contínuo até a Iara, sem outro buraco. O trecho 3 começa em `x=2700`; a cutscene dispara em `x=2730`, depois de 30px de caminhada em terra firme. O checkpoint da bossfight retoma essa apresentação.
+- Derrotar a segunda onda abre um caminho contínuo até a Iara, sem outro buraco. O trecho 3 começa em `x=2700`; a cutscene dispara em `x=2850`, depois de 150px de caminhada em terra firme. O checkpoint da bossfight retoma essa apresentação.
 - A bossfight conserva a composição e as mecânicas existentes, transladadas em 2700 pixels. O rio perigoso começa em `x=3320`; Iara fica em `(3480, 450)` e se aproxima da margem em `(3270, 450)`.
-- `soundeffect/Iara/Canto.mp3` fica parado no trecho 1 e começa em loop ao entrar no trecho 2, em `x=1500`, inclusive enquanto seus inimigos estão vivos. Cresce de 0% nessa entrada a 85% em `x=2730`, sem ultrapassar esse limite. Recuar ao trecho 1 interrompe o canto.
+- `soundeffect/Iara/Canto.mp3` fica parado no trecho 1 e começa em loop ao entrar no trecho 2, em `x=1500`, inclusive enquanto seus inimigos estão vivos. Cresce de 0% nessa entrada a 85% em `x=2850`, sem ultrapassar esse limite. Recuar ao trecho 1 interrompe o canto.
 - `Fase3.mp3` mantém o volume normal no trecho 1. A partir de `x=1500`, diminui linearmente até 15% desse volume em `x=2600`, 100px antes do fim do segundo trecho. Mantém 15% no caminho até a cutscene. A bossfight usa `Iara.mp3` no volume normal, após a apresentação.
 - O canto distante para ao iniciar a cutscene, dando espaço ao beijo/risada e, depois, à trilha da bossfight. Pausa e morte suspendem o som do percurso.
 - Cada trecho salva seu checkpoint. A segunda área retoma depois do buraco; a bossfight retoma a cutscene sem repetir as duas ondas anteriores.
 - O último frame da risada fica na tela por mais 0,5s após terminar o áudio, antes do retorno de câmera de 0,5s.
 
-Validação: `iara_course_checks.gd` cobre ondas, buraco, canto no trecho 2 com limite de 85%, música em 15% antes de sair do trecho 2, controle aos 29px e cutscene aos 30px, além dos checkpoints. `iara_entrance_checks.gd` verifica silêncio musical na cutscene e início de `Iara.mp3` ao terminar. `iara_course_preview.gd` captura o caminho e a arena.
+Validação: `iara_course_checks.gd` cobre ondas, buraco, canto no trecho 2 com limite de 85%, música em 15% antes de sair do trecho 2, controle aos 149px e cutscene aos 150px, além dos checkpoints. `iara_entrance_checks.gd` verifica silêncio musical na cutscene e início de `Iara.mp3` ao terminar. `iara_course_preview.gd` captura o caminho e a arena.
 
 ## Apresentação e sons — 2026-10-13
 
@@ -30,13 +30,13 @@ Validação: `iara_entrance_checks.gd` cobre enquadramentos, sequência beijo/ri
 
 ## Recorte implementado — 2026-10-08
 
-Por solicitação do usuário, este incremento implementa primeiro o combate e a derrota normal da Iara. O feitiço final impossível e o resgate pela Vitória Régia ficam para depois; não impedem o último golpe nesta versão.
+O encerramento usa o resgate pela Vitória-Régia com o sheet de quatro linhas da personagem. Na metade da vida da Iara, a planta aparece no rio. Ao ficar a um golpe da derrota, Iara usa a preparação e o lançamento normais antes de um transe impossível de resistir. A/D aparecem e respondem, mas não quebram o encanto. O jogador caminha até o rio e afunda gradualmente; o resgate começa aos 90% do afogamento. Quase submerso, o jogador ouve: “Ela pode dominar o canto das águas. Mas não toda a vida que existe nelas.” A caixa exibe somente o retrato (quinta linha do novo sheet para Vitória-Régia) e o texto, sem nome. A moldura própria acompanha o texto gradual: Enter ou Espaço revela a fala e, no toque seguinte, avança. A folha cresce e sustenta os dois personagens lado a lado; a altura da indígena acompanha a altura visível do protagonista no idle e no dash; Vitória-Régia se revela, ataca e derrota Iara. O diálogo final indica a caverna da Cuca. A conclusão da fase só é salva depois de avançar esse último diálogo. O resgate preserva a vida restante do jogador; drops não fazem parte desta etapa.
 
 - Vida: 6 pontos, igual à Boitatá da fase 2. Cada golpe normal do jogador continua causando 1 de dano, sem multiplicador de burst.
 - Arena: margem seca à esquerda e rio à direita, conforme o novo `chao boss fight Iara.png`. Esta composição resolve a divergência entre esquerda/direita citada abaixo usando o asset fornecido.
 - A batalha começa com Iara em idle por 1,25s. Depois ela prepara a sedução com os sprites próprios desse ataque: 2,5s de preparação, ou 2s com metade da vida ou menos. As partículas surgem depois do início da pose. O lançamento tem 0,55s de trajeto visível antes de aplicar hipnose.
 - Câmera: zoom padrão de 1,8 fora do transe; durante a hipnose, aproxima suavemente para 2,43 e centra o personagem. Quebrar o encanto, morrer ou terminar a luta restaura o enquadramento normal.
-- Entrada da bossfight: `x=2730`, após caminhar 30px pelo trecho 3, em terra firme. A fase começa em `(180, 460)`.
+- Entrada da bossfight: `x=2850`, após caminhar 150px pelo trecho 3, em terra firme. A fase começa em `(180, 460)`.
 - Transe: arrasto crescente, movimento reduzido a 20%, bloqueio de ataque, pulo e rolada, escurecimento e filtro de áudio. O jogador tem 7 segundos para quebrá-lo.
 - Resistência: 8 entradas alternadas A/D ou esquerda/direita, com cooldown compartilhado de 0,2 segundo entre ações aceitas. Segurar uma direção não acumula; parar por mais de 1,25 segundo reduz o progresso. Os ícones acima do jogador indicam a próxima tecla e a barra de resistência mostra o progresso, sem painel textual de instruções no canto superior direito.
 - No transe, os sprites pixelados de A/D aparecem acima da cabeça, acompanhando a posição do personagem e o zoom. Só a próxima tecla indicada treme. Pressionar A ou D exibe a versão pressionada fornecida na imagem; uma ação aceita muda a indicação para a outra tecla. Ao terminar o efeito, os ícones desaparecem.

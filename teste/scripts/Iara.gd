@@ -43,10 +43,7 @@ func take_damage(amount: int) -> void:
     var fight = get_parent()
     if hp <= 0 or amount <= 0 or not fight.boss_area_entered or fight.boss_intro_running or fight.state != fight.State.VULNERABLE:
         return
-    hp = maxi(0, hp - amount)
+    hp = maxi(1, hp - amount)
     fight.sound_effects.play_effect("hit")
     preload("res://scripts/DamageImpact.gd").spawn(self, amount)
-    if hp == 0:
-        _show_defeat()
-        fight.iara_defeated()
-        queue_free()
+    fight.on_iara_damaged()

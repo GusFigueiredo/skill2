@@ -103,9 +103,9 @@ func run_checks() -> void:
     level.player.position = Vector2(level.BOSS_ARENA_START, 460)
     level._process(0.0)
     check(level.chant.playing and not level.boss_intro_running, "Entering the third section must keep the chant playing without starting the cutscene")
-    level.player.position.x += 29.0
+    level.player.position.x += 149.0
     level._process(0.0)
-    check(not level.boss_intro_running, "The first 29 pixels in section three must remain playable before the cutscene")
+    check(not level.boss_intro_running, "The first 149 pixels in section three must remain playable before the cutscene")
     level.player.position.x = lerpf(level.SECOND_STAGE_GATE, level.BOSS_GATE, 0.5)
     level._process(0.0)
     check(is_equal_approx(level.chant.volume_linear, 0.425), "Chant must rise to half of its 85 percent cap midway through the approach")
@@ -128,7 +128,7 @@ func run_checks() -> void:
     level._process(0.0)
     check(level.wave_index == 2 and level.boss_area_entered and level.boss_intro_running, "The third section must begin Iara's cutscene")
     check(not level.chant.playing and level.boss.visible and Progress.checkpoint()["id"] == "boss", "Boss entrance must save its checkpoint and stop the distant chant for the cutscene")
-    check(is_equal_approx(level.player.position.x - level.BOSS_ARENA_START, 30.0), "The cutscene must begin after 30 pixels of walking in section three")
+    check(is_equal_approx(level.player.position.x - level.BOSS_ARENA_START, 150.0), "The cutscene must begin after 150 pixels of walking in section three")
     check(not level.music.playing and is_equal_approx(level.music.volume_linear, level.approach_music_volume * 0.15), "Stage music must remain at 15 percent on the approach and stop for the cutscene")
     level.entrance.finish()
     check(level.music.stream.data == load("res://music/Iara.mp3").data and is_equal_approx(level.music.volume_linear, level.approach_music_volume), "The bossfight must use Iara.mp3 at normal volume")
@@ -141,7 +141,7 @@ func run_checks() -> void:
     check(not level.has_node("Enemy3") and not level.has_node("Enemy4") and not level.has_node("Enemy5"), "Boss checkpoint must skip all five road enemies")
     check(level.player.position.x < level.WATER_EDGE and not level.chant.playing, "Boss checkpoint must remain on the safe bank without restarting the approach chant")
     if failures == 0:
-        print("PASS: Iara course/checkpoints, chant during section two capped at 85 percent, stage music at 15 percent and cutscene after 30 pixels")
+        print("PASS: Iara course/checkpoints, chant during section two capped at 85 percent, stage music at 15 percent and cutscene after 150 pixels")
     quit(0 if failures == 0 else 1)
 
 func freeze(level: Node) -> void:

@@ -5,7 +5,7 @@
 ## Estrutura atual da fase 4 — 2026-10-13
 
 - Três trechos: dois inimigos → um buraco → três inimigos → caminho contínuo → bossfight da Iara.
-- Canto distante começa no trecho 2 e cresce até 85%. O jogador caminha 30px pelo terceiro trecho antes da cutscene. A apresentação conserva os 0,5s adicionais na última pose da risada.
+- Canto distante começa no trecho 2 e cresce até 85%. O jogador caminha 150px pelo terceiro trecho antes da cutscene. A apresentação conserva os 0,5s adicionais na última pose da risada.
 - Checkpoints na primeira onda, na segunda onda e antes da bossfight. Detalhes em `iara-boss-fight.md` e `checkpoints.md`.
 
 ## Inimigos e checkpoints — 2026-10-13
@@ -27,7 +27,7 @@
 
 ## Limite deste incremento
 
-A fase 4 inicialmente usava quatro inimigos comuns. Com a spec e os novos sprites fornecidos, foi substituída pela boss fight da Iara. A Vitória Régia, o feitiço impossível, diálogos e drops ficam para uma etapa posterior por solicitação do usuário. Nesta versão, a Iara pode ser derrotada por golpes normais após os ciclos de resistência e capangas.
+A fase 4 usa o combate da Iara e termina com o resgate pela Vitória-Régia. A planta aparece na metade da vida da boss; a um golpe da derrota, o ataque normal inicia um transe impossível de quebrar com A/D, seguido por afogamento gradual, resgate e ataque final da aliada. Os diálogos avançam com Enter ou Espaço e revelam o caminho para a caverna da Cuca. Planta, transformação, idle e dash usam o sheet da Vitória-Régia. Drops ficam para uma etapa posterior.
 
 ## Critérios de aceitação
 

@@ -15,8 +15,8 @@ const RESISTANCE_REQUIRED := 8
 const STAGE_START := Vector2(180, 460)
 const SECOND_STAGE_GATE := 1500.0
 const SECOND_ARENA_END := 2700.0
-const BOSS_ARENA_START := 2700.0
-const BOSS_ENTRY_MIN_DISTANCE := 30.0
+const BOSS_ARENA_START := 3000.0
+const BOSS_ENTRY_MIN_DISTANCE := 250.0
 const BOSS_GATE := BOSS_ARENA_START + BOSS_ENTRY_MIN_DISTANCE
 const BOSS_MUSIC_PATH := "res://music/Iara.mp3"
 const APPROACH_MUSIC_MIN_VOLUME := 0.15
@@ -68,6 +68,36 @@ var spell_lead_seconds := 0.0
 var chant: AudioStreamPlayer
 var boss_ground: Sprite2D
 var approach_music_volume := 0.0
+var vitoria_leaf: AnimatedSprite2D
+var rescue_running := false
+var final_spell := false
+
+func on_iara_damaged() -> void:
+    if boss.hp <= boss.max_hp / 2 and vitoria_leaf == null:
+        vitoria_leaf = AnimatedSprite2D.new()
+        vitoria_leaf.name = "VitoriaRegiaPlant"
+        var idle_texture: Texture2D = player.sprite.sprite_frames.get_frame_texture("idle", 0)
+        var hero_height: float = idle_texture.get_image().get_used_rect().size.y * player.sprite.scale.y
+        vitoria_leaf.sprite_frames = preload("res://scripts/VitoriaFrames.gd").build(hero_height)
+        vitoria_leaf.offset = Vector2(0, -135)
+        vitoria_leaf.play("plant")
+        vitoria_leaf.position = WATER_POSITION + Vector2(100, 50)
+        vitoria_leaf.z_index = 2
+        vitoria_leaf.scale = Vector2.ONE * 0.15
+        add_child(vitoria_leaf)
+        create_tween().tween_property(vitoria_leaf, "scale", Vector2.ONE, 1.2)
+    if boss.hp <= player.attack_damage and not final_spell:
+        final_spell = true
+        _start_cycle()
+
+func _start_vitoria_rescue() -> void:
+    if rescue_running:
+        return
+    rescue_running = true
+    var rescue := preload("res://scripts/VitoriaRescue.gd").new()
+    rescue.name = "VitoriaRescue"
+    add_child(rescue)
+    rescue.start(self)
 
 func _setup_encounters() -> void:
     pits = [Rect2(1060, 325, 110, 255)]
@@ -165,6 +195,9 @@ func _build_fight_feedback() -> void:
     var overlay := CanvasLayer.new()
     overlay.layer = 1
     add_child(overlay)
+    var trance_screen := preload("res://scripts/TranceScreen.gd").new()
+    trance_screen.fight = self
+    overlay.add_child(trance_screen)
     veil = ColorRect.new()
     veil.color = Color(0.015, 0.045, 0.12, 0)
     veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -212,7 +245,7 @@ func _process(delta: float) -> void:
         camera.global_position = camera.global_position.lerp(target, 1.0 - exp(-delta * 12.0))
 
 func _physics_process(delta: float) -> void:
-    if finished or player.hp <= 0 or boss_intro_running or not boss_area_entered:
+    if finished or player.hp <= 0 or boss_intro_running or rescue_running or not boss_area_entered:
         return
     fight_elapsed += delta
     resistance_cooldown = maxf(0.0, resistance_cooldown - delta)
@@ -345,7 +378,8 @@ func _begin_seduction() -> void:
     player.begin_seduction(boss)
     key_prompt._process(0.0)
     _focus_on_player()
-    _spawn_trance_enemy()
+    if not final_spell:
+        _spawn_trance_enemy()
     veil.color.a = 0.36
     music.volume_db = original_music_volume - 8.0
     music.pitch_scale = 0.85
@@ -359,6 +393,9 @@ func register_resistance(direction: int) -> void:
     resistance_cooldown = RESISTANCE_COOLDOWN
     resistance += 1.0
     key_prompt.flash_press(direction)
+    if final_spell:
+        resistance = minf(resistance, RESISTANCE_REQUIRED - 1.0)
+        return
     if resistance >= RESISTANCE_REQUIRED:
         state = State.FALLING
         state_timer = FALL_SECONDS
@@ -367,7 +404,7 @@ func register_resistance(direction: int) -> void:
         boss.get_node("Sprite").play("fall")
 
 func seduction_pull_speed() -> float:
-    return 58.0 + (TRANSE_SECONDS - state_timer) * 4.0
+    return (120.0 if final_spell else 58.0) + (TRANSE_SECONDS - state_timer) * 4.0
 
 func _clear_seduction() -> void:
     player.end_seduction()
@@ -452,6 +489,9 @@ func _update_water(delta: float) -> void:
         water_exposure = 0.0
         _restore_water_visual()
         return
+    if final_spell:
+        _begin_drowning()
+        return
     water_exposure += delta
     if not player.is_dodging:
         player.position = player.position.move_toward(WATER_POSITION, (15.0 + water_exposure * 8.0) * delta)
@@ -493,6 +533,9 @@ func _update_drowning() -> void:
     veil.color.a = lerpf(0.18, 0.5, eased)
     low_pass.cutoff_hz = lerpf(850.0, 220.0, eased)
     music.volume_db = original_music_volume - lerpf(8.0, 16.0, eased)
+    if final_spell and progress >= 0.9:
+        _start_vitoria_rescue()
+        return
     if state_timer <= 0.0:
         _finish_drowning()
 
