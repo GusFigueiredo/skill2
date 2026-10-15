@@ -14,7 +14,32 @@ var checkpoint_destination := ""
 var exit_camera: Camera2D
 var exit_target_x := 0.0
 var exit_tween: Tween
+var exit_leaf_index := 0
+var exit_leaf_count := 0
 const FADE_SECONDS := 0.6
+
+class LilyLanding extends Node2D:
+
+	var elapsed := 0.0
+	const DURATION := 0.58
+
+	func _ready() -> void:
+		process_mode = Node.PROCESS_MODE_ALWAYS
+		z_index = 4
+
+	func _process(delta: float) -> void:
+		elapsed += delta
+		if elapsed >= DURATION:
+			queue_free()
+		else:
+			queue_redraw()
+
+	func _draw() -> void:
+		var progress := clampf(elapsed / DURATION, 0.0, 1.0)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.28))
+		for ring in range(2):
+			var spread := clampf(progress * 1.5 - ring * 0.22, 0.0, 1.0)
+			draw_arc(Vector2.ZERO, 24.0 + spread * 54.0, 0, TAU, 40, Color(0.62, 0.89, 0.78, (1.0 - spread) * 0.4), 1.4, true)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -98,7 +123,7 @@ func take_checkpoint(path: String) -> Dictionary:
 	return preload("res://scripts/CampaignProgress.gd").checkpoint()
 
 # Every gameplay stage calls the same exit and loading sequence.
-func complete_level(level: Node2D, path: String) -> void:
+func complete_level(level: Node2D, path: String, rescue_camera: Camera2D = null, leaf_route: Array[Vector2] = []) -> void:
 	if busy:
 		return
 	busy = true
@@ -107,6 +132,13 @@ func complete_level(level: Node2D, path: String) -> void:
 	var hero := level.get_node("Player") as CharacterBody2D
 	var visual := hero.get_node("Sprite") as AnimatedSprite2D
 	var original := hero.get_node("Camera2D") as Camera2D
+	var leaf_exit := is_instance_valid(rescue_camera) and not leaf_route.is_empty()
+	exit_leaf_index = 0
+	exit_leaf_count = 0
+	# Preserve the rescue composition for the victory title as well as the farewell.
+	if is_instance_valid(rescue_camera):
+		exit_camera = rescue_camera
+		exit_camera.make_current()
 	hero.set_physics_process(false)
 	hero.velocity = Vector2.ZERO
 	hero.facing = 1
@@ -124,17 +156,16 @@ func complete_level(level: Node2D, path: String) -> void:
 	var victory := preload("res://scripts/VictoryFeedback.gd").new()
 	level.add_child(victory)
 	await victory.finished
-	phase = "walking_out"
-	visual.play("walk")
 	level.get_node("HUD").hide()
 	if level.get("music") != null:
 		level.music.process_mode = Node.PROCESS_MODE_ALWAYS
-	exit_camera = Camera2D.new()
-	exit_camera.process_mode = Node.PROCESS_MODE_ALWAYS
-	level.add_child(exit_camera)
-	exit_camera.global_position = original.get_screen_center_position()
-	exit_camera.zoom = original.zoom
-	exit_camera.make_current()
+	if not is_instance_valid(rescue_camera):
+		exit_camera = Camera2D.new()
+		exit_camera.process_mode = Node.PROCESS_MODE_ALWAYS
+		level.add_child(exit_camera)
+		exit_camera.global_position = original.get_screen_center_position()
+		exit_camera.zoom = original.zoom
+		exit_camera.make_current()
 	# Keep the camera still and move the entire character beyond the visible right edge.
 	var half_view := get_viewport().get_visible_rect().size.x / (2.0 * exit_camera.zoom.x)
 	var left_of_sprite: float = hero.combat_bounds.position.x
@@ -144,10 +175,16 @@ func complete_level(level: Node2D, path: String) -> void:
 		left_of_sprite = minf(left_of_sprite, visual.position.x + (opaque.position.x - texture.get_width() * 0.5) * visual.scale.x)
 	exit_target_x = exit_camera.global_position.x + half_view - minf(0.0, left_of_sprite) + 40.0
 	get_tree().paused = true
-	exit_tween = create_tween()
-	exit_tween.tween_property(visual, "position", hero.sprite_base_position, 0.15)
-	exit_tween.tween_property(hero, "global_position:x", exit_target_x, maxf(0.15, (exit_target_x - hero.global_position.x) / maxf(1.0, hero.speed)))
-	await exit_tween.finished
+	if leaf_exit:
+		phase = "jumping_out"
+		await _leave_on_lilies(level, hero, visual, leaf_route)
+	else:
+		phase = "walking_out"
+		visual.play("walk")
+		exit_tween = create_tween()
+		exit_tween.tween_property(visual, "position", hero.sprite_base_position, 0.15)
+		exit_tween.tween_property(hero, "global_position:x", exit_target_x, maxf(0.15, (exit_target_x - hero.global_position.x) / maxf(1.0, hero.speed)))
+		await exit_tween.finished
 	phase = "fading_out"
 	fade_screen.modulate.a = 0.0
 	fade_screen.show()
@@ -155,6 +192,52 @@ func complete_level(level: Node2D, path: String) -> void:
 	fade.tween_property(fade_screen, "modulate:a", 1.0, FADE_SECONDS)
 	await fade.finished
 	await _load_destination(path)
+
+func _leave_on_lilies(level: Node2D, hero: CharacterBody2D, visual: AnimatedSprite2D, route: Array[Vector2]) -> void:
+	var landings: Array[Vector2] = []
+	for point in route:
+		if point.x > hero.global_position.x + 12.0:
+			landings.append(point)
+	# The final leap must carry the whole sprite beyond the frame before the fade.
+	var last_point: Vector2 = hero.global_position if landings.is_empty() else landings.back()
+	while last_point.x < exit_target_x:
+		last_point += Vector2(minf(145.0, exit_target_x - last_point.x), -3.0)
+		landings.append(last_point)
+	exit_leaf_count = landings.size()
+	var resting_scale := visual.scale
+	hero.sound_effects.process_mode = Node.PROCESS_MODE_ALWAYS
+	for landing in landings:
+		var launch_point := hero.global_position
+		var distance := launch_point.distance_to(landing)
+		var flight_time := clampf(distance / 260.0, 0.44, 0.72)
+		var height := clampf(distance * 0.45, 48.0, 82.0)
+		visual.play("jump")
+		hero.sound_effects.play_effect("jump")
+		exit_tween = create_tween()
+		exit_tween.tween_method(_jump_between_lilies.bind(hero, visual, launch_point, landing, height), 0.0, 1.0, flight_time)
+		await exit_tween.finished
+		hero.global_position = landing
+		hero.jump_height = 0.0
+		hero.shadow_opacity = 1.0
+		visual.position = hero.sprite_base_position
+		visual.play("idle")
+		exit_leaf_index += 1
+		var ripple := LilyLanding.new()
+		level.add_child(ripple)
+		ripple.global_position = landing + Vector2(0, 5)
+		# A short compression gives each leaf a distinct, readable landing.
+		exit_tween = create_tween()
+		exit_tween.tween_property(visual, "scale", resting_scale * Vector2(1.04, 0.95), 0.065)
+		exit_tween.tween_property(visual, "scale", resting_scale, 0.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		await exit_tween.finished
+	visual.scale = resting_scale
+
+func _jump_between_lilies(progress: float, hero: CharacterBody2D, visual: AnimatedSprite2D, start: Vector2, finish: Vector2, height: float) -> void:
+	hero.global_position = start.lerp(finish, progress)
+	hero.jump_height = 4.0 * height * progress * (1.0 - progress)
+	hero.shadow_opacity = 1.0 - (hero.jump_height / maxf(height, 1.0)) * 0.55
+	visual.position = hero.sprite_base_position - Vector2(0, hero.jump_height)
+	hero.queue_redraw()
 
 func _has_defeat_visuals(level: Node2D) -> bool:
 	for remains in get_tree().get_nodes_in_group("enemy_defeat_visuals"):

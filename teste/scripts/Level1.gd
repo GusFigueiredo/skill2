@@ -13,10 +13,12 @@ var boss_intro_running := false
 var boss_intro_tween: Tween
 var boss_entry_tween: Tween
 var boss_landing_position := Vector2.ZERO
+var boss_intro_hud_visible := true
 const BOSS_ENTRY_WALK_DISTANCE := 20.0
 const BOSS_APPROACH_SECONDS := 1.8
 const BOSS_REVEAL_SECONDS := 0.6
 const AFTER_ROAR_SECONDS := 0.5
+const BOSS_CLOSEUP_ZOOM_FACTOR := 1.4
 var boss_area_entered := false
 var pit_texture_region: Rect2
 var checkpoint_id := "start"
@@ -77,6 +79,8 @@ func _ready() -> void:
     reset_button.pressed.connect(_reset_scene)
     _initialize_checkpoint()
     _update_hud()
+    if stage_index in [0, 1, 2, 3]:
+        add_child(preload("res://scripts/StageScenery.gd").new())
 
 func _initialize_checkpoint() -> void:
     var saved: Dictionary = get_node("/root/SceneTransition").take_checkpoint(scene_file_path)
@@ -213,6 +217,8 @@ func _process(_delta: float) -> void:
         queue_redraw()
 
 func _walk_into_boss_arena() -> void:
+    boss_intro_hud_visible = $HUD.visible
+    $HUD.hide()
     boss_intro_running = true
     music.stop()
     ambience.begin()
@@ -283,6 +289,9 @@ func _pit_death_rect(pit: Rect2) -> Rect2:
 func _start_boss_intro() -> void:
     if finished:
         return
+    if not boss_intro_running:
+        boss_intro_hud_visible = $HUD.visible
+    $HUD.hide()
     boss_intro_running = true
     $HUD/BossHealth.hide()
     music.stop()
@@ -317,46 +326,88 @@ func _start_boss_intro() -> void:
     player_visual.flip_h = false
     player_visual.play("idle")
     var camera := Camera2D.new()
+    camera.limit_left = original.limit_left
+    camera.limit_top = original.limit_top
+    camera.limit_right = original.limit_right
+    camera.limit_bottom = original.limit_bottom
     add_child(camera)
     camera.global_position = initial_center
     camera.zoom = original.zoom
     camera.make_current()
+    var closeup_zoom := original.zoom * BOSS_CLOSEUP_ZOOM_FACTOR
+    # Compose around the opaque art, with a little room in front of her gaze.
+    var boss_center: Vector2 = boss.global_position + boss.combat_bounds.get_center()
+    var closeup_focus := boss_center + Vector2(-28.0, -8.0)
+    camera.limit_right = maxi(camera.limit_right, ceili(closeup_focus.x + get_viewport_rect().size.x / closeup_zoom.x * 0.5 + 48.0))
+    var fire_glow := FlameReveal.new()
+    fire_glow.name = "BoitataIntroFlames"
+    fire_glow.character_size = boss.combat_bounds.size
+    fire_glow.z_index = 1
+    add_child(fire_glow)
+    fire_glow.global_position = boss.global_position
     var roar := AudioStreamPlayer.new()
     roar.stream = preload("res://soundeffect/Boitata/rujido.mp3")
     roar.volume_db = 8.0
     add_child(roar)
     var roar_duration := maxf(0.1, roar.stream.get_length())
-    boss_intro_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-    # First travel along the road; then hold the dark idle silhouette in close-up.
-    boss_intro_tween.tween_property(camera, "global_position", boss.global_position + Vector2(0, -100), BOSS_APPROACH_SECONDS)
-    boss_intro_tween.parallel().tween_property(camera, "zoom", original.zoom * 1.4, BOSS_APPROACH_SECONDS)
-    boss_intro_tween.tween_interval(BOSS_REVEAL_SECONDS)
+    boss_intro_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+    # Keep the camera inside the road while its view shrinks along a shallow arc.
+    boss_intro_tween.tween_method(func(progress: float):
+        camera.zoom = original.zoom.lerp(closeup_zoom * 0.97, progress)
+        camera.global_position = _boss_intro_focus(initial_center.lerp(closeup_focus, progress) + Vector2(0, -sin(PI * progress) * 8.0), camera)
+        fire_glow.clock = progress * BOSS_APPROACH_SECONDS
+        fire_glow.strength = smoothstep(0.45, 1.0, progress) * 0.3
+        fire_glow.queue_redraw()
+    , 0.0, 1.0, BOSS_APPROACH_SECONDS)
+    boss_intro_tween.tween_callback(func(): entrance.set_title("BOITATÁ", "GUARDIÃ DA FLORESTA"))
+    boss_intro_tween.tween_method(func(progress: float):
+        camera.zoom = (closeup_zoom * 0.97).lerp(closeup_zoom, progress)
+        camera.global_position = _boss_intro_focus(closeup_focus, camera)
+        fire_glow.clock = BOSS_APPROACH_SECONDS + progress * BOSS_REVEAL_SECONDS
+        fire_glow.strength = lerpf(0.3, 0.65, progress)
+        fire_glow.queue_redraw()
+        entrance.accent_strength = progress * 0.45
+    , 0.0, 1.0, BOSS_REVEAL_SECONDS)
     boss_intro_tween.tween_callback(func():
-        visual.modulate = boss.body_color
         visual.play("bite")
         visual.set_frame_and_progress(0, 0.0)
         visual.pause()
         ambience.duck()
         roar.play()
         entrance.roar()
-        preload("res://scripts/CombatVFX.gd").spawn(boss, "eruption", boss.global_position + Vector2(0, -60), Vector2.RIGHT, Color("ffb23f"), 170.0)
+        preload("res://scripts/CombatVFX.gd").spawn(boss, "embers", boss.global_position + Vector2(-25, -15), Vector2.RIGHT, Color("ffb23f"), 48.0)
     )
-    boss_intro_tween.tween_method(func(elapsed: float): camera.offset = Vector2(sin(elapsed * 91.0), cos(elapsed * 73.0)) * 9.0 * (1.0 - elapsed / roar_duration), 0.0, roar_duration, roar_duration)
+    boss_intro_tween.tween_method(func(elapsed: float):
+        var progress := elapsed / roar_duration
+        # A brief impulse settles quickly; the slow push keeps the reveal alive.
+        camera.offset = Vector2(sin(elapsed * 36.0), cos(elapsed * 28.0)) * 3.2 * pow(1.0 - progress, 2.0)
+        camera.zoom = closeup_zoom * lerpf(1.0, 1.025, smoothstep(0.0, 1.0, progress))
+        camera.global_position = _boss_intro_focus(closeup_focus, camera)
+        fire_glow.clock = BOSS_APPROACH_SECONDS + BOSS_REVEAL_SECONDS + elapsed
+        fire_glow.strength = lerpf(1.0, 0.25, smoothstep(0.0, 1.0, progress))
+        fire_glow.queue_redraw()
+        entrance.accent_strength = fire_glow.strength * 0.65
+    , 0.0, roar_duration, roar_duration).set_trans(Tween.TRANS_LINEAR)
+    boss_intro_tween.parallel().tween_property(visual, "modulate", boss.body_color, minf(0.35, roar_duration))
     boss_intro_tween.tween_callback(func():
         camera.offset = Vector2.ZERO
         visual.play("idle")
+        entrance.dismiss(AFTER_ROAR_SECONDS)
     )
     # The return to gameplay fills the requested half-second after the full roar.
     boss_intro_tween.tween_property(camera, "zoom", original.zoom, AFTER_ROAR_SECONDS)
     boss_intro_tween.parallel().tween_property(camera, "global_position", original.get_screen_center_position(), AFTER_ROAR_SECONDS)
+    boss_intro_tween.parallel().tween_property(fire_glow, "modulate:a", 0.0, AFTER_ROAR_SECONDS)
     boss_intro_tween.tween_callback(func():
         original.make_current()
         camera.queue_free()
         entrance.queue_free()
+        fire_glow.queue_free()
         visual.modulate = boss.body_color
         visual.set_process(true)
         visual.play("idle")
         boss_intro_running = false
+        $HUD.visible = boss_intro_hud_visible
         player_visual.set_process(true)
         player.set_physics_process(true)
         _set_enemy_active(boss, true)
@@ -364,3 +415,31 @@ func _start_boss_intro() -> void:
         music.play_track("res://music/Boitata.mp3")
     )
     roar.finished.connect(roar.queue_free)
+
+func _boss_intro_focus(point: Vector2, camera: Camera2D) -> Vector2:
+    var half_view := get_viewport_rect().size / (camera.zoom * 2.0)
+    point.x = clampf(point.x, camera.limit_left + half_view.x, camera.limit_right - half_view.x)
+    point.y = clampf(point.y, camera.limit_top + half_view.y, camera.limit_bottom - half_view.y)
+    return point
+
+class FlameReveal extends Node2D:
+    var clock := 0.0
+    var strength := 0.0
+    var character_size := Vector2(200, 170)
+
+    func _draw() -> void:
+        if strength <= 0.001:
+            return
+        # Only a faint ground glow and a handful of small, square embers.
+        draw_set_transform(Vector2(0, -3), 0, Vector2(1, 0.2))
+        for i in range(3):
+            draw_circle(Vector2.ZERO, character_size.x * (0.32 + i * 0.06), Color(1.0, 0.37, 0.055, strength * (0.035 - i * 0.008)))
+        draw_set_transform(Vector2.ZERO)
+        for i in range(18):
+            var progress := fmod(clock * (0.45 + float(i % 4) * 0.08) + float(i) / 18.0, 1.0)
+            var side := -1.0 if i % 2 == 0 else 1.0
+            var x := side * character_size.x * (0.28 + float(i % 3) * 0.065)
+            var point := Vector2(x + sin(progress * TAU + i * 0.9) * 7.0, -progress * character_size.y * 0.9).round()
+            var alpha := sin(progress * PI) * strength
+            draw_circle(point, 3.5, Color(1.0, 0.35, 0.04, alpha * 0.08))
+            draw_rect(Rect2(point, Vector2.ONE * (1.0 + i % 2)), Color(1.0, 0.74, 0.25, alpha * 0.75))

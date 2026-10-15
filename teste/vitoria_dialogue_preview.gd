@@ -23,8 +23,9 @@ func preview() -> void:
     layer.add_child(box)
     box.begin("vitoria", "Vitória-Régia", ["Você está a salvo. A Cuca se esconde em uma caverna além deste rio."])
     box.advance()
+    await create_timer(0.3).timeout
     await process_frame
     await process_frame
     await RenderingServer.frame_post_draw
-    root.get_texture().get_image().save_png("res://.validation/vitoria-dialogue-preview.png")
+    root.get_texture().get_image().save_png("res://.validation/polish-vitoria-sheet-dialogue.png")
     quit()

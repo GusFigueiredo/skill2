@@ -56,7 +56,7 @@ Descrever o menor incremento jogável que demonstra a proposta do jogo.
 
 ## Direção da campanha
 
-A estrutura planejada para o jogo completo é de pelo menos 7 fases em 4 mapas/regiões: Floresta da Ratanaba (tutorial na cidade perdida; depois a floresta e a boss fight tutorial da Boitatá), Rio Negro (onda de inimigos; depois a boss fight da Iara com intervenção da Vitória Régia), Caverna da Cuca (onda de inimigos com transição para o laboratório; depois a boss fight da Cuca e interrupção do ritual do Corpo Seco) e Floresta Amazônica (onda de inimigos e confronto final contra o Corpo Seco). O detalhamento está em `docs/context/game-overview.md`.
+A estrutura planejada para o jogo completo é de pelo menos 7 fases em 4 mapas/regiões: Floresta da Ratanaba (tutorial na cidade perdida; depois a floresta e a boss fight tutorial da Boitatá), Rio Negro (onda de inimigos; depois a boss fight da Iara com intervenção da Vitória Régia), caminho até a Cuca (fase 5 pela floresta até a entrada da caverna; fase 6 no interior até o laboratório e a luta contra a Cuca) e Floresta Amazônica (onda de inimigos e confronto final contra o Corpo Seco). Mesmo derrotada, a Cuca consegue concluir o ritual de ressurreição; o protagonista parte atrás da criatura. A direção atualizada em 2026-10-15 está em `docs/specs/cuca-stages.md` e `docs/context/game-overview.md`.
 
 O protótipo descrito nos registros abaixo já reuniu encontros e Boitatá em um único trecho jogável para testar o núcleo de combate. Isso documenta o estado do protótipo, não altera a divisão planejada da campanha em fases 1 e 2.
 

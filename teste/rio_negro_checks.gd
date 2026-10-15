@@ -51,9 +51,9 @@ func run_checks() -> void:
     await defeat_wave()
     assert(current_scene.scene_file_path == "res://level_map.tscn")
     assert(Progress.completed_stages() == 4)
-    for index in range(4):
+    for index in range(5):
         assert(not current_scene.stage_buttons[index].disabled)
-    for index in range(4, 7):
+    for index in range(5, 7):
         assert(current_scene.stage_buttons[index].disabled)
     current_scene._show_stage(3)
     current_scene._start_selected_stage()
@@ -115,11 +115,14 @@ func defeat_wave() -> void:
     level._process(0.016)
     assert(not level.finished, "A surviving enemy must prevent victory")
     if level.stage_index == 3:
-        # The full charm/minion cycle is covered by iara_checks.gd.
-        level.state = level.State.VULNERABLE
-    for enemy in level.waves[level.wave_index]:
-        enemy.take_damage(enemy.hp)
-    level._process(0.016)
+        # Iara's charm and rescue sequence are covered by their dedicated checks.
+        # This route check begins at the same completion hook as the final speech.
+        level.boss.hp = 0
+        level.iara_defeated()
+    else:
+        for enemy in level.waves[level.wave_index]:
+            enemy.take_damage(enemy.hp)
+        level._process(0.016)
     assert(level.finished and transition.busy)
     while transition.phase == "waiting_for_defeat":
         await process_frame

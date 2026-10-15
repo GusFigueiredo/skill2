@@ -1,2 +1,5 @@
 # Godot regenerates local imports, editor state and UID caches.
 /teste/.godot/
+
+# Local validation runs generate previews, test saves, logs and shader caches.
+/teste/.validation/

@@ -77,6 +77,14 @@ func run_checks() -> void:
     advance_to(entrance.sequence, entrance.PLAYER_ZOOM_SECONDS)
     check(entrance.camera.zoom.x > gameplay_camera.zoom.x, "The camera must first zoom in on the player")
     check(absf(entrance.camera.global_position.x - hero.global_position.x) < 50.0, "The first close-up must frame the player")
+    var player_closeup_zoom: Vector2 = entrance.camera.zoom
+    var travel_start: float = entrance.PLAYER_ZOOM_SECONDS + entrance.PLAYER_HOLD_SECONDS
+    advance_to(entrance.sequence, travel_start + 0.002)
+    check(entrance.camera.zoom.x > player_closeup_zoom.x, "The player's shot must keep moving gently during its hold")
+    var travel_departure_zoom: Vector2 = entrance.camera.zoom
+    advance_to(entrance.sequence, travel_start + entrance.IARA_TRAVEL_SECONDS * 0.5)
+    check(entrance.camera.zoom.x < travel_departure_zoom.x, "The pan must widen briefly to show the river between both actors")
+    check(entrance.camera.global_position.x > hero.global_position.x and entrance.camera.global_position.x < fight.boss.global_position.x, "The camera must travel through the scenery between both close-ups")
     var iara_arrival: float = entrance.PLAYER_ZOOM_SECONDS + entrance.PLAYER_HOLD_SECONDS + entrance.IARA_TRAVEL_SECONDS
     advance_to(entrance.sequence, iara_arrival + 0.002)
     check(absf(entrance.camera.global_position.x - fight.boss.global_position.x) < 50.0, "The camera must then travel to Iara")
@@ -88,6 +96,7 @@ func run_checks() -> void:
     check(entrance.audio.playing and same_mp3(entrance.audio.stream, CUTSCENE_PATH), "The close-up must play the supplied cutscene audio")
     check(not fight.music.playing and not fight.chant.playing, "Only the cutscene voice may play during the kiss")
     check(not entrance.audio.stream.loop, "The cutscene audio must play once")
+    var voice_start_zoom: Vector2 = entrance.camera.zoom
     var full_audio_length: float = entrance.audio.stream.get_length()
     check(is_equal_approx(entrance.kiss_seconds + entrance.laugh_seconds, full_audio_length), "Kiss and laugh must preserve the full audio interval")
 
@@ -109,8 +118,12 @@ func run_checks() -> void:
     var return_start: float = hold_start + entrance.END_HOLD_SECONDS
     advance_to(entrance.sequence, laugh_start - 0.02)
     check(entrance.phase == "kiss" and fight.boss_intro_running, "The kiss must finish before the laugh starts")
+    check(entrance.camera.zoom.x > voice_start_zoom.x, "Iara's kiss must begin one gradual push-in spanning the voice interval")
+    var kiss_end_position: Vector2 = entrance.camera.global_position
+    var kiss_end_zoom: Vector2 = entrance.camera.zoom
     advance_to(entrance.sequence, laugh_start + 0.002)
     check(entrance.phase == "laugh" and visual.animation == "intro_laugh", "The laugh must follow the complete kiss")
+    check(entrance.camera.global_position.distance_to(kiss_end_position) < 1.0 and entrance.camera.zoom.distance_to(kiss_end_zoom) < 0.01, "The camera must stay continuous between kiss and laugh")
     check(not visual.is_processing(), "Normal battle animation must stay suspended during the laugh")
     advance_to(entrance.sequence, hold_start - 0.02)
     check(entrance.phase == "laugh" and fight.boss_intro_running, "The laugh and voice interval must finish before returning to gameplay")
@@ -167,6 +180,21 @@ func run_checks() -> void:
     check(not fight.music.playing and not fight.entrance.audio.playing, "A retry must not carry over battle music or the previous voice")
     fight.entrance.finish()
     check(not fight.boss_intro_running and not fight.player.control_locked and fight.player.is_physics_processing(), "Finishing a replayed introduction must restore gameplay")
+
+    # An interrupted voice must leave no cinematic camera, particles or music.
+    var abort_probe := preload("res://scripts/IaraEntrance.gd").new()
+    fight.add_child(abort_probe)
+    abort_probe.start(fight)
+    abort_probe.sequence.pause()
+    advance_to(abort_probe.sequence, kiss_start + abort_probe.kiss_seconds * 0.5)
+    check(abort_probe.audio.playing, "The abort check must interrupt the active kiss voice")
+    abort_probe.abort()
+    check(abort_probe.finished and not abort_probe.audio.playing and not fight.boss_intro_running, "Aborting must stop the cinematic timeline and voice")
+    check(abort_probe.camera.is_queued_for_deletion() and abort_probe.glimmer.is_queued_for_deletion() and abort_probe.letterbox.is_queued_for_deletion(), "Aborting must remove the cinematic camera and visual effects")
+    check(fight.player.get_node("Camera2D").is_current() and fight.get_node("HUD").visible, "Aborting must restore the gameplay camera and HUD")
+    check(not fight.player.is_physics_processing() and not fight.music.playing, "Aborting must not start combat or battle music")
+    abort_probe.finish()
+    check(not fight.music.playing and not fight.player.is_physics_processing(), "Finishing an already aborted introduction must not restart the fight")
     if failures == 0:
-        print("PASS: Iara player/boss close-ups, kiss then laugh, full voice interval, half-second return, immunity, pause, battle music/effects and checkpoint replay")
+        print("PASS: Iara continuous close-ups/pan, kiss then laugh, full voice interval, half-second return, immunity, pause, battle music/effects, checkpoint replay and abort cleanup")
     quit(0 if failures == 0 else 1)

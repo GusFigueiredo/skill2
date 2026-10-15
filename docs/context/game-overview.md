@@ -20,11 +20,13 @@ A campanha está planejada para ter pelo menos 7 fases, agrupadas em 4 mapas/reg
 | Floresta da Ratanaba | 2 | Trecho pela floresta amazônica e boss fight tutorial contra a Boitatá. Ela ataca por acreditar que o protagonista é um inimigo; ao ser derrotada, percebe que ele é do bem e explica o que Cuca e Iara estão fazendo no mundo. |
 | Rio Negro | 3 | Avanço para a direita enfrentando uma única onda de inimigos. |
 | Rio Negro | 4 | Boss fight contra a Iara. Durante a luta, ela prende o protagonista e começa a afogá-lo; a Vitória Régia intervém para ajudar a derrotá-la, entrega um item ainda sem nome e revela a localização da Cuca. |
-| Caverna da Cuca | 5 | Uma onda de inimigos durante o avanço para a direita; conforme o jogador progride, o cenário transiciona para o laboratório rústico de poções da Cuca. |
-| Caverna da Cuca | 6 | Boss fight contra a Cuca, que está realizando um ritual para invocar o Corpo Seco. Ao derrotá-la, o ritual é interrompido; o Corpo Seco deixa a caverna e segue para a floresta. |
+| Caminho até a Cuca — exterior | 5 | Percurso pela floresta até encontrar a entrada da caverna no final da fase. |
+| Caminho até a Cuca — interior | 6 | Percurso dentro da caverna até o laboratório de poções e luta contra a Cuca para tentar impedir a ressurreição do Corpo Seco. Mesmo derrotada, ela conclui o ritual; o protagonista parte atrás da criatura. |
 | Floresta Amazônica | 7 | O jogador atravessa uma onda de inimigos até alcançar o Corpo Seco. A derrota dele encerra o jogo. |
 
 Esta é a direção narrativa planejada, não uma declaração de que as sete fases já estão implementadas. O primeiro incremento jogável continua sendo um protótipo de combate e progressão.
+
+As fases 5 e 6 foram revisadas em 2026-10-15: a aproximação acontece na floresta; a caverna e o laboratório ficam na fase 6, e derrotar a Cuca não impede a conclusão do ritual. O detalhamento está em [cuca-stages.md](../specs/cuca-stages.md). Os rótulos exterior/interior acima descrevem os cenários; o nome final da região no mapa continua a definir.
 
 <!-- A S0 depende deste documento. -->
 

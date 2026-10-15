@@ -234,6 +234,17 @@ func _release_minor() -> void:
 	state_timer = 0.3
 
 func take_damage(amount: int) -> void:
+	if hp <= 0 or amount <= 0:
+		return
+	if amount >= hp:
+		hp = 0
+		preload("res://scripts/DamageImpact.gd").spawn(self, amount)
+		if health_bar:
+			health_bar.value = 0
+		var conversation := preload("res://scripts/BoitataDialogue.gd").new()
+		get_parent().add_child(conversation)
+		conversation.start(get_parent(), self)
+		return
 	if amount > 0:
 		pressure_hits += 1
 		pressure_timer = 2.5

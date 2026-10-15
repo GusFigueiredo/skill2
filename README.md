@@ -14,12 +14,16 @@ A campanha planejada passa por quatro regiões, em sete fases:
 - **Floresta da Ratanaba**: avanço pela floresta e confronto com a Boitatá. Depois da luta, ela percebe que o protagonista não é inimigo e revela informações sobre Cuca e Iara.
 - **Rio Negro**: trecho de avanço com uma onda de inimigos comuns.
 - **Rio Negro**: confronto com Iara. Quando ela tenta afogar o protagonista, Vitória-Régia intervém, entrega um item e revela onde encontrar Cuca.
-- **Caverna da Cuca**: o jogador enfrenta inimigos enquanto avança até o laboratório de poções.
-- **Caverna da Cuca**: chefe Cuca, que tenta invocar o Corpo Seco. Ao interromper o ritual, o protagonista faz a criatura fugir em direção à floresta.
+- **Floresta até a caverna da Cuca**: a fase 5 se passa na floresta e termina na entrada da caverna.
+- **Caverna da Cuca**: a fase 6 percorre o interior até o laboratório de poções, onde o protagonista enfrenta a Cuca para tentar impedir a ressurreição do Corpo Seco. Mesmo derrotada, ela conclui o ritual; o protagonista parte atrás da criatura.
 - **Floresta Amazônica**: avanço por uma onda de inimigos até o confronto final com o Corpo Seco.
   
 Os tipos e nomes dos inimigos comuns ainda não estão definidos. Curupira aparece na sinopse como uma figura que ajuda o protagonista, mas sua participação e a fase em que aparece ainda precisam ser detalhadas. 
 A estrutura das fases está descrita em game-overview.md e glossary.md.
+
+A fase 5 já pode ser jogada após concluir a Iara. Em `teste/floresta5.tscn`, a Floresta da Cuca tem três trechos de combate, um buraco entre os dois primeiros e a entrada da caverna no final. O percurso usa os sprites de `sprites/cenario/Fase5/`, com parallax, névoa e checkpoints. Ao entrar na caverna, o jogo conclui a fase e retorna ao mapa; a fase 6 continua planejada. Os detalhes estão em [cuca-forest-stage5.md](docs/specs/cuca-forest-stage5.md).
+
+As fases 1–4 também usam parallax, com fundo em uma camada distante e chão fixo. A ambientação preserva os tons quentes e verdes de Ratanabá e os tons frios do Rio Negro, com vagalumes, folhas, névoa e chuva refinados. O detalhamento está em [stage-scenery-presentation.md](docs/specs/stage-scenery-presentation.md).
 
 # Mecânicas
 O jogo é um **beat ’em up 2D de rolagem lateral**, com movimento em profundidade na arena. O jogador pode se movimentar, pular, atacar de perto e executar uma rolada que serve para esquivar e atravessar inimigos. 

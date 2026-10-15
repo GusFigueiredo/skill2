@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://main.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/CucaForest.gd" id="2"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fase5/background.png" id="3"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fase5/cha.png" id="4"]
+
+[node name="CucaForest5" instance=ExtResource("1")]
+script = ExtResource("2")
+tutorial_stage = false
+stage_index = 4
+next_stage_path = "res://level_map.tscn"
+level_music_path = "res://music/Fase1.mp3"
+
+[node name="Background" parent="." index="0"]
+texture = ExtResource("3")
+
+[node name="Ground" parent="." index="1"]
+texture = ExtResource("4")

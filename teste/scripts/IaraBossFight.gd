@@ -69,6 +69,7 @@ var chant: AudioStreamPlayer
 var boss_ground: Sprite2D
 var approach_music_volume := 0.0
 var vitoria_leaf: AnimatedSprite2D
+var vitoria_growth_tween: Tween
 var rescue_running := false
 var final_spell := false
 
@@ -79,13 +80,18 @@ func on_iara_damaged() -> void:
         var idle_texture: Texture2D = player.sprite.sprite_frames.get_frame_texture("idle", 0)
         var hero_height: float = idle_texture.get_image().get_used_rect().size.y * player.sprite.scale.y
         vitoria_leaf.sprite_frames = preload("res://scripts/VitoriaFrames.gd").build(hero_height)
-        vitoria_leaf.offset = Vector2(0, -135)
+        vitoria_leaf.offset = preload("res://scripts/VitoriaFrames.gd").grounded_offset(vitoria_leaf.sprite_frames)
         vitoria_leaf.play("plant")
-        vitoria_leaf.position = WATER_POSITION + Vector2(100, 50)
+        var leaf_position := WATER_POSITION + Vector2(100, 50)
+        vitoria_leaf.position = leaf_position + Vector2(0, 12)
         vitoria_leaf.z_index = 2
-        vitoria_leaf.scale = Vector2.ONE * 0.15
+        vitoria_leaf.scale = Vector2.ONE * 0.72
+        vitoria_leaf.modulate.a = 0.0
         add_child(vitoria_leaf)
-        create_tween().tween_property(vitoria_leaf, "scale", Vector2.ONE, 1.2)
+        vitoria_growth_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+        vitoria_growth_tween.tween_property(vitoria_leaf, "position", leaf_position, 1.2)
+        vitoria_growth_tween.parallel().tween_property(vitoria_leaf, "scale", Vector2.ONE, 1.2)
+        vitoria_growth_tween.parallel().tween_property(vitoria_leaf, "modulate:a", 1.0, 0.8)
     if boss.hp <= player.attack_damage and not final_spell:
         final_spell = true
         _start_cycle()
@@ -94,6 +100,8 @@ func _start_vitoria_rescue() -> void:
     if rescue_running:
         return
     rescue_running = true
+    if is_instance_valid(vitoria_growth_tween):
+        vitoria_growth_tween.kill()
     var rescue := preload("res://scripts/VitoriaRescue.gd").new()
     rescue.name = "VitoriaRescue"
     add_child(rescue)
@@ -146,6 +154,7 @@ func _ready() -> void:
     boss_ground = Sprite2D.new()
     boss_ground.name = "BossGround"
     boss_ground.texture = BOSS_GROUND_TEXTURE
+    boss_ground.modulate = $Ground.modulate
     boss_ground.centered = false
     boss_ground.z_index = -1
     boss_ground.position = Vector2(BOSS_ARENA_START, 200)
@@ -584,14 +593,14 @@ func _update_sinking_corpse(delta: float) -> void:
     player.sprite.position = corpse_start_offset + Vector2(0.0, 65.0 * progress)
     player.sprite.modulate = Color(corpse_start_color, corpse_start_color.a * (1.0 - progress))
 
-func iara_defeated() -> void:
+func iara_defeated(rescue_camera: Camera2D = null, leaf_route: Array[Vector2] = []) -> void:
     state = State.DEFEATED
     _clear_seduction()
     $HUD/BossHealth.value = 0
     resistance_bar.hide()
     preload("res://scripts/CampaignProgress.gd").complete_stage(stage_index)
     finished = true
-    get_node("/root/SceneTransition").complete_level(self, next_stage_path)
+    get_node("/root/SceneTransition").complete_level(self, next_stage_path, rescue_camera, leaf_route)
 
 func _update_hud() -> void:
     super._update_hud()

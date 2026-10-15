@@ -7,7 +7,7 @@ const STAGES: Array[Dictionary] = [
 	{"place": "Floresta da Ratanabá", "short": "Floresta\nBoitatá"},
 	{"place": "Rio Negro", "short": "Rio Negro"},
 	{"place": "Rio Negro", "short": "Iara"},
-	{"place": "Caverna da Cuca", "short": "Caverna"},
+	{"place": "Floresta da Cuca", "short": "Floresta"},
 	{"place": "Caverna da Cuca", "short": "Cuca"},
 	{"place": "Floresta Amazônica", "short": "Amazônia\nCorpo Seco"}
 ]

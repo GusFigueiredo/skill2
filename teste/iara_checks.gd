@@ -250,8 +250,26 @@ func run_checks() -> void:
     fight._physics_process(fight.DROWNING_SECONDS * 0.91)
     check(fight.rescue_running and hero.hp > 0, "Rescue must begin only when the player is almost submerged")
     var rescue = fight.get_node("VitoriaRescue")
+    rescue.sequence.pause()
+    rescue.sequence.custom_step(rescue.DROWNED_HOLD_SECONDS - 0.1)
+    check(not rescue.dialogue.visible, "The mystery voice must wait for the full 2.5-second blackout")
+    rescue.sequence.custom_step(0.11)
+    check(rescue.waiting and rescue.dialogue.visible and rescue.blackout.color.a >= 0.9, "The first speech must appear over the nearly black river")
+    check(rescue.dialogue.portrait.modulate.r < 0.1, "Vitoria's portrait must remain dark before her reveal")
+    paused = true
+    var paused_rescue_position: Vector2 = rescue.camera.global_position
+    var paused_blackout: Color = rescue.blackout.color
+    await create_timer(0.1, true).timeout
+    check(rescue.camera.global_position == paused_rescue_position and rescue.blackout.color == paused_blackout, "Pause must freeze the rescue camera and blackout")
+    paused = false
+    var checked_shared_leaf := false
     while not fight.finished:
         if rescue.waiting:
+            if fight.boss.hp == 0 and not checked_shared_leaf:
+                check(hero.position.x > rescue.heroine.position.x, "The saved hero must stand to the right of Vitoria")
+                check(hero.position.distance_to(fight.vitoria_leaf.position) < 120 and rescue.heroine.position.distance_to(fight.vitoria_leaf.position) < 120, "Both characters must stand inside the same leaf")
+                check(rescue.dialogue.portrait.modulate == Color.WHITE, "The revealed portrait must return to its normal colors")
+                checked_shared_leaf = true
             rescue.dialogue_opened = 0
             var advance := InputEventKey.new()
             advance.keycode = KEY_ENTER
@@ -265,7 +283,8 @@ func run_checks() -> void:
     while transition.busy:
         await process_frame
     check(current_scene.scene_file_path == "res://level_map.tscn", "Victory must return to the map")
-    check(not current_scene.stage_buttons[3].disabled and current_scene.stage_buttons[4].disabled, "Iara can be replayed, Cuca remains locked")
+    check(not current_scene.stage_buttons[3].disabled and not current_scene.stage_buttons[4].disabled, "Iara can be replayed and her defeat unlocks the forest in phase five")
+    check(current_scene.stage_buttons[5].disabled and current_scene.stage_buttons[6].disabled, "The Cuca cave and Corpo-Seco remain locked")
 
     # Water keeps HP until a single three-second timer kills; retreat resets it.
     change_scene_to_file("res://rio_negro4.tscn")

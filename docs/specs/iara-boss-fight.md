@@ -16,9 +16,10 @@ Validação: `iara_course_checks.gd` cobre ondas, buraco, canto no trecho 2 com 
 
 ## Apresentação e sons — 2026-10-13
 
-- Antes do combate, a câmera aproxima do protagonista por 0,6s e segura o enquadramento por 0,6s. Depois viaja para a Iara por 1,8s e segura por 0,6s, usando zoom de 1,4× sobre o zoom normal, como a entrada da Boitatá.
+- Antes do combate, a câmera aproxima do protagonista por 0,6s e mantém uma aproximação discreta por mais 0,6s. Depois viaja para a Iara por 1,8s e aproxima por 0,6s antes do beijo. Os planos deixam espaço na direção do olhar. O zoom começa em 1,4× sobre o zoom normal, abre levemente no meio do percurso para mostrar o rio e chega a 1,48× no começo da voz.
 - Na aproximação da Iara, ela manda um beijo (três poses) e depois ri (seis poses) usando `Sprite Sheet Iara cutscene.png`. As poses preservam o tamanho visual e a linha dos pés do idle.
 - `soundeffect/Iara/Cutscene.mp3` toca inteiro uma vez junto da animação. O beijo ocupa os primeiros 0,88s; a risada ocupa o restante do áudio, aproximadamente 1,48s.
+- Uma aproximação contínua até 1,62× acompanha o beijo e a risada, sem corte entre os gestos. Partículas sutis saem da mão em direção ao protagonista. O overlay usa tons de água, vinheta leve, barras com entrada/saída suaves e o título discreto “IARA / ENCANTO DO RIO NEGRO”.
 - O jogador e o combate ficam travados e sem dano durante a apresentação. A trilha para, o HUD se oculta e as barras cinematográficas usam a apresentação existente da Boitatá. Pausar também pausa a câmera, as poses e o áudio.
 - Ao acabar a animação e o áudio, a última pose da risada permanece por mais 0,5s; depois a câmera volta ao enquadramento normal em 0,5s. O HUD e os controles retornam, a trilha `music/Iara.mp3` começa no volume normal e o idle inicial de 1,25s antecede o primeiro feitiço. Nenhuma música ou canto distante toca durante a cutscene; apenas seu áudio de beijo/risada.
 - O checkpoint antes da Iara reinicia essa apresentação ao repetir a luta.
@@ -26,16 +27,30 @@ Validação: `iara_course_checks.gd` cobre ondas, buraco, canto no trecho 2 com 
 
 Implementação: `IaraEntrance.gd`, `IaraCutsceneFrames.gd`, `IaraBossFight.gd`, `Iara.gd` e suporte a MP3 em `SoundEffects.gd`.
 
-Validação: `iara_entrance_checks.gd` cobre enquadramentos, sequência beijo/risada, áudio completo, pausa, proteção durante a cutscene, retorno ao combate, sons da luta e repetição após checkpoint. `iara_entrance_preview.gd` gera capturas dos cinco momentos para conferência visual.
+Validação: `iara_entrance_checks.gd` cobre enquadramentos, continuidade entre beijo/risada, áudio completo, pausa, proteção durante a cutscene, retorno ao combate, sons da luta, repetição após checkpoint e limpeza ao interromper a apresentação. `iara_entrance_preview.gd` gera capturas do jogador, percurso, Iara, beijo, risada, pausa final e retorno ao gameplay.
 
-## Recorte implementado — 2026-10-08
+## Encerramento com Vitória-Régia — 2026-10-15
 
-O encerramento usa o resgate pela Vitória-Régia com o sheet de quatro linhas da personagem. Na metade da vida da Iara, a planta aparece no rio. Ao ficar a um golpe da derrota, Iara usa a preparação e o lançamento normais antes de um transe impossível de resistir. A/D aparecem e respondem, mas não quebram o encanto. O jogador caminha até o rio e afunda gradualmente; o resgate começa aos 90% do afogamento. Quase submerso, o jogador ouve: “Ela pode dominar o canto das águas. Mas não toda a vida que existe nelas.” A caixa exibe somente o retrato (quinta linha do novo sheet para Vitória-Régia) e o texto, sem nome. A moldura própria acompanha o texto gradual: Enter ou Espaço revela a fala e, no toque seguinte, avança. A folha cresce e sustenta os dois personagens lado a lado; a altura da indígena acompanha a altura visível do protagonista no idle e no dash; Vitória-Régia se revela, ataca e derrota Iara. O diálogo final indica a caverna da Cuca. A conclusão da fase só é salva depois de avançar esse último diálogo. O resgate preserva a vida restante do jogador; drops não fazem parte desta etapa.
+O encerramento usa o resgate pela Vitória-Régia com o sheet de três linhas da personagem: planta e transformação, idle e dash. Na metade da vida da Iara, a planta aparece no rio. Ao ficar a um golpe da derrota, Iara usa a preparação e o lançamento normais antes de um transe impossível de resistir. A/D aparecem e respondem, mas não quebram o encanto. O jogador caminha até o rio e afunda gradualmente; o resgate começa aos 90% do afogamento. A tela escurece durante 2,5 segundos até ficar quase preta; então o jogador ouve: “Ela pode dominar o canto das águas. Mas não toda a vida que existe nelas.” O retrato fica escurecido até a revelação da personagem. Depois que a última página dessa fala é encerrada, há uma espera de 1 segundo; os efeitos de soco e de hit da Iara tocam enquanto a imagem continua escura. O golpe acontece antes do resgate e substitui a antiga investida visível da Vitória-Régia.
+
+A caixa exibe somente o retrato e o texto, sem nome. O novo sheet de rostos tem três expressões e quatro linhas; Vitória-Régia usa a quarta linha. Os retratos de 248×232 pixels e a fonte de 34 pixels seguem a apresentação compartilhada de `DialogueBox.gd`. Falas longas passam a páginas de até três linhas, preservando todos os caracteres e indicando a página atual. Enter ou Espaço revela a página e, no toque seguinte, avança.
+
+A imagem clareia para o resgate, com Iara já derrotada e caída no chão. Sua última pose de queda permanece visível durante a conversa. Vitória-Régia e protagonista dividem a mesma folha: ela à esquerda e ele à direita. A escala da personagem se baseia na altura visível do protagonista. A planta aparece com subida curta, crescimento e transparência suaves. Durante a transformação, a própria animação desenha a folha uma única vez; a última pose passa por uma transição curta para a personagem em idle e uma plataforma sem flor. A folha se alarga gradualmente para acomodar os dois, sem encolher nem mudar sua base. Os pés se alinham à superfície da planta, usando as dimensões reais da arte. Ondulações e partículas discretas acompanham a subida e o repouso sobre a água.
+
+O diálogo alterna os retratos do protagonista e da Vitória-Régia. Ele pergunta o que aconteceu e quem ela é. Ela se apresenta, explica que derrotou a Iara e que veio investigar sua aliança com a Cuca; também reconhece a coragem do protagonista. Ao ser questionada sobre o plano, revela a tentativa de ressuscitar o Corpo-Seco, um homem cuja maldade fez com que fosse rejeitado tanto no céu quanto no inferno. A conversa alerta para a ameaça do ritual e indica o próximo caminho: atravessar a floresta da fase 5 até a entrada da caverna da Cuca. O restante da orientação mantém esse objetivo claro. A fase 6, no interior da caverna e no laboratório, continua planejada conforme [cuca-stages.md](cuca-stages.md).
+
+A apresentação de “Fase concluída” mantém o enquadramento do resgate, sem voltar à posição antiga da câmera na arena. A saída usa uma sequência de saltos para a direita, passando por outras vitórias-régias até a transição de fase. O enquadramento permanece estável durante a travessia. O resgate preserva a vida restante do jogador; drops não fazem parte desta etapa. Pausar suspende a espera do golpe, a transformação e a conversa. Durante a saída automática, os controles ficam bloqueados e apenas a travessia e a transição seguem ativas.
+
+Durante o resgate, a câmera usa limites verticais ampliados e foco deslocado à esquerda para mostrar a folha inteira acima da caixa de diálogo e o corpo inteiro da Iara à esquerda. Somente nesse encerramento, `teste/shaders/rescue_river.gdshader` preserva a margem esquerda de `BossGround` e estende a água pela reflexão da seção direita da textura, evitando repetir terra seca sob as folhas. A pintura acompanha toda a largura da rota de saída.
+
+Validação do refinamento de 2026-10-15: `vitoria_rescue_checks.gd` cobre a espera de 1 segundo após a fala misteriosa, os sons do golpe no escuro, a derrota da Iara antes da revelação, o resgate e a folha compartilhada, os diálogos alternados, a preservação de HP e a pausa. Também verifica o corpo inteiro da Iara no enquadramento, a folha acima do diálogo, a câmera preservada na conclusão, os arcos e pousos dos saltos e o retorno ao mapa. `vitoria_rescue_preview.gd` captura esses momentos. `iara_checks.gd` mantém a validação da luta completa e do resgate.
+
+## Combate implementado
 
 - Vida: 6 pontos, igual à Boitatá da fase 2. Cada golpe normal do jogador continua causando 1 de dano, sem multiplicador de burst.
 - Arena: margem seca à esquerda e rio à direita, conforme o novo `chao boss fight Iara.png`. Esta composição resolve a divergência entre esquerda/direita citada abaixo usando o asset fornecido.
 - A batalha começa com Iara em idle por 1,25s. Depois ela prepara a sedução com os sprites próprios desse ataque: 2,5s de preparação, ou 2s com metade da vida ou menos. As partículas surgem depois do início da pose. O lançamento tem 0,55s de trajeto visível antes de aplicar hipnose.
-- Câmera: zoom padrão de 1,8 fora do transe; durante a hipnose, aproxima suavemente para 2,43 e centra o personagem. Quebrar o encanto, morrer ou terminar a luta restaura o enquadramento normal.
+- Câmera: zoom padrão de 1,8 fora do transe; durante a hipnose, aproxima suavemente para 2,43 e centra o personagem. Quebrar o encanto ou morrer restaura o enquadramento normal. No encerramento, o enquadramento permanece no resgate e acompanha a saída pelas vitórias-régias.
 - Entrada da bossfight: `x=2850`, após caminhar 150px pelo trecho 3, em terra firme. A fase começa em `(180, 460)`.
 - Transe: arrasto crescente, movimento reduzido a 20%, bloqueio de ataque, pulo e rolada, escurecimento e filtro de áudio. O jogador tem 7 segundos para quebrá-lo.
 - Resistência: 8 entradas alternadas A/D ou esquerda/direita, com cooldown compartilhado de 0,2 segundo entre ações aceitas. Segurar uma direção não acumula; parar por mais de 1,25 segundo reduz o progresso. Os ícones acima do jogador indicam a próxima tecla e a barra de resistência mostra o progresso, sem painel textual de instruções no canto superior direito.
@@ -48,7 +63,7 @@ O encerramento usa o resgate pela Vitória-Régia com o sheet de quatro linhas d
 - Apresentação do afogamento: ondulações e arco decrescente avisam a exposição à água; na sequência fatal, o personagem afunda sem deformação, com água em camadas onduladas, bolhas, arrasto suave e escurecimento/filtro de áudio progressivos. A superfície ondulada encobre progressivamente o corpo por shader; sair da água restaura o visual e a sombra. Após a morte, o corpo continua descendo e desaparece em 1,8s, mantendo a câmera e a superfície estáveis. As ondulações dissipam junto com o corpo.
 - Falhar no transe inicia uma contagem fatal de 3 segundos; ao final, o jogador morre. O zoom do transe retorna ao padrão ao começar o afogamento.
 - A área de dano da Iara acompanha os limites visíveis de cada frame, incluindo rosto e cauda na pose caída; a colisão dos pés permanece separada. A proteção fora da janela continua ativa.
-- Zerar a vida da Iara executa sua animação de derrota, salva a fase 4 e retorna ao mapa pela transição existente. Reiniciar recarrega a luta inteira.
+- Na sequência final, Iara perde o último ponto de vida com o golpe ouvido no escuro e permanece caída durante o resgate. A conclusão da fase 4 aguarda o diálogo; depois, o protagonista salta pelas vitórias-régias até a transição para o mapa. Reiniciar recarrega a luta inteira.
 - Os ataques adicionais de cabelo, onda com knockback e espelho/ilusão permanecem para outro incremento. O foco atual é canto, sedução, capangas e vulnerabilidade.
 - Animações: a linha 1 do sheet tem os 4 frames de idle em loop; a linha 2 tem os 5 frames do ataque, tocados uma vez no lançamento e depois alternados nos 2 últimos (`4 → 5 → 4 → 5...`) durante o transe; a linha 3 alterna os 2 primeiros frames de preparação e termina no terceiro, seguido pelo primeiro frame de idle. A linha 4 anima a queda e mantém a última pose enquanto a Iara está caída; a linha 5 anima a derrota.
 
@@ -262,11 +277,12 @@ Quando a Iara chega com pouca vida, ela tenta o feitiço definitivo.
 
 No momento crítico:
 
-- a Vitória-Régia aparece no rio
-- ela quebra o encanto da Iara
-- a Iara cai ou é derrubada
-- o jogador recebe um item, amuleto ou pista
-- a Vitória-Régia revela o próximo destino: onde encontrar Cuca
+- a fala misteriosa da Vitória-Régia acontece durante o escurecimento
+- 1 segundo após encerrar essa fala, um soco e o hit da Iara são ouvidos no escuro
+- a Vitória-Régia salva o protagonista e divide com ele uma folha no rio
+- a Iara permanece caída e visível no chão durante a conversa
+- a Vitória-Régia revela a aliança com a Cuca, o plano de ressuscitar o Corpo-Seco e o caminho pela floresta até a caverna
+- a conclusão mantém o cenário do resgate e termina com saltos para a direita entre vitórias-régias
 
 Esse momento deve ser narrativamente importante:
 

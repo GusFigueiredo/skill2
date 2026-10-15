@@ -5,7 +5,7 @@ func _initialize() -> void:
 
 func capture() -> void:
     create_timer(30.0, true).timeout.connect(func(): quit(1))
-    var output := OS.get_environment("TEMP").path_join("skill2-iara-entrance-previews")
+    var output := ProjectSettings.globalize_path("res://.validation")
     DirAccess.make_dir_recursive_absolute(output)
     var view := SubViewport.new()
     view.size = Vector2i(1280, 720)
@@ -19,12 +19,17 @@ func capture() -> void:
     var intro = fight.entrance
     intro.sequence.pause()
     intro.letterbox.elapsed = 1.0
+    var boss_arrival: float = intro.PLAYER_ZOOM_SECONDS + intro.PLAYER_HOLD_SECONDS + intro.IARA_TRAVEL_SECONDS
+    var kiss_start: float = boss_arrival + intro.IARA_HOLD_SECONDS
+    var return_start: float = kiss_start + intro.kiss_seconds + intro.laugh_seconds + intro.END_HOLD_SECONDS
     var stages := {
-        "player": 0.65,
-        "iara": 3.25,
-        "kiss": 3.6 + intro.kiss_seconds * 0.85,
-        "laugh": 3.6 + intro.kiss_seconds + intro.laugh_seconds * 0.65,
-        "gameplay": 3.6 + intro.kiss_seconds + intro.laugh_seconds + intro.END_HOLD_SECONDS + 0.55,
+        "player": intro.PLAYER_ZOOM_SECONDS + 0.05,
+        "pan": intro.PLAYER_ZOOM_SECONDS + intro.PLAYER_HOLD_SECONDS + intro.IARA_TRAVEL_SECONDS * 0.5,
+        "iara": boss_arrival + intro.IARA_HOLD_SECONDS * 0.5,
+        "kiss": kiss_start + intro.kiss_seconds * 0.85,
+        "laugh": kiss_start + intro.kiss_seconds + intro.laugh_seconds * 0.65,
+        "hold": return_start - intro.END_HOLD_SECONDS * 0.5,
+        "gameplay": return_start + intro.RETURN_SECONDS + 0.05,
     }
     var elapsed := 0.0
     for stage: String in stages:
@@ -34,7 +39,7 @@ func capture() -> void:
         await process_frame
         await process_frame
         await RenderingServer.frame_post_draw
-        view.get_texture().get_image().save_png(output.path_join(stage + ".png"))
+        view.get_texture().get_image().save_png(output.path_join("polish-iara-" + stage + ".png"))
     fight.free()
     view.free()
     print("PASS: Iara player closeup, boss closeup, kiss, laugh and return captured; " + output)

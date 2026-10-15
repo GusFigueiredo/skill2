@@ -16,7 +16,13 @@ static func panel(rect: Rect2) -> Panel:
 	return result
 
 static func setup(level: Node2D) -> void:
-	level.add_child(preload("res://scripts/Atmosphere.gd").new())
+	if level.stage_index in [2, 3]:
+		level.get_node("Background").modulate = Color(0.73, 0.87, 0.94)
+		level.get_node("Ground").modulate = Color(0.8, 0.91, 0.96)
+		level.add_child(preload("res://scripts/RiverRainGround.gd").new())
+		level.add_child(preload("res://scripts/RiverWeather.gd").new())
+	else:
+		level.add_child(preload("res://scripts/Atmosphere.gd").new())
 	level.add_child(preload("res://scripts/CombatFeedback.gd").new())
 	var overlay := CanvasLayer.new()
 	overlay.layer = 1
