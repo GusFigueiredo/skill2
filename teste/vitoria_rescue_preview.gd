@@ -4,8 +4,8 @@ var screenshots := {}
 var capture_failed := false
 
 func _initialize() -> void:
-    if not OS.get_environment("APPDATA").to_lower().contains("vitoria-rework"):
-        push_error("Run this preview with isolated APPDATA containing vitoria-rework")
+    if not OS.get_environment("APPDATA").to_lower().contains("vitoria-rework-new-sheet"):
+        push_error("Run this preview with isolated APPDATA containing vitoria-rework-new-sheet")
         quit(1)
         return
     call_deferred("preview")
@@ -44,14 +44,19 @@ func preview() -> void:
         var label := ""
         if str(rescue.phase) == "rescue" and rescue.blackout.color.a < 0.65 and rescue.blackout.color.a > 0.3:
             label = "rescue"
-        elif rescue.heroine.animation == "transform" and rescue.heroine.frame == 2:
-            label = "emergence"
+        elif rescue.heroine.animation == "transform" and rescue.heroine.modulate.a >= 0.95:
+            label = "emergence-%d" % (rescue.heroine.frame + 1)
         elif str(rescue.phase) == "stand" and rescue.heroine.modulate.a >= 0.95:
             label = "shared-leaf"
         if not label.is_empty() and not screenshots.has(label):
             await capture(label, rescue)
         if rescue.waiting:
             break
+    rescue.heroine.pause()
+    for index in rescue.heroine.sprite_frames.get_frame_count("idle"):
+        rescue.heroine.set_frame_and_progress(index, 0.0)
+        await capture("idle-%d" % (index + 1), rescue)
+    rescue.heroine.play("idle")
     for attempt in range(256):
         if not rescue.waiting:
             break
@@ -90,7 +95,7 @@ func preview() -> void:
             label = "first-landing"
         if not label.is_empty() and not screenshots.has(label):
             await capture(label, rescue)
-    print("PASS: Vitoria rework captures=", screenshots.keys())
+    print("PASS: Vitoria updated-sheet captures=", screenshots.keys())
     quit(1 if capture_failed else 0)
 
 func _victory_feedback(fight: Node) -> Node:
@@ -111,7 +116,7 @@ func capture(label: String, rescue: Node) -> void:
     await process_frame
     await process_frame
     await RenderingServer.frame_post_draw
-    var path := "res://.validation/vitoria-rework-%s.png" % label
+    var path := "res://.validation/vitoria-rework-new-sheet-%s.png" % label
     var result := root.get_texture().get_image().save_png(path)
     if result != OK:
         capture_failed = true

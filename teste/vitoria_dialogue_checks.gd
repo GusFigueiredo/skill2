@@ -9,12 +9,16 @@ func run_checks() -> void:
     create_timer(20.0, true).timeout.connect(func(): quit(1))
     root.size = Vector2i(1280, 720)
     var frames = preload("res://scripts/VitoriaFrames.gd").build()
-    for animation in {"plant": 1, "transform": 5, "idle": 5, "dash": 5}:
-        assert(frames.get_frame_count(animation) == {"plant": 1, "transform": 5, "idle": 5, "dash": 5}[animation])
+    var expected_frames := {"plant": 1, "leaf": 1, "transform": 5, "idle": 6}
+    var frame_size: Vector2 = frames.get_frame_texture("plant", 0).get_size()
+    for animation in expected_frames:
+        assert(frames.get_frame_count(animation) == expected_frames[animation], "Use every supplied pose from the updated sheet")
         for index in frames.get_frame_count(animation):
             var texture = frames.get_frame_texture(animation, index)
-            assert(texture.region.size.x > 0 and texture.region.size.y > 0, "Each pose must contain visible pixels")
-            assert(texture.get_size() == Vector2(300, 270), "Poses must share the same feet alignment")
+            var opaque: Rect2i = texture.get_image().get_used_rect()
+            assert(opaque.size.x > 20 and opaque.size.y > 20, "Each pose must contain actual visible artwork from its row")
+            assert(texture.get_size() == frame_size, "Poses must share the same feet-aligned canvas")
+    assert(not frames.has_animation("dash"), "The updated sheet has no dash artwork: its blank third row must never become an animation")
     var layer := CanvasLayer.new()
     root.add_child(layer)
     var box = preload("res://scripts/DialogueBox.gd").new()
@@ -26,9 +30,14 @@ func run_checks() -> void:
     box._process(0.1)
     assert(box.text_label.visible_characters > 0 and box.text_label.visible_characters < box.text_label.get_total_character_count())
     assert(box.portrait.texture != null)
-    assert(box.text_label.get_theme_font_size("font_size") == 34, "Dialogue text must be 15% smaller")
-    assert(is_equal_approx(box.size.y, 320.0), "The dialogue frame must be 15% shorter")
-    assert(box.portrait.size.x >= 248 and box.portrait.size.y >= 232, "The new portraits must be clearly larger than the previous 196x184 area")
+    assert(box.text_label.get_theme_font_size("font_size") == 26, "Reduce the shared dialogue text by 25%, rounded to whole pixels")
+    assert(box.size.is_equal_approx(Vector2(900, 225)), "The dialogue frame must be 25% smaller and horizontally centered")
+    assert(is_equal_approx(box.position.x, 190.0), "The reduced dialogue frame stays centered in a 1280px viewport")
+    assert(box.portrait.size.x <= 186 and box.portrait.size.y <= 174, "The portrait must shrink with the box and fit its carved window")
+    assert(box.text_label.get_rect().end.y < box.hint.position.y, "Dialogue text cannot overlap the advance hint")
+    assert(box.page_hint.get_rect().end.x < box.hint.position.x, "The page count cannot overlap the advance hint")
+    for element in [box.portrait, box.text_label, box.hint, box.page_hint]:
+        assert(Rect2(Vector2.ZERO, box.size).encloses(element.get_rect()), "Every reduced dialogue element stays inside the frame")
     for child in box.get_children():
         assert(not (child is Label and child.text == "Vitória-Régia"), "A speaker name must not appear")
     box.advance()
@@ -76,7 +85,7 @@ func run_checks() -> void:
         box.advance()
         await create_timer(0.03).timeout
     assert(pages_checked > 1, "All automatically split pages must be readable before the block completes")
-    print("PASS: Vitoria animations, 34px dialogue in a 320px frame with 248x232 portraits, full unclipped paginated speeches, page hints, typewriter/advance, four portrait rows and dark mystery portrait")
+    print("PASS: updated Vitoria sheet, six idle poses, no blank dash row, 25% smaller centered dialogue and aligned elements, complete unclipped pagination and mysterious portrait")
     quit()
 
 func finish_block(box: Control) -> void:

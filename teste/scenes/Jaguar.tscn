@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/Jaguar.gd" id="1_jaguar"]
+[ext_resource type="Script" path="res://scripts/FramedHealthBar.gd" id="2_health"]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(85, 20)
+
+[sub_resource type="RectangleShape2D" id="contact"]
+size = Vector2(85, 20)
+
+[sub_resource type="SpriteFrames" id="placeholder"]
+
+[node name="Jaguar" type="CharacterBody2D"]
+script = ExtResource("1_jaguar")
+max_hp = 5
+speed = 156.0
+contact_damage_interval = 1.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("placeholder")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="DamageArea" type="Area2D" parent="."]
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("contact")
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+show_percentage = false
+script = ExtResource("2_health")
+frame_kind = "enemy"

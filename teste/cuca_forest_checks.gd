@@ -30,7 +30,7 @@ func run_checks() -> void:
     var level = current_scene
     freeze(level)
     check(level.stage_index == 4 and level.player.position == level.STAGE_START, "Phase five must start in the forest")
-    check(level.waves.size() == 3 and level.waves[0].size() == 3 and level.waves[1].size() == 3 and level.waves[2].size() == 4, "The forest must have three separate combat sections")
+    check(level.waves.size() == 3 and level.waves[0].size() == 4 and level.waves[1].size() == 3 and level.waves[2].size() == 5, "The forest must retain three separate sections, with one additional jaguar in the first and third")
     check(level.pits.size() == 1 and level.pits[0].end.x < level.SECOND_STAGE_GATE, "The only hole must lie between sections one and two")
     check(not level.boss.visible and not level.get_node("HUD/BossHealth").visible, "Cuca must not appear as a boss in the forest")
     check(not level.finished and not level.cave_ready and not level.cave_entering, "A fresh forest must not enter the cave or finish automatically")
@@ -133,6 +133,8 @@ func run_checks() -> void:
     level._process(0.0)
     check(not level.cave_ready and not level.cave_entering and not level.finished, "The last surviving enemy must block the cave even if the player reaches its doorway")
     level.player.position = Vector2(level.THIRD_STAGE_GATE + 250.0, 450.0)
+    if final_enemy.has_method("finish_grapple"):
+        final_enemy.finish_grapple(true)
     final_enemy.take_damage(final_enemy.hp)
     await process_frame
     level._process(0.0)
@@ -219,8 +221,9 @@ func run_checks() -> void:
     check(level.player.hp == entry_health, "The entry cutscene must preserve the hero's health")
     while current_scene.scene_file_path == STAGE_PATH or root.get_node("SceneTransition").busy:
         await process_frame
-    check(current_scene.scene_file_path == "res://level_map.tscn" and not paused, "The unavailable sixth phase must return safely to the campaign map")
-    check(Progress.completed_stages() == 5 and Progress.checkpoint().is_empty(), "Entering the cave must complete phase five and clear its checkpoint")
+    check(current_scene.scene_file_path == "res://caverna6.tscn" and not paused, "Entering the cave must continue directly into phase six")
+    check(Progress.completed_stages() == 5 and Progress.is_available(5), "Entering the cave must complete phase five and unlock phase six")
+    check(Progress.checkpoint().get("stage", -1) == 5 and Progress.checkpoint().get("id", "") == "start", "The forest checkpoint must be replaced by the new cave's starting checkpoint")
     if failures == 0:
         print("PASS: phase five, three gated encounters, real jump and fatal ground roll, safe retries including legacy cave saves, shared HUD/pause and grounded early cave entry with a continuous walk around the boulders")
     quit(0 if failures == 0 else 1)
@@ -244,7 +247,11 @@ func check_active_wave(level: Node, expected_index: int) -> void:
     for index in level.waves.size():
         for enemy in level.waves[index]:
             if is_instance_valid(enemy) and enemy.hp > 0:
-                check(enemy.visible == (index == expected_index), "Only the current section's living enemies may be visible")
+                if enemy.has_method("set_encounter_active"):
+                    check(enemy.active == (index == expected_index), "Only the current section's jaguar may watch for an ambush")
+                    check(not enemy.visible, "An untriggered jaguar must remain concealed in its bush")
+                else:
+                    check(enemy.visible == (index == expected_index), "Only the current section's living enemies may be visible")
 
 func alive_count(wave: Array) -> int:
     var count := 0
@@ -256,6 +263,10 @@ func alive_count(wave: Array) -> int:
 func defeat_wave(level: Node, index: int) -> void:
     for enemy in level.waves[index]:
         if is_instance_valid(enemy) and enemy.hp > 0:
+            # Reveal ambushers before the fixture clears a wave; hidden animals
+            # correctly reject ordinary combat damage before their encounter.
+            if enemy.has_method("finish_grapple"):
+                enemy.finish_grapple(true)
             enemy.take_damage(enemy.hp)
     await process_frame
 

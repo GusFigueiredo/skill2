@@ -12,6 +12,11 @@ func run_checks() -> void:
 		actor.get_node("Sprite").set_process(false)
 	var player = scene.get_node("Player")
 	var enemy = scene.get_node("Enemy1")
+	# The tutorial now starts with enemies inactive. Enable this fixture's
+	# hurt area explicitly before testing a real physics-query punch.
+	enemy.spawn_finished = true
+	scene._set_enemy_active(enemy, true)
+	enemy.set_physics_process(false)
 	player.position = Vector2(800, 430)
 	enemy.position = Vector2(840, 430)
 	await physics_frame

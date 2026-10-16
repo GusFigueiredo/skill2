@@ -3,6 +3,9 @@ extends "res://scripts/Level1.gd"
 const Progress := preload("res://scripts/CampaignProgress.gd")
 const ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
 const SCENERY := preload("res://scripts/CucaForestScenery.gd")
+const JAGUAR_SCENE := preload("res://scenes/Jaguar.tscn")
+const JAGUAR_FRAMES := preload("res://scripts/JaguarFrames.gd")
+const BUSH_EDGE_Y := 420.0
 const STAGE_LENGTH := 4400.0
 const STAGE_START := Vector2(180, 450)
 const SECOND_STAGE_GATE := 1420.0
@@ -22,6 +25,9 @@ var cave_fade: ColorRect
 var section_label: Label
 var forest_scenery: Node2D
 var forest_ambience: AudioStreamPlayer
+var bushes: Array[AnimatedSprite2D] = []
+var jaguars: Array[CharacterBody2D] = []
+var active_jaguar_grapple: Node
 
 func _ready() -> void:
     super._ready()
@@ -39,6 +45,10 @@ func _ready() -> void:
     add_child(forest_ambience)
     forest_ambience.play()
     _build_route_label()
+    # Prepare the supplied key artwork during loading, before an ambush needs it.
+    var key_warmup := preload("res://scripts/JaguarMashPrompt.gd").new()
+    $HUD.add_child(key_warmup)
+    key_warmup.queue_free()
     _update_hud()
     queue_redraw()
 
@@ -62,7 +72,44 @@ func _setup_encounters() -> void:
         _new_enemy("ForestEnemy10", Vector2(3850, 490)),
     ]
     waves = [[$Enemy1, $Enemy2, $Enemy3], second, third]
+    var bush_frames := JAGUAR_FRAMES.build()
+    var bush_positions := [Vector2(520, BUSH_EDGE_Y), Vector2(950, BUSH_EDGE_Y), Vector2(1840, BUSH_EDGE_Y), Vector2(3060, BUSH_EDGE_Y), Vector2(3490, BUSH_EDGE_Y)]
+    for index in bush_positions.size():
+        var bush := AnimatedSprite2D.new()
+        bush.name = "AmbushBush%d" % (index + 1)
+        bush.sprite_frames = bush_frames
+        bush.position = bush_positions[index]
+        bush.offset = JAGUAR_FRAMES.grounded_offset(bush_frames)
+        bush.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        bush.z_index = -1
+        bush.play("bush_idle")
+        bush.set_meta("occupied", index in [1, 4])
+        add_child(bush)
+        bushes.append(bush)
+        if index in [1, 4]:
+            var jaguar := JAGUAR_SCENE.instantiate() as CharacterBody2D
+            jaguar.name = "ForestJaguar%d" % (jaguars.size() + 1)
+            add_child(jaguar)
+            jaguar.configure_ambush(bush.position, bush)
+            jaguars.append(jaguar)
+            waves[0 if index == 1 else 2].append(jaguar)
     _set_section_bounds(0)
+
+func _set_enemy_active(enemy: CharacterBody2D, active: bool) -> void:
+    if enemy.has_method("set_encounter_active"):
+        enemy.set_encounter_active(active)
+        return
+    super._set_enemy_active(enemy, active)
+
+func begin_jaguar_grapple(jaguar: CharacterBody2D) -> bool:
+    if is_instance_valid(active_jaguar_grapple) or cave_entering or finished or player.hp <= 0 or player.control_locked:
+        return false
+    var grapple := preload("res://scripts/JaguarGrapple.gd").new()
+    grapple.name = "JaguarGrapple"
+    active_jaguar_grapple = grapple
+    add_child(grapple)
+    grapple.start(self, jaguar)
+    return true
 
 func _new_enemy(actor_name: String, point: Vector2) -> CharacterBody2D:
     var enemy := ENEMY_SCENE.instantiate() as CharacterBody2D
@@ -110,7 +157,7 @@ func _initialize_checkpoint() -> void:
 
 func _process(delta: float) -> void:
     _update_hud()
-    if finished or cave_entering or player.hp <= 0:
+    if finished or cave_entering or player.hp <= 0 or is_instance_valid(active_jaguar_grapple):
         return
     tutorial.advance(delta)
     if not _section_is_clear():

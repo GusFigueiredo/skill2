@@ -16,8 +16,8 @@ func preview() -> void:
         var sprite := AnimatedSprite2D.new()
         sprite.sprite_frames = frames
         sprite.position = Vector2(200 + index * 290, 265)
-        sprite.offset = Vector2(0, -135)
-        sprite.play(["plant", "transform", "idle", "dash"][index])
+        sprite.offset = preload("res://scripts/VitoriaFrames.gd").grounded_offset(frames)
+        sprite.play(["plant", "transform", "idle", "leaf"][index])
         layer.add_child(sprite)
     var box = preload("res://scripts/DialogueBox.gd").new()
     layer.add_child(box)

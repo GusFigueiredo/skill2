@@ -4,9 +4,9 @@ const SAVE_PATH := "user://campaign_progress.cfg"
 const STAGE_PATHS: Array[String] = [
     "res://main.tscn", "res://ratanaba2.tscn",
     "res://rio_negro3.tscn", "res://rio_negro4.tscn",
-    "res://floresta5.tscn"
+    "res://floresta5.tscn", "res://caverna6.tscn"
 ]
-const IMPLEMENTED_STAGES := 5
+const IMPLEMENTED_STAGES := 6
 
 static func stage_path(index: int) -> String:
     return STAGE_PATHS[index] if index >= 0 and index < IMPLEMENTED_STAGES else ""
@@ -67,6 +67,8 @@ static func checkpoint() -> Dictionary:
         allowed_ids.append_array(["wave_2", "boss"])
     elif index == 4:
         allowed_ids.append_array(["trecho_2", "trecho_3", "caverna"])
+    elif index == 5:
+        allowed_ids.append_array(["trecho_2", "trecho_3", "boss"])
     if not checkpoint_id in allowed_ids:
         return {}
     return {"stage": index, "id": checkpoint_id, "position": position}

@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://main.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/CucaCave.gd" id="2"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fases6/background.png" id="3"]
+[ext_resource type="Texture2D" path="res://sprites/cenario/Fases6/chão.png" id="4"]
+
+[node name="CucaCave6" instance=ExtResource("1")]
+script = ExtResource("2")
+tutorial_stage = false
+stage_index = 5
+next_stage_path = "res://level_map.tscn"
+level_music_path = "res://music/Fase3.mp3"
+
+[node name="Background" parent="." index="0"]
+texture = ExtResource("3")
+
+[node name="Ground" parent="." index="1"]
+texture = ExtResource("4")

@@ -9,7 +9,7 @@
 script = ExtResource("2")
 tutorial_stage = false
 stage_index = 4
-next_stage_path = "res://level_map.tscn"
+next_stage_path = "res://caverna6.tscn"
 level_music_path = "res://music/Fase1.mp3"
 
 [node name="Background" parent="." index="0"]

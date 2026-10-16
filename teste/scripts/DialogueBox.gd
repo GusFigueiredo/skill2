@@ -7,13 +7,13 @@ const PORTRAITS := preload("res://scripts/DialoguePortraits.gd")
 const FRAME_REGION := Rect2(24, 94, 2124, 530)
 const FRAME_LEFT_WIDTH := 470.0
 const FRAME_RIGHT_WIDTH := 132.0
-const PORTRAIT_PANEL_EXTRA := 28.0
-const FONT_SIZE := 34
-const BOX_HEIGHT := 300.0
-const PORTRAIT_SIZE := Vector2(248, 232)
+const UI_SCALE := 0.75
+const FONT_SIZE := 26
+const BOX_HEIGHT := 300.0 * UI_SCALE
+const PORTRAIT_SIZE := Vector2(248, 232) * UI_SCALE
 const MAX_TEXT_LINES := 3
 const CHARACTERS_PER_SECOND := 38.0
-const BOTTOM_MARGIN := 28.0
+const BOTTOM_MARGIN := 28.0 * UI_SCALE
 
 var text_label: Label
 var portrait: TextureRect
@@ -32,13 +32,16 @@ var _opening_tween: Tween
 var _portrait_tween: Tween
 var _portrait_origin := Vector2.ZERO
 var _text_tween: Tween
+var _portrait_extra := 0.0
 
 func _ready() -> void:
     mouse_filter = Control.MOUSE_FILTER_IGNORE
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-    offset_left = 40
-    offset_right = -40
+    anchor_left = (1.0 - UI_SCALE) * 0.5
+    anchor_right = 1.0 - anchor_left
+    offset_left = 40 * UI_SCALE
+    offset_right = -40 * UI_SCALE
     offset_top = -BOX_HEIGHT - BOTTOM_MARGIN
     offset_bottom = -BOTTOM_MARGIN
     portrait_textures = PORTRAITS.build()
@@ -54,16 +57,16 @@ func _ready() -> void:
     text_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
     text_label.add_theme_constant_override("shadow_offset_x", 1)
     text_label.add_theme_constant_override("shadow_offset_y", 2)
-    text_label.add_theme_constant_override("line_spacing", 3)
+    text_label.add_theme_constant_override("line_spacing", 2)
     add_child(text_label)
     hint = Label.new()
-    hint.add_theme_font_size_override("font_size", 22)
+    hint.add_theme_font_size_override("font_size", 17)
     hint.add_theme_color_override("font_color", Color("d1c3a8"))
     hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
     hint.text = "Enter / Espaço"
     add_child(hint)
     page_hint = Label.new()
-    page_hint.add_theme_font_size_override("font_size", 22)
+    page_hint.add_theme_font_size_override("font_size", 17)
     page_hint.add_theme_color_override("font_color", Color("b8a283"))
     add_child(page_hint)
     resized.connect(_layout)
@@ -74,27 +77,34 @@ func _layout() -> void:
     if text_label == null:
         return
     var art_scale := BOX_HEIGHT / FRAME_REGION.size.y
-    _portrait_origin = Vector2(64, 75)
+    # Size and center the head inside the carved window. Its transparent
+    # texture margins must not push it into the divider or below the frame.
+    _portrait_extra = maxf(28.0 * UI_SCALE, PORTRAIT_SIZE.x + 16.0 - 268.0 * art_scale)
+    var portrait_window := Rect2(136.0 * art_scale + 8.0, 136.0 * art_scale + 4.0,
+        268.0 * art_scale + _portrait_extra - 16.0, 310.0 * art_scale - 12.0)
+    portrait.size = PORTRAIT_SIZE.min(portrait_window.size)
+    _portrait_origin = portrait_window.get_center() - portrait.size * 0.5
     portrait.position = _portrait_origin
-    text_label.position = Vector2(FRAME_LEFT_WIDTH * art_scale + PORTRAIT_PANEL_EXTRA + 16, 70)
-    text_label.size = Vector2(maxf(100, size.x - text_label.position.x - 60), 160)
-    hint.position = Vector2(size.x - 356, 230)
-    hint.size = Vector2(206, 32)
-    page_hint.position = Vector2(text_label.position.x, 230)
-    page_hint.size = Vector2(180, 32)
+    text_label.position = Vector2(FRAME_LEFT_WIDTH * art_scale + _portrait_extra + 12.0, portrait_window.position.y)
+    var footer_y := portrait_window.end.y - 30.0
+    text_label.size = Vector2(maxf(100, size.x - text_label.position.x - 34.0), footer_y - text_label.position.y - 8.0)
+    hint.position = Vector2(size.x - FRAME_RIGHT_WIDTH * art_scale - 26.0 - 158.0, footer_y)
+    hint.size = Vector2(158, 24)
+    page_hint.position = Vector2(text_label.position.x, footer_y)
+    page_hint.size = Vector2(100, 24)
     queue_redraw()
 
 func _draw() -> void:
     # Widen the portrait's middle independently so the larger head fits. The
     # carved corners and vertical divider retain the artwork's original scale.
     var art_scale := BOX_HEIGHT / FRAME_REGION.size.y
-    var left_width := FRAME_LEFT_WIDTH * art_scale + PORTRAIT_PANEL_EXTRA
+    var left_width := FRAME_LEFT_WIDTH * art_scale + _portrait_extra
     var right_width := FRAME_RIGHT_WIDTH * art_scale
     var portrait_cuts := [0.0, 136.0, 404.0, FRAME_LEFT_WIDTH]
     var destination_x := 0.0
     for index in range(3):
         var source_width: float = portrait_cuts[index + 1] - portrait_cuts[index]
-        var destination_width := source_width * art_scale + (PORTRAIT_PANEL_EXTRA if index == 1 else 0.0)
+        var destination_width := source_width * art_scale + (_portrait_extra if index == 1 else 0.0)
         draw_texture_rect_region(FRAME, Rect2(destination_x, 0, destination_width, BOX_HEIGHT), Rect2(FRAME_REGION.position + Vector2(portrait_cuts[index], 0), Vector2(source_width, FRAME_REGION.size.y)))
         destination_x += destination_width
     draw_texture_rect_region(FRAME, Rect2(left_width, 0, maxf(0, size.x - left_width - right_width), BOX_HEIGHT), Rect2(FRAME_REGION.position + Vector2(FRAME_LEFT_WIDTH, 0), Vector2(FRAME_REGION.size.x - FRAME_LEFT_WIDTH - FRAME_RIGHT_WIDTH, FRAME_REGION.size.y)))
@@ -118,8 +128,8 @@ func begin(character: String, _display_name: String, lines: Array) -> void:
         if is_instance_valid(_opening_tween):
             _opening_tween.kill()
         modulate.a = 0.0
-        offset_top = -BOX_HEIGHT - BOTTOM_MARGIN + 18
-        offset_bottom = -BOTTOM_MARGIN + 18
+        offset_top = -BOX_HEIGHT - BOTTOM_MARGIN + 18 * UI_SCALE
+        offset_bottom = -BOTTOM_MARGIN + 18 * UI_SCALE
         _opening_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
         _opening_tween.tween_property(self, "modulate:a", 1.0, 0.26)
         _opening_tween.parallel().tween_property(self, "offset_top", -BOX_HEIGHT - BOTTOM_MARGIN, 0.32)
@@ -141,7 +151,7 @@ func _paginate(line: String) -> Array[String]:
                 word_end = line.length()
             else:
                 word_end += 1
-            if _line_count(line.substr(cursor, word_end - cursor)) > MAX_TEXT_LINES:
+            if not _fits_page(line.substr(cursor, word_end - cursor)):
                 break
             best_end = word_end
             probe = word_end
@@ -149,7 +159,7 @@ func _paginate(line: String) -> Array[String]:
             # A single unusually long word can wrap; split it rather than clip.
             best_end = cursor + 1
             while best_end < line.length():
-                if _line_count(line.substr(cursor, best_end - cursor + 1)) > MAX_TEXT_LINES:
+                if not _fits_page(line.substr(cursor, best_end - cursor + 1)):
                     break
                 best_end += 1
         result.append(line.substr(cursor, best_end - cursor))
@@ -164,6 +174,12 @@ func _line_count(text: String) -> int:
     paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
     paragraph.add_string(text, text_label.get_theme_font("font"), FONT_SIZE)
     return paragraph.get_line_count()
+
+func _fits_page(text: String) -> bool:
+    var count := _line_count(text)
+    var height := text_label.get_theme_font("font").get_height(FONT_SIZE) * count
+    height += text_label.get_theme_constant("line_spacing") * maxi(0, count - 1)
+    return count <= MAX_TEXT_LINES and height <= text_label.size.y
 
 func _page() -> void:
     text_label.text = pages[page_index]
@@ -185,7 +201,7 @@ func _enter_portrait() -> void:
         _portrait_tween.kill()
     # Animate alpha through self_modulate, preserving Vitória's mystery tint.
     portrait.self_modulate.a = 0.0
-    portrait.position = _portrait_origin + Vector2(-12, 0)
+    portrait.position = _portrait_origin + Vector2(-12 * UI_SCALE, 0)
     _portrait_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
     _portrait_tween.tween_property(portrait, "position", _portrait_origin, 0.28)
     _portrait_tween.parallel().tween_property(portrait, "self_modulate:a", 1.0, 0.2)

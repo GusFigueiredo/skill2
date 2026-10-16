@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal attack_performed(heading: Vector2)
+
 @export var speed: float = 220.0
 @export var jump_velocity: float = -420.0
 @export var gravity: float = 980.0
@@ -215,6 +217,7 @@ func _attack() -> void:
         if body.has_method("take_damage") and body not in damaged:
             damaged.append(body)
             body.take_damage(attack_damage)
+    attack_performed.emit(_attack_heading())
 
 func _is_airborne() -> bool:
     return jump_height > 0.0 or jump_speed > 0.0

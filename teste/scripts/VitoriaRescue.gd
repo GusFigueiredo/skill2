@@ -128,9 +128,9 @@ func start(level: Node2D) -> void:
     # Keep the full shared leaf above the large dialogue box, with Iara on
     # the left bank and room for the crossing on the right.
     var view := get_viewport().get_visible_rect().size
-    var foot_line: float = view.y - dialogue.BOX_HEIGHT - dialogue.BOTTOM_MARGIN - 32.0
+    var leaf_bottom_line: float = view.y - dialogue.BOX_HEIGHT - dialogue.BOTTOM_MARGIN - 20.0
     camera_dialogue_focus = _focus(Vector2(leaf_destination.x - 105.0,
-        leaf_destination.y + leaf_surface * SHARED_LEAF_SCALE - (foot_line - view.y * 0.5) / dialogue_zoom.y), dialogue_zoom)
+        leaf_destination.y - (leaf_bottom_line - view.y * 0.5) / dialogue_zoom.y), dialogue_zoom)
     rescue_glow = Node2D.new()
     rescue_glow.z_index = 3
     fight.add_child(rescue_glow)
@@ -242,7 +242,8 @@ func _reveal() -> void:
     fight.low_pass.cutoff_hz = 20000.0
     fight.player.sprite.play("idle")
     heroine.position = leaf_destination
-    heroine.scale = Vector2.ONE
+    heroine.scale = Vector2.ONE * FRAMES.emergence_start_scale(heroine.sprite_frames)
+    heroine.flip_h = true
     heroine.modulate.a = 1.0
     _pose("transform", 0.0)
     # The transformation includes its own leaf; draw it exactly once.
@@ -250,6 +251,13 @@ func _reveal() -> void:
 
 func _transform(progress: float) -> void:
     _pose("transform", progress)
+    heroine.scale = Vector2.ONE * lerpf(FRAMES.emergence_start_scale(heroine.sprite_frames), 1.0, smoothstep(0.0, 0.72, progress))
+    heroine.position = leaf_destination + Vector2(0, leaf_surface * smoothstep(0.35, 1.0, progress))
+    # The new final drawings contain water around her feet, not a platform.
+    # Bring the bare leaf in before the flower has completely disappeared.
+    fight.vitoria_leaf.play("leaf")
+    fight.vitoria_leaf.visible = progress > 0.4
+    fight.vitoria_leaf.modulate.a = smoothstep(0.4, 0.82, progress)
     bloom_strength = 0.75 + sin(progress * PI) * 0.25
 
 func _stand() -> void:
@@ -257,14 +265,16 @@ func _stand() -> void:
     birth_pose = Sprite2D.new()
     birth_pose.texture = heroine.sprite_frames.get_frame_texture("transform", heroine.sprite_frames.get_frame_count("transform") - 1)
     birth_pose.offset = heroine.offset
+    birth_pose.flip_h = heroine.flip_h
     birth_pose.texture_filter = heroine.texture_filter
     birth_pose.position = heroine.position
     birth_pose.z_index = heroine.z_index
     fight.add_child(birth_pose)
-    birth_standing_start = leaf_destination + FRAMES.standing_offset(heroine.sprite_frames)
+    birth_standing_start = heroine.position
     player_standing_start = fight.player.position
     home_position = _leaf_seat(-1.0)
     heroine.position = birth_standing_start
+    heroine.scale = Vector2.ONE
     heroine.modulate.a = 0.0
     _pose("idle", 0.0)
     fight.vitoria_leaf.play("leaf")
@@ -273,9 +283,10 @@ func _stand() -> void:
 func _settle_birth(progress: float) -> void:
     birth_pose.modulate.a = 1.0 - smoothstep(0.0, 0.8, progress)
     heroine.modulate.a = smoothstep(0.0, 0.7, progress)
-    fight.vitoria_leaf.modulate.a = smoothstep(0.0, 0.7, progress)
+    fight.vitoria_leaf.modulate.a = 1.0
     fight.vitoria_leaf.scale = Vector2.ONE * lerpf(1.0, SHARED_LEAF_SCALE, progress)
     heroine.position = birth_standing_start.lerp(home_position, progress)
+    birth_pose.position = heroine.position
     fight.player.position = player_standing_start.lerp(_leaf_seat(1.0, SHARED_LEAF_SCALE, true), progress)
     _pose("idle", progress)
     bloom_strength = lerpf(0.75, 0.28, progress)
@@ -290,7 +301,7 @@ func _begin_conversation() -> void:
     phase = "conversation"
     if is_instance_valid(birth_pose):
         birth_pose.queue_free()
-    heroine.flip_h = false
+    heroine.flip_h = true
     heroine.play("idle")
     line_index = 0
     dialogue.portrait.modulate = Color.WHITE

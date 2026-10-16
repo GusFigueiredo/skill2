@@ -1,6 +1,6 @@
 # Caminho até a Cuca — fases 5 e 6
 
-Direção narrativa definida pelo usuário em 2026-10-15. A fase 5 está implementada em `teste/floresta5.tscn`, com três trechos e um buraco entre o primeiro e o segundo, conforme o detalhamento em [cuca-forest-stage5.md](cuca-forest-stage5.md). A fase 6 continua planejada. Esta direção atualiza a distribuição dos cenários e o resultado do ritual descritos anteriormente em `game-overview.md`.
+Direção narrativa definida pelo usuário em 2026-10-15. A fase 5 está implementada em `teste/floresta5.tscn`, com três trechos e um buraco entre o primeiro e o segundo, conforme [cuca-forest-stage5.md](cuca-forest-stage5.md). A fase 6 possui percurso de três trechos, estalactites no teto e bossfight no laboratório em `teste/caverna6.tscn`, conforme [cuca-cave-stage6.md](cuca-cave-stage6.md) e [cuca-boss-fight.md](cuca-boss-fight.md). A cutscene final do ritual aguarda o roteiro do usuário. As tochas foram retiradas por solicitação posterior. Esta direção atualiza a distribuição dos cenários e o resultado do ritual descritos anteriormente em `game-overview.md`.
 
 ## Fase 5 — floresta até a caverna
 
@@ -25,9 +25,8 @@ A região antes chamada Caverna da Cuca passa a incluir sua aproximação extern
 
 ## Detalhamento pendente
 
-- Percurso, encontros e checkpoints da fase 6.
-- Arte do interior da caverna e do laboratório; a floresta e a entrada usam os sprites fornecidos em `sprites/cenario/Fase5/`.
-- Mecânicas e padrões de ataque da Cuca.
 - Encenação da derrota, conclusão do ritual e saída do Corpo Seco.
+- Roteiro da cutscene final a ser enviado pelo usuário após a mecânica da bossfight.
+- Transição da ressurreição para a fase 7.
 
-Esses detalhes continuam em aberto; a definição acima não introduz inimigos, armadilhas ou mecânicas novas por conta própria.
+O pedido de 2026-10-16 acrescenta as estalactites com dano de metade da vida máxima e o buraco entre os trechos 2 e 3. A revisão seguinte remove as tochas e prende as armadilhas no topo, fazendo-as cair na profundidade em que o jogador passar. A bossfight aprovada usa caveiras rebatidas com K, sobrecarga do caldeirão, poças, ondas e quedas do teto em três momentos. O ritual final permanece para o roteiro posterior do usuário.

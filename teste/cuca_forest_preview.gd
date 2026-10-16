@@ -97,6 +97,8 @@ func freeze(level: Node) -> void:
 func defeat_wave(level: Node, index: int) -> void:
     for enemy in level.waves[index]:
         if is_instance_valid(enemy) and enemy.hp > 0:
+            if enemy.has_method("finish_grapple"):
+                enemy.finish_grapple(true)
             enemy.take_damage(enemy.hp)
     await process_frame
     while not get_nodes_in_group("enemy_defeat_visuals").is_empty():

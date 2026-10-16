@@ -9,8 +9,8 @@ var speakers: Array[String] = []
 var conversation := ""
 
 func _initialize() -> void:
-    if not OS.get_environment("APPDATA").to_lower().contains("vitoria-rework"):
-        push_error("Run these save-writing checks with isolated APPDATA containing vitoria-rework")
+    if not OS.get_environment("APPDATA").to_lower().contains("vitoria-rework-new-sheet"):
+        push_error("Run these save-writing checks with isolated APPDATA containing vitoria-rework-new-sheet")
         quit(1)
         return
     call_deferred("run_checks")
@@ -72,6 +72,7 @@ func run_checks() -> void:
     var transform_frames := {}
     var phases := {}
     var attack_seen := false
+    var empty_visible_pose := false
     var uncovered_upright_iara := false
     var hero_was_teleported := false
     var saved_health_preserved := true
@@ -84,6 +85,9 @@ func run_checks() -> void:
         var heroine: AnimatedSprite2D = rescue.heroine
         var visual := fight.boss.get_node("Sprite") as AnimatedSprite2D
         attack_seen = attack_seen or heroine.animation == "dash" or str(rescue.phase) in ["dash", "attack", "return"]
+        if heroine.modulate.a >= 0.95 and heroine.visible:
+            var visible_texture := heroine.sprite_frames.get_frame_texture(heroine.animation, heroine.frame)
+            empty_visible_pose = empty_visible_pose or visible_texture.get_image().get_used_rect().size.y < 20
         if heroine.animation == "transform" and heroine.modulate.a > 0.01:
             transform_frames[heroine.frame] = true
         if rescue.blackout.color.a < 0.7:
@@ -99,6 +103,7 @@ func run_checks() -> void:
     check(rescue.waiting and fight.boss.hp == 0, "The visible rescue reaches the conversation after defeating Iara in darkness")
     check(not completed_before_conversation, "The stage waits until the entire rescue conversation ends")
     check(not attack_seen, "Vitoria does not perform a visible dash, strike or return")
+    check(not empty_visible_pose, "The updated sheet never displays an empty pose during birth or standing")
     check(transform_frames.size() == 5, "Vitoria's emergence shows all five transformation poses on one timeline")
     check(not uncovered_upright_iara, "Iara is already lying visibly on the floor whenever the blackout reveals the river")
     check(not hero_was_teleported, "The visible rescue moves the hero continuously onto the shared leaf")
@@ -114,8 +119,22 @@ func run_checks() -> void:
     check(visible_world.has_point(fight.boss.position + Vector2(0, -30)), "Iara's collapsed body remains in the rescue conversation's frame")
     var body_on_screen := _opaque_screen_bounds(fight.boss.get_node("Sprite"))
     var platform_on_screen := _opaque_screen_bounds(fight.vitoria_leaf)
+    var heroine_on_screen := _opaque_screen_bounds(rescue.heroine)
     check(body_on_screen.position.x >= -1.0 and body_on_screen.end.x <= root.size.x + 1.0, "The rescue frame contains Iara's complete collapsed artwork, including her head")
     check(platform_on_screen.end.y < rescue.dialogue.global_position.y + 30.0, "The shared leaf remains visible above the dialogue frame")
+    check(heroine_on_screen.position.x >= 0.0 and heroine_on_screen.end.x <= root.size.x and heroine_on_screen.position.y >= 0.0 and heroine_on_screen.end.y <= rescue.dialogue.global_position.y + 4.0, "The updated heroine's complete head, hair, arms and feet remain in frame above the dialogue box")
+    var heroine_feet: Vector2 = rescue.heroine.get_global_transform_with_canvas() * Vector2(0, 0)
+    var leaf_surface: Vector2 = fight.vitoria_leaf.get_global_transform_with_canvas() * Vector2(0, rescue.leaf_surface)
+    check(absf(heroine_on_screen.end.y - heroine_feet.y) <= 3.0, "The new standing artwork's feet touch the heroine's ground anchor")
+    check(absf(heroine_feet.y - leaf_surface.y) <= 3.0, "Vitoria's feet rest on the shared leaf instead of floating or sinking")
+    var idle_frames_seen := {}
+    for index in rescue.heroine.sprite_frames.get_frame_count("idle"):
+        rescue.heroine.set_frame_and_progress(index, 0.0)
+        var idle_bounds := _opaque_screen_bounds(rescue.heroine)
+        idle_frames_seen[index] = true
+        check(absf(idle_bounds.end.y - leaf_surface.y) <= 3.0, "Every new idle pose keeps its feet planted on the leaf")
+        check(idle_bounds.position.y >= 0.0 and idle_bounds.end.y <= rescue.dialogue.global_position.y + 4.0, "All six new idle poses fit fully above the dialogue box")
+    check(idle_frames_seen.size() == 6, "The conversation includes all six poses of the new idle row")
     var closing_camera: Camera2D = rescue.camera
     var closing_center: Vector2 = closing_camera.get_screen_center_position()
     var closing_position: Vector2 = closing_camera.global_position
@@ -174,7 +193,7 @@ func run_checks() -> void:
         await create_timer(0.01, true).timeout
     check(not transition.busy and not paused and current_scene.scene_file_path == "res://level_map.tscn", "The completed lily-pad exit returns to the unpaused campaign map")
     if failures == 0:
-        print("PASS: mystery voice, one-second offscreen punch/hit, prior Iara collapse, continuous shared-leaf rescue, alternating Corpo-Seco dialogue, preserved victory camera, lily-pad arcs/landings, saved HP, pause and campaign map; phases=", phases.keys())
+        print("PASS: updated five-pose birth/six-pose idle with planted feet and full framing, mystery voice, one-second offscreen punch/hit, prior Iara collapse, continuous shared-leaf rescue, Corpo-Seco dialogue, preserved victory camera, lily-pad arcs/landings, saved HP, pause and campaign map; phases=", phases.keys())
     quit(0 if failures == 0 else 1)
 
 func _advance_dialogue(rescue: Node, record: bool) -> void:
@@ -200,6 +219,10 @@ func _victory_feedback(fight: Node) -> Node:
 func _opaque_screen_bounds(visual: AnimatedSprite2D) -> Rect2:
     var texture := visual.sprite_frames.get_frame_texture(visual.animation, visual.frame)
     var bounds := Rect2(texture.get_image().get_used_rect())
+    if texture is AtlasTexture:
+        # get_image() contains the cropped atlas region, without its canvas
+        # margins. Restore the padding before mapping into sprite space.
+        bounds.position += texture.margin.position
     if visual.flip_h:
         bounds.position.x = texture.get_width() - bounds.end.x
     if visual.flip_v:
@@ -212,16 +235,21 @@ func _opaque_screen_bounds(visual: AnimatedSprite2D) -> Rect2:
 func _check_frames() -> void:
     var frames: SpriteFrames = Frames.build()
     var frame_size: Vector2 = frames.get_frame_texture("plant", 0).get_size()
-    for animation in ["plant", "leaf", "transform", "idle", "dash"]:
+    var expected_frames := {"plant": 1, "leaf": 1, "transform": 5, "idle": 6}
+    check(not frames.has_animation("dash"), "The new blank third row must not create a dash animation")
+    for animation in expected_frames:
         check(frames.has_animation(animation), "Missing Vitoria animation: " + animation)
         if not frames.has_animation(animation):
             continue
+        check(frames.get_frame_count(animation) == expected_frames[animation], "The updated " + animation + " row uses all supplied poses")
         for index in frames.get_frame_count(animation):
             var texture: AtlasTexture = frames.get_frame_texture(animation, index)
-            check(texture.region.size.x > 0.0 and texture.region.size.y > 0.0, "Every Vitoria pose contains visible artwork")
+            var artwork := texture.get_image().get_used_rect()
+            check(artwork.size.x > 20 and artwork.size.y > 20, "Every updated Vitoria pose contains actual visible artwork")
             check(texture.get_size() == frame_size, "All Vitoria poses share a common feet-aligned canvas")
             check(texture.margin.size.x >= 0.0 and texture.margin.size.y >= 0.0, "Vitoria's artwork fits inside its canvas without clipping")
-            check(absf(texture.region.size.y + texture.margin.position.y - frame_size.y) <= 1.0, "The feet and leaf bases remain on the same canvas baseline")
+            if animation != "transform":
+                check(absf(texture.region.size.y + texture.margin.position.y - (frame_size.y - Frames.BASELINE_INSET)) <= 1.0, "The standing feet and leaf bases remain on the same canvas baseline")
     if frames.has_animation("leaf"):
         var flower: AtlasTexture = frames.get_frame_texture("plant", 0)
         var leaf: AtlasTexture = frames.get_frame_texture("leaf", 0)
